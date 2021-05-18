@@ -53,7 +53,7 @@ app.controller('HomeController',
          * This is admittedly a wasteful implementation, as it completely
          * re-creates the array and map on every call.
          */
-        function syncNFA () {
+        function syncNFA() {
             let i; let j; let key; let reachableStates; const visualStates = NFAVisual.getNodes()
             const visualTransitions = NFAVisual.getLinks()
             let tmp
@@ -115,8 +115,10 @@ app.controller('HomeController',
          *
          * Update the start and accept states from the DFA object ot the DFAVisual object.
          */
-        function syncDFA () {
+        function syncDFA() {
             if (converter.dfa === null || converter.dfa === undefined) return
+
+            console.log('sync dfa')
 
             let i
             let tmp
@@ -147,6 +149,14 @@ app.controller('HomeController',
                     const y = yDist * Math.floor(i / cols) + yPad
                     visualStates.put(label, label)
                     DFAVisual.addNode(label, x, y)
+                }
+            }
+
+            // Remove any states that exist in DFAVisual and not in DFA
+            const nodes = DFAVisual.getNodes()
+            for (i = 0; i < nodes.length; i++) {
+                if (!converter.dfa.states.includes(nodes[i].label)) {
+                    DFAVisual.removeNode(nodes[i].label)
                 }
             }
 
