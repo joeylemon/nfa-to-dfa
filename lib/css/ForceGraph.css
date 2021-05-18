@@ -1,0 +1,42 @@
+.ForceGraph circle {
+  stroke: #000;
+  fill: #FFCC00;
+  stroke-width: 2px;
+  text-anchor: middle;
+}
+.ForceGraph g.node {
+  cursor: pointer;
+}
+
+.ForceGraph g.selected circle {
+  fill: #FF6B00;
+}
+
+.ForceGraph g.start circle {
+  stroke-width: 4px;
+  stroke: #0000FF;
+}
+
+.ForceGraph g.accept circle {
+  fill: #99FF66 !important;
+}
+
+.ForceGraph g.selected.accept circle {
+  fill: #33CC33 !important;
+}
+
+.ForceGraph path {
+  fill: none;
+  stroke: #333;
+  stroke-width: 3px;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.ForceGraph .link text {
+  fill: black;
+  font-weight: bold;
+  font-size: 1.6em;
+  stroke: white;
+  stroke-width: 1px;
+}

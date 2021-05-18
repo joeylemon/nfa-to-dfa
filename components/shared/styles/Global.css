@@ -1,0 +1,58 @@
+.page-header {
+    margin-top: 60px;
+    margin-bottom: 0px;
+}
+
+.container-wide {
+    width: 100%;
+}
+
+.navbar .container-wide {
+    width: 95%;
+}
+
+.inline-title {
+    font-weight: bold;
+    font-size: large;
+    padding: 10px;
+}
+
+#NFA, #DFA {
+    height: 450px;
+}
+
+
+g.link path.last {
+    stroke: red;
+}
+
+.alert p {
+    font-weight: bold;
+}
+
+.panel {
+    min-height: 390px;
+}
+
+.panel-title {
+    font-weight: bold;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: bold;
+}
+
+footer {
+    border-top: 2px solid black;
+    margin-top: 40px;
+    padding: 20px;
+}
+
+.alert-info {
+    color: #333;
+}

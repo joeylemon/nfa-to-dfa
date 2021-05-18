@@ -1,0 +1,27 @@
+<div class="container container-wide">
+    <div class="page-header" id="banner">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <h2>FSA Animate | <i>visual NFA to DFA Converter</i></h2>
+                <p>Created by Alex Klibisz (Visualization) and Connor Minton (Conversion Algorithm), COSC 312, Spring 2015, University of Tennessee, Knoxville.</p>
+                <h4>Start by constructing the NFA or creating it from JSON input. Then use the conversion tools to create an equivalent DFA. Start states have a blue border, accept states are green.</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="min-height: 100%">
+        <div class="col-lg-6 col-md-6 col-sm-12">
+            <div ng-include="'components/home/partials/NFAPartial.html'"></div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-12">
+            <div ng-include="'components/home/partials/DFAPartial.html'"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div ng-include="'components/home/partials/NFAJsonInputPartial.html'"></div>
+        </div>
+        <div class="col-lg-6">
+            <div ng-include="'components/home/partials/DeltaTransitionPartial.html'"></div>
+        </div>
+    </div>
+</div>

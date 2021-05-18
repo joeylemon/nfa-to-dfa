@@ -1,0 +1,57 @@
+//taken from this URL: http://www.cs.odu.edu/~toida/nerzic/390teched/regular/fa/nfa-2-dfa.html
+
+{
+  "states": [
+    "0",
+    "1",
+    "2",
+    "3"
+  ],
+  "transitions": [
+    {
+      "symbol": "a",
+      "source": "0",
+      "target": "1"
+    },
+    {
+      "symbol": "a",
+      "source": "1",
+      "target": "1"
+    },
+    {
+      "symbol": "a",
+      "source": "0",
+      "target": "2"
+    },
+    {
+      "symbol": "a",
+      "source": "1",
+      "target": "2"
+    },
+    {
+      "symbol": "b",
+      "source": "2",
+      "target": "1"
+    },
+    {
+      "symbol": "b",
+      "source": "2",
+      "target": "3"
+    },
+    {
+      "symbol": "a",
+      "source": "3",
+      "target": "2"
+    },
+    {
+      "symbol": "a",
+      "source": "3",
+      "target": "1"
+    }
+  ],
+  "start": "0",
+  "accept": [
+    "0",
+    "1"
+  ]
+}

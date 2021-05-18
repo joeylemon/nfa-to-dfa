@@ -1,0 +1,29 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">NFA JSON Input/Output</h3>
+    </div>
+    <div class="panel-body">
+        <form ng-submit="parseNFAInput()">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <textarea type="text" class="form-control" rows="10" ng-model="nfaInput" /></textarea>
+                        <br>
+                        <input type="submit" class="btn btn-primary btn-sm" value="Parse"></input>
+                    </div>
+                    <div class="col-lg-6">
+                        <h3>Tips</h3>
+                        <ul>
+                            <li>The field to the left contains a JSON representation of the NFA as it exists in the visualizatin above.</li>
+                            <li>This field will be updated as the NFA is modified.</li>
+                            <li>You can also modify the field following the existing structure. Then click "Parse" to add your changes to the NFA above.</li>
+                            <li><a href="https://github.com/alexklibisz/FSA-Animate/tree/gh-pages/samples">Some sample JSON files.</a></li>
+                            <li><a href="http://json.org/" target="_blank">JSON Standard</a></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
