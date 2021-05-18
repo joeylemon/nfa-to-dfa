@@ -42,27 +42,31 @@ Then, install the dependencies:
 > npm install
 ```
 
-Then, simply run the start to create a local webserver:
+Then, simply run the start script to create a local webserver:
 ```shell
 > npm start
 ```
 
-Running gulp should give an output similar to below:
+This should give an output similar to below:
 ```shell
-[13:34:18] Using gulpfile ~\Desktop\nfa-to-dfa\gulpfile.js
-[13:34:18] Starting 'watch'...
-[13:34:18] Finished 'watch' after 22 ms
-[13:34:18] Starting 'html'...
-[13:34:18] Finished 'html' after 5.08 ms
-[13:34:18] Starting 'js'...
-[13:34:18] Finished 'js' after 330 µs
-[13:34:18] Starting 'css'...
-[13:34:18] Finished 'css' after 323 µs
-[13:34:18] Starting 'webserver'...
-[13:34:18] Webserver started at http://localhost:8000
-[13:34:18] Finished 'webserver' after 12 ms
-[13:34:18] Starting 'default'...
-[13:34:18] Finished 'default' after 30 µs
+> nfa-to-dfa@0.0.2 start ~/Desktop/nfa-to-dfa
+> gulp
+
+[15:13:19] Using gulpfile ~/Desktop/nfa-to-dfa/gulpfile.js
+[15:13:19] Starting 'default'...
+[15:13:19] Starting 'watch'...
+[15:13:19] Finished 'watch' after 18 ms
+[15:13:19] Starting 'html'...
+[15:13:19] Finished 'html' after 5.38 ms
+[15:13:19] Starting 'js'...
+[15:13:19] Finished 'js' after 1.63 ms
+[15:13:19] Starting 'css'...
+[15:13:19] Finished 'css' after 1.46 ms
+[15:13:19] Starting 'webserver'...
+[15:13:19] Webserver started at http://localhost:8000
+[15:13:19] Finished 'webserver' after 12 ms
+[15:13:19] Finished 'default' after 41 ms
+
 ```
 
 You can now navigate to `localhost:8000` in the browser to view the application. The website will automatically reload upon changes to the code.
