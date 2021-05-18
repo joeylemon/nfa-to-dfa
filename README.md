@@ -1,9 +1,11 @@
 # Visual NFA to DFA Converter
 ![ESLint](https://github.com/joeylemon/nfa-to-dfa/workflows/ESLint/badge.svg)
 
-Originally created by Alex Klibisz and Connor Minton, COSC 312, Spring 2015, University of Tennessee, Knoxville.
+https://joeylemon.github.io/nfa-to-dfa/
 
-Enhanced by Camille Williford, Joey Lemon, and Lauren Proctor, COSC 493, Fall 2021, University of Tennessee, Knoxville.
+_Originally created by Alex Klibisz and Connor Minton, COSC 312, Spring 2015, University of Tennessee, Knoxville._
+
+_Enhanced by Camille Williford, Joey Lemon, and Lauren Proctor, COSC 493, Fall 2021, University of Tennessee, Knoxville._
 
 ## Overview
 
