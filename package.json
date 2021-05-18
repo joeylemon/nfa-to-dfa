@@ -7,7 +7,17 @@
     "url": "https://github.com/joeylemon/nfa-to-dfa"
   },
   "author": "Alex Klibisz, Connor Minton, Camille Williford, Joey Lemon, Lauren Proctor",
+  "scripts": {
+    "start": "./node_modules/.bin/gulp",
+    "lint": "./node_modules/.bin/eslint . --ext .js,.ts --fix"
+  },
   "devDependencies": {
+    "eslint": "^7.26.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.23.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-standard": "^5.0.0",
     "gulp": "^4.0.2",
     "gulp-webserver": "^0.8.8"
   },
