@@ -39,9 +39,9 @@ Then, install the dependencies:
 > npm install
 ```
 
-Then, simply run gulp to start a local webserver
+Then, simply run the start to create a local webserver:
 ```shell
-> ./node_modules/.bin/gulp
+> npm start
 ```
 
 Running gulp should give an output similar to below:
@@ -63,3 +63,10 @@ Running gulp should give an output similar to below:
 ```
 
 You can now navigate to `localhost:8000` in the browser to view the application. The website will automatically reload upon changes to the code.
+
+### Contributing
+
+Prior to adding changes to the repository, you should run the linter on the code to ensure there are no syntax errors and to maintain a uniform coding style:
+```shell
+npm run lint
+```
