@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Move this file to .git/hooks and remove the ".sample" extension to create a
+# pre-commit hook that lints all modified files before allowing a new commit
+
+FILES=$(git diff --cached --name-only --diff-filter=ACMR "*.js" "*.ts" | sed 's| |\\ |g')
+[ -z "$FILES" ] && exit 0
+
+# Lint all selected files
+echo "$FILES" | xargs ./node_modules/.bin/eslint --fix
+
+if [ $? -ne 0 ]; then
+	echo "Error while linting staged files: canceling commit"
+	exit 1
+fi
+
+# Add back the modified files to staging
+echo "$FILES" | xargs git add
+
+exit 0
