@@ -8,9 +8,8 @@
   },
   "author": "Alex Klibisz, Connor Minton, Camille Williford, Joey Lemon, Lauren Proctor",
   "devDependencies": {
-    "gulp": "^3.8.8",
-    "gulp-util": "^2.2.20",
-    "gulp-webserver": "^0.8.1"
+    "gulp": "^4.0.2",
+    "gulp-webserver": "^0.8.8"
   },
   "dependencies": {
     "globule": "^0.2.0"
