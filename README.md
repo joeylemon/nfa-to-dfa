@@ -71,3 +71,10 @@ Prior to adding changes to the repository, you should run the linter on the code
 ```shell
 npm run lint
 ```
+
+To automatically lint files before committing them, you should add a pre-commit hook. Copy the `pre-commit.sample` file to `.git/hooks/pre-commit`:
+```shell
+cp pre-commit.sample .git/hooks/pre-commit
+```
+
+Now, git will automatically lint all changed files before committing them to the repository.
