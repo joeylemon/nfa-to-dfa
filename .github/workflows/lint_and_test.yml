@@ -1,6 +1,6 @@
-  # This workflow will do a clean install of dependencies and lint the project
+# This workflow will do a clean install of dependencies and lint and test the project
 
-name: ESLint
+name: Lint and Test
 
 on:
   push:
@@ -18,3 +18,5 @@ jobs:
       run: npm install
     - name: Run linter
       run: npm run lint
+    - name: Run tests
+      run: npm test
