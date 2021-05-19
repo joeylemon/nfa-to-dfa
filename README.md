@@ -18,16 +18,13 @@ This tool is used to convert nondeterministic finite automata (NFA) to determini
 
 ### Technology
 
-- Angular.js: an MVC structure to sync the visualization with the conversion in the background
-- D3.js: the basis for the NFA and DFA visualization
+Vanilla JavaScript, HTML, and CSS
 
 ## Getting Started
 
 ### Prerequisites
 
 You must have [Node.js and npm](https://nodejs.org/en/) installed to run the application locally.
-
-My environment works with Node.js at v12.19.0 and npm at v6.14.8. However, it should work with later versions as well.
 
 ### Running Application
 
@@ -66,8 +63,9 @@ Running this script should give an output similar to below:
 
 You can now navigate to `http://localhost:8000` in the browser to view the application. The website will automatically reload upon changes to the code.
 
-### Contributing
+## Contributing
 
+### Linting
 Prior to adding changes to the repository, you should run the linter on the code to ensure there are no syntax errors and to maintain a uniform coding style:
 ```shell
 > npm run lint
@@ -79,3 +77,11 @@ To automatically lint files before committing them, you should add a pre-commit 
 ```
 
 Now, git will automatically lint all changed files before committing them to the repository.
+
+### Testing
+You should also test your changes before committing them to the repository:
+```shell
+> npm test
+```
+
+This will run all unit tests in the `src/js/test` directory and report any errors.
