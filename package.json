@@ -8,20 +8,18 @@
   },
   "author": "Alex Klibisz, Connor Minton, Camille Williford, Joey Lemon, Lauren Proctor",
   "scripts": {
-    "start": "./node_modules/.bin/gulp",
-    "lint": "./node_modules/.bin/eslint . --ext .js,.ts --fix"
+    "start": "./node_modules/.bin/browser-sync start -s -f . --no-notify --host localhost --port 8000",
+    "lint": "./node_modules/.bin/eslint src --ext .js,.ts --fix"
   },
   "devDependencies": {
+    "browser-sync": "^2.26.14",
     "eslint": "^7.26.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.23.2",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.1.0",
-    "eslint-plugin-standard": "^5.0.0",
-    "gulp": "^4.0.2",
-    "gulp-webserver": "^0.8.8"
+    "eslint-plugin-promise": "^5.1.0"
   },
   "dependencies": {
-    "globule": "^0.2.0"
+    "flexboxgrid": "^6.3.1"
   }
 }

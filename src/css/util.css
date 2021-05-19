@@ -1,0 +1,13 @@
+body {
+    padding: 10px 25px 10px 25px;
+}
+
+/* Add inner margins to all children */
+.margin-15 > *:not(:last-child) {
+    margin-right: 15px;
+}
+
+/* Add inner margins to all children */
+.margin-30 > *:not(:last-child) {
+    margin-right: 30px;
+}

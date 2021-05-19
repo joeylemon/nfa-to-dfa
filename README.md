@@ -42,30 +42,29 @@ Then, install the dependencies:
 > npm install
 ```
 
-Then, simply run the start to create a local webserver:
+Then, simply run the start script to create a local webserver:
 ```shell
 > npm start
 ```
 
-Running gulp should give an output similar to below:
+Running this script should give an output similar to below:
 ```shell
-[13:34:18] Using gulpfile ~\Desktop\nfa-to-dfa\gulpfile.js
-[13:34:18] Starting 'watch'...
-[13:34:18] Finished 'watch' after 22 ms
-[13:34:18] Starting 'html'...
-[13:34:18] Finished 'html' after 5.08 ms
-[13:34:18] Starting 'js'...
-[13:34:18] Finished 'js' after 330 µs
-[13:34:18] Starting 'css'...
-[13:34:18] Finished 'css' after 323 µs
-[13:34:18] Starting 'webserver'...
-[13:34:18] Webserver started at http://localhost:8000
-[13:34:18] Finished 'webserver' after 12 ms
-[13:34:18] Starting 'default'...
-[13:34:18] Finished 'default' after 30 µs
+> nfa-to-dfa@0.0.2 start ~/Desktop/nfa-to-dfa
+> browser-sync start -s -f . --no-notify --host localhost --port 8000
+
+[Browsersync] Access URLs:
+ --------------------------------------
+       Local: http://localhost:8000
+    External: http://192.168.1.127:8000
+ --------------------------------------
+          UI: http://localhost:3001
+ UI External: http://localhost:3001
+ --------------------------------------
+[Browsersync] Serving files from: ./
+[Browsersync] Watching files...
 ```
 
-You can now navigate to `localhost:8000` in the browser to view the application. The website will automatically reload upon changes to the code.
+You can now navigate to `http://localhost:8000` in the browser to view the application. The website will automatically reload upon changes to the code.
 
 ### Contributing
 
