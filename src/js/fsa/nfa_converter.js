@@ -1,14 +1,25 @@
 import FSA from './fsa.js'
 
-/**
- * NFAConverter provides the ability to convert the given NFA to a DFA in incremental steps
- */
 export default class NFAConverter {
+    /**
+     * NFAConverter provides the ability to convert the given NFA to a DFA in incremental steps
+     *
+     * @param {FSA} nfa The NFA to convert to a DFA
+     */
     constructor (nfa) {
         this.nfa = nfa
+
+        // dfa is the FSA that NFAConverter performs each step upon
         this.dfa = undefined
+
+        // state_index holds which state will have a transition generated next
         this.state_index = 0
-        this.transition_index = 0
+
+        // alphabet_index holds which symbol will be used to generate the next transition
+        this.alphabet_index = 0
+
+        // unreachableStates is the array of states that are unreachable
+        // This is generated after all transitions are generated
         this.unreachableStates = undefined
     }
 
@@ -57,15 +68,15 @@ export default class NFAConverter {
         }
 
         // If we've created all the transitions for the current state, move to the next state
-        if (this.transition_index === this.dfa.alphabet.length) {
+        if (this.alphabet_index === this.dfa.alphabet.length) {
             this.state_index++
-            this.transition_index = 0
+            this.alphabet_index = 0
         }
 
         // If we haven't generated all the transitions, generate the transitions for the current state at state_index
         if (this.state_index < this.dfa.states.length) {
             const state = this.dfa.states[this.state_index]
-            const symbol = this.dfa.alphabet[this.transition_index]
+            const symbol = this.dfa.alphabet[this.alphabet_index]
 
             if (this.state_index === 0) {
                 // If we're at state index 0, we're at Ø. We need an infinite loopback on Ø.
@@ -91,7 +102,7 @@ export default class NFAConverter {
                 console.log(`add transition from ${state} on input ${symbol} to ${this.dfa.transitions[state][symbol].join(',')}`)
             }
 
-            this.transition_index++
+            this.alphabet_index++
 
             return this.dfa
         }
