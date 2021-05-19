@@ -12,6 +12,10 @@
         "indent": [
             "error",
             4
+        ],
+        "quote-props": [
+            "error",
+            "consistent"
         ]
     }
 }
