@@ -1,8 +1,8 @@
 import FSA from './fsa/fsa.js'
 import NFAConverter from './fsa/nfa_converter.js'
-import DraggableCanvas from './canvas/canvas.js'
-import Circle from './canvas/objects/circle.js'
-import Text from './canvas/objects/text.js'
+import DraggableCanvas from './canvas/draggable_canvas.js'
+import Circle from './canvas/drawables/circle.js'
+import Text from './canvas/drawables/text.js'
 
 // const nfaTest = new FSA(['1', '2', '3'], ['a', 'b'], {
 //     '1': {

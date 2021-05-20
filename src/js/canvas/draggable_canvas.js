@@ -1,9 +1,9 @@
 import Renderer from './renderer.js'
-import StraightLine from './objects/straight_line.js'
-import Circle from './objects/circle.js'
+import StraightLine from './drawables/straight_line.js'
+import Circle from './drawables/circle.js'
 import { distance } from '../util/util.js'
 import { GRID_CELL_SIZE, GRID_SIZE } from '../util/constant.js'
-import Drawable from './objects/drawable.js'
+import Drawable from './drawables/drawable.js'
 
 export default class DraggableCanvas {
     /**
