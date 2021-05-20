@@ -2,7 +2,7 @@ import Renderer from './renderer.js'
 import StraightLine from './drawables/straight_line.js'
 import Circle from './drawables/circle.js'
 import { distance } from '../util/util.js'
-import { GRID_CELL_SIZE, GRID_SIZE } from '../util/constant.js'
+import { GRID_CELL_SIZE, GRID_SIZE, MIN_ZOOM_DELTA, MAX_ZOOM_DELTA } from '../util/constant.js'
 import Drawable from './drawables/drawable.js'
 
 export default class DraggableCanvas {
@@ -36,12 +36,20 @@ export default class DraggableCanvas {
         const height = this.canvas.clientHeight
         this.canvas.width = width * this.pixelRatio
         this.canvas.height = height * this.pixelRatio
-        this.canvas.style.width = `${width}px`
-        this.canvas.style.height = `${height}px`
+        // this.canvas.style.width = `${width}px`
+        // this.canvas.style.height = `${height}px`
         this.ctx.setTransform(this.pixelRatio, 0, 0, this.pixelRatio, 0, 0)
 
         // Translating by 0.5 helps to make lines less sharp
         this.ctx.translate(0.5, 0.5)
+
+        window.addEventListener('resize', function (e) {
+            const width = this.canvas.clientWidth
+            const height = this.canvas.clientHeight
+            this.canvas.width = width * this.pixelRatio
+            this.canvas.height = height * this.pixelRatio
+            this.redrawCanvas = true
+        }.bind(this))
 
         this.canvas.addEventListener('mousedown', function (e) {
             const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
@@ -50,9 +58,11 @@ export default class DraggableCanvas {
             if (obj) {
                 // If we found an object on the mousedown location, start dragging it
                 this.draggingObject = obj
+                document.body.style.cursor = 'grabbing'
             } else {
                 // Otherwise, we want to pan the canvas
                 this.panGrabLocation = loc
+                document.body.style.cursor = 'grabbing'
             }
         }.bind(this))
 
@@ -62,11 +72,11 @@ export default class DraggableCanvas {
             if (this.panGrabLocation) {
                 // Pan the canvas by the difference between the mouse location and the grab location
                 this.pan(loc.x - this.panGrabLocation.x, loc.y - this.panGrabLocation.y)
-                this.objectsChanged = true
+                this.redrawCanvas = true
             } else if (this.draggingObject) {
                 // Move the object to the new mouse location
                 this.draggingObject.move(loc)
-                this.objectsChanged = true
+                this.redrawCanvas = true
             }
         }.bind(this))
 
@@ -74,22 +84,35 @@ export default class DraggableCanvas {
             const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
 
             if (this.panGrabLocation) {
-                this.objectsChanged = true
+                this.redrawCanvas = true
                 this.panGrabLocation = undefined
+                document.body.style.cursor = 'auto'
             } else if (this.draggingObject) {
                 this.draggingObject.move(loc)
-                this.objectsChanged = true
+                this.redrawCanvas = true
                 this.draggingObject = undefined
+                document.body.style.cursor = 'auto'
             }
         }.bind(this))
 
+        this.canvas.addEventListener('mousewheel', function (e) {
+            e.preventDefault()
+
+            // Keep zoom level between the min and max values
+            this.zoomDelta = Math.min(Math.max(this.zoomDelta + (0.0008 * -e.deltaY), MIN_ZOOM_DELTA), MAX_ZOOM_DELTA)
+            this.setZoom(1 + this.zoomDelta)
+
+            this.redrawCanvas = true
+        }.bind(this))
+
         this.renderer = new Renderer(this.canvas, this.ctx)
-        this.objectsChanged = true
+        this.redrawCanvas = true
         this.panGrabLocation = undefined
         this.draggingObject = undefined
         this.objects = []
         this.translation = { x: 0, y: 0 }
         this.scale = 1
+        this.zoomDelta = 0
     }
 
     /**
@@ -101,7 +124,7 @@ export default class DraggableCanvas {
         if (!(drawable instanceof Drawable)) { throw new Error('object is not an instance of Drawable') }
 
         this.objects.push(drawable)
-        this.objectsChanged = true
+        this.redrawCanvas = true
     }
 
     /**
@@ -144,18 +167,42 @@ export default class DraggableCanvas {
             this.translation.y += y
             this.ctx.translate(0, y)
         }
+
+        // console.log(this.translation)
+    }
+
+    /**
+     * Adjust the zoom value of the canvas, with 1 being normal zoom
+     *
+     * @param {Number} amount The new scaling of the canvas (normal zoom = 1)
+     */
+    setZoom (amount, fromLocation = { x: 0, y: 0 }) {
+        // For some reason we have to untranslate canvas before zooming
+        this.ctx.translate(-this.translation.x, -this.translation.y)
+
+        // Scale back to normal by scaling the recriprocal of current
+        this.ctx.scale(1 / this.scale, 1 / this.scale)
+        this.scale = amount
+        this.ctx.scale(this.scale, this.scale)
+
+        // Return to previous translation
+        this.ctx.translate(this.translation.x, this.translation.y)
     }
 
     /**
      * Draw the background grid of lines on the canvas
      */
     drawGrid () {
-        for (let x = -GRID_SIZE; x < this.canvas.width + GRID_SIZE; x += GRID_CELL_SIZE) {
-            new StraightLine({ x: x, y: -GRID_SIZE }, { x: x, y: this.canvas.height + GRID_SIZE }, 1, 'rgba(0,0,0,0.06)').draw(this.renderer)
+        // Change the size depending on the zoom level
+        const width = this.canvas.width * Math.min(Math.abs(1 / this.zoomDelta), 2)
+        const height = this.canvas.height * Math.min(Math.abs(1 / this.zoomDelta), 2)
+
+        for (let x = -GRID_SIZE; x < width + GRID_SIZE; x += GRID_CELL_SIZE) {
+            new StraightLine({ x: x, y: -GRID_SIZE }, { x: x, y: height + GRID_SIZE }, 1, 'rgba(0,0,0,0.06)').draw(this.renderer)
         }
 
-        for (let y = -GRID_SIZE; y < this.canvas.height + GRID_SIZE; y += GRID_CELL_SIZE) {
-            new StraightLine({ x: -GRID_SIZE, y: y }, { x: this.canvas.width + GRID_SIZE, y: y }, 1, 'rgba(0,0,0,0.06)').draw(this.renderer)
+        for (let y = -GRID_SIZE; y < height + GRID_SIZE; y += GRID_CELL_SIZE) {
+            new StraightLine({ x: -GRID_SIZE, y: y }, { x: width + GRID_SIZE, y: y }, 1, 'rgba(0,0,0,0.06)').draw(this.renderer)
         }
     }
 
@@ -163,12 +210,16 @@ export default class DraggableCanvas {
      * Draw all objects onto the canvas
      */
     draw () {
-        if (!this.objectsChanged) { return }
+        if (!this.redrawCanvas) { return }
 
-        this.ctx.clearRect(-this.translation.x, -this.translation.y - 1, this.canvas.width, this.canvas.height + 2)
+        // Change the size depending on the zoom level
+        const width = this.canvas.width * Math.min(Math.abs(1 / this.zoomDelta), 2)
+        const height = this.canvas.height * Math.min(Math.abs(1 / this.zoomDelta), 2)
+        this.ctx.clearRect(-this.translation.x, -this.translation.y - 1, width, height)
+
         this.drawGrid()
         this.objects.forEach(e => e.draw(this.renderer))
-        this.objectsChanged = false
-        // console.log("something changed, draw a new frame")
+
+        this.redrawCanvas = false
     }
 }

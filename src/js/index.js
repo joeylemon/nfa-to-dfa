@@ -57,6 +57,7 @@ nfaCanvas.addObject(new Circle({ x: 50, y: 50 }, 20, 'darkblue', new Text(null, 
 
 const dfaCanvas = new DraggableCanvas('#dfa')
 dfaCanvas.addObject(new Circle({ x: 150, y: 150 }, 20, 'darkred', new Text(null, '1', 24, '#fff', 'Helvetica')))
+dfaCanvas.addObject(new Circle({ x: 0, y: 0 }, 5, 'green'))
 
 draw()
 function draw () {
