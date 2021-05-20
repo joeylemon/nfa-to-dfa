@@ -12,6 +12,7 @@ export default class Circle extends Drawable {
         this.radius = radius
         this.color = color
         this.text = text
+        this.editable = true
         this.move(this.loc)
     }
 

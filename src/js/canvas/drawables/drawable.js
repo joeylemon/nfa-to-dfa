@@ -5,6 +5,9 @@ export default class Drawable {
     constructor () {
         // Generate a random id for this drawable object
         this.id = Math.floor(Math.random() * 10000000)
+
+        // Can this object be edited with a right-click menu?
+        this.editable = false
     }
 
     move () {

@@ -4,6 +4,7 @@ import Circle from './drawables/circle.js'
 import { distance } from '../util/util.js'
 import { GRID_CELL_SIZE, GRID_SIZE, MIN_ZOOM_DELTA, MAX_ZOOM_DELTA } from '../util/constant.js'
 import Drawable from './drawables/drawable.js'
+import createEditNodeMenu from '../elements/edit_node_menu.js'
 
 export default class DraggableCanvas {
     /**
@@ -48,10 +49,44 @@ export default class DraggableCanvas {
             const height = this.canvas.clientHeight
             this.canvas.width = width * this.pixelRatio
             this.canvas.height = height * this.pixelRatio
+            this.scale = 1
+            this.zoomDelta = 0
+            this.setZoom(1)
+            this.translation = { x: 0, y: 0 }
             this.redrawCanvas = true
         }.bind(this))
 
+        this.canvas.addEventListener('contextmenu', function (e) {
+            const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
+
+            e.preventDefault()
+
+            const obj = this.getObjectAt(loc)
+            if (obj && obj.editable) {
+                this.modifyObject = obj
+
+                // Set the color to indicate that the object is being edited
+                const prevColor = obj.color
+                obj.color = '#f0a330'
+                this.redrawCanvas = true
+
+                console.log('modify obj with context menu')
+                createEditNodeMenu(e.clientX, e.clientY, function () {
+                    console.log('set start in canvas')
+                }, function () {
+                    console.log('set accept in canvas')
+                }, function () {
+                    console.log('delete in canvas')
+                }, function () {
+                    obj.color = prevColor
+                    this.redrawCanvas = true
+                }.bind(this))
+            }
+        }.bind(this))
+
         this.canvas.addEventListener('mousedown', function (e) {
+            if (e.button !== 0) return
+
             const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
 
             const obj = this.getObjectAt(loc)
@@ -105,10 +140,9 @@ export default class DraggableCanvas {
             this.redrawCanvas = true
         }.bind(this))
 
+        this.center = { x: this.canvas.width / 2, y: this.canvas.height / 2 }
         this.renderer = new Renderer(this.canvas, this.ctx)
         this.redrawCanvas = true
-        this.panGrabLocation = undefined
-        this.draggingObject = undefined
         this.objects = []
         this.translation = { x: 0, y: 0 }
         this.scale = 1
