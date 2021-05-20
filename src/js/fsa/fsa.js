@@ -4,9 +4,9 @@ export default class FSA {
      *
      * @param {Array} states The array of states in this FSA (e.g. ['1', '2', '3'])
      * @param {Array} alphabet The array of symbols in this FSA (e.g. ['a', 'b'])
-     * @param {*} transitions A map of states and symbols to other states (e.g. transitions['1']['a'] => ['2', '3'] means upon the input of symbol a at state 1, an NFA can transition to state 2 or state 3)
-     * @param {*} startState The name of the start state for this FSA (e.g. '1')
-     * @param {*} acceptStates The array of states that an input can be accepted on (e.g. ['1', '3'])
+     * @param {Object} transitions A map of states and symbols to other states (e.g. transitions['1']['a'] => ['2', '3'] means upon the input of symbol a at state 1, an NFA can transition to state 2 or state 3)
+     * @param {String} startState The name of the start state for this FSA (e.g. '1')
+     * @param {Array} acceptStates The array of states that an input can be accepted on (e.g. ['1', '3'])
      */
     constructor (states, alphabet, transitions, startState, acceptStates) {
         this.states = states

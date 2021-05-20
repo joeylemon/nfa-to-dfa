@@ -1,13 +1,27 @@
 body {
-    padding: 10px 25px 10px 25px;
+    padding: 10px;
 }
 
-/* Add inner margins to all children */
-.margin-15 > *:not(:last-child) {
-    margin-right: 15px;
+.row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 
-/* Add inner margins to all children */
-.margin-30 > *:not(:last-child) {
-    margin-right: 30px;
+.gap-15 {
+    gap: 15px;
+}
+
+.gap-10 {
+    gap: 10px;
+}
+  
+.column {
+    flex-basis: 100%;
+}
+  
+@media screen and (min-width: 800px) {
+    .column {
+        flex: 1;
+    }
 }
