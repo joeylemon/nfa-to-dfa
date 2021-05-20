@@ -44,7 +44,7 @@ export default class DraggableCanvas {
         this.ctx.translate(0.5, 0.5)
 
         this.canvas.addEventListener('mousedown', function (e) {
-            const loc = { x: e.offsetX, y: e.offsetY }
+            const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
 
             const obj = this.getObjectAt(loc)
             if (obj) {
@@ -52,32 +52,32 @@ export default class DraggableCanvas {
                 this.draggingObject = obj
             } else {
                 // Otherwise, we want to pan the canvas
-                this.panGrabLocation = this.normalizeLocation(loc)
+                this.panGrabLocation = loc
             }
         }.bind(this))
 
         this.canvas.addEventListener('mousemove', function (e) {
-            const loc = { x: e.offsetX, y: e.offsetY }
+            const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
 
             if (this.panGrabLocation) {
                 // Pan the canvas by the difference between the mouse location and the grab location
-                this.pan(this.normalizeLocation(loc).x - this.panGrabLocation.x, this.normalizeLocation(loc).y - this.panGrabLocation.y)
+                this.pan(loc.x - this.panGrabLocation.x, loc.y - this.panGrabLocation.y)
                 this.objectsChanged = true
             } else if (this.draggingObject) {
                 // Move the object to the new mouse location
-                this.draggingObject.move(this.normalizeLocation(loc))
+                this.draggingObject.move(loc)
                 this.objectsChanged = true
             }
         }.bind(this))
 
         this.canvas.addEventListener('mouseup', function (e) {
-            const loc = { x: e.offsetX, y: e.offsetY }
+            const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
 
             if (this.panGrabLocation) {
                 this.objectsChanged = true
                 this.panGrabLocation = undefined
             } else if (this.draggingObject) {
-                this.draggingObject.move(this.normalizeLocation(loc))
+                this.draggingObject.move(loc)
                 this.objectsChanged = true
                 this.draggingObject = undefined
             }
@@ -110,8 +110,6 @@ export default class DraggableCanvas {
      * @param {Location} loc The location to find an object at
      */
     getObjectAt (loc) {
-        loc = this.normalizeLocation(loc)
-
         for (const obj of this.objects) {
             if (obj instanceof Circle) {
                 if (distance(loc, obj.loc) < obj.radius) return obj
