@@ -73,7 +73,7 @@ export default class NFAConverter {
             this.alphabet_index = 0
         }
 
-        // If we haven't generated all the transitions, generate the transitions for the current state at state_index
+        // If we haven't generated all the transitions for all the states, generate the transitions for the current state at state_index
         if (this.state_index < this.dfa.states.length) {
             const state = this.dfa.states[this.state_index]
             const symbol = this.dfa.alphabet[this.alphabet_index]
@@ -116,6 +116,8 @@ export default class NFAConverter {
             for (const state of this.dfa.states) {
                 for (const symbol of this.dfa.alphabet) {
                     const node = this.dfa.transitions[state][symbol].join(',')
+
+                    // Don't consider nodes that have a transition back to themselves
                     if (node !== state) nodesWithIncomingEdges.push(node)
                 }
             }
@@ -127,6 +129,7 @@ export default class NFAConverter {
             this.unreachableStates = this.unreachableStates.filter(s => s !== this.dfa.startState)
         }
 
+        // We've generated an array of unreachable states. Now, let's delete them one-by-one
         if (this.unreachableStates.length > 0) {
             // Pop the first state from unreachableStates
             const stateToDelete = this.unreachableStates.shift()

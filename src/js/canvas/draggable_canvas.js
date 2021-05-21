@@ -4,7 +4,7 @@ import Circle from './drawables/circle.js'
 import { distance } from '../util/util.js'
 import { GRID_CELL_SIZE, GRID_SIZE, MIN_ZOOM_DELTA, MAX_ZOOM_DELTA } from '../util/constant.js'
 import Drawable from './drawables/drawable.js'
-import createEditNodeMenu from '../elements/edit_node_menu.js'
+import EditNodeMenu from '../elements/edit_node_menu.js'
 
 export default class DraggableCanvas {
     /**
@@ -66,19 +66,23 @@ export default class DraggableCanvas {
                 this.modifyObject = obj
 
                 // Set the color to indicate that the object is being edited
-                const prevColor = obj.color
-                obj.color = '#f0a330'
+                const prevColor = obj.options.color
+                obj.options.color = '#f0a330'
                 this.redrawCanvas = true
 
-                console.log('modify obj with context menu')
-                createEditNodeMenu(e.clientX, e.clientY, function () {
+                const editMenu = new EditNodeMenu(e.clientX, e.clientY)
+                editMenu.addEventListener('selectedstart', function () {
                     console.log('set start in canvas')
-                }, function () {
+                })
+                editMenu.addEventListener('selectedaccept', function () {
                     console.log('set accept in canvas')
-                }, function () {
+                })
+                editMenu.addEventListener('delete', function () {
                     console.log('delete in canvas')
-                }, function () {
-                    obj.color = prevColor
+                })
+                editMenu.addEventListener('close', function () {
+                    console.log('close in canvas')
+                    obj.options.color = prevColor
                     this.redrawCanvas = true
                 }.bind(this))
             }
@@ -150,6 +154,13 @@ export default class DraggableCanvas {
     }
 
     /**
+     * Clear the canvas by removing all objects on it
+     */
+    clear () {
+        this.objects = []
+    }
+
+    /**
      * Add an object to the canvas to be drawn
      *
      * @param {Drawable} drawable The object to add to the canvas, which extends the Drawable class
@@ -169,7 +180,7 @@ export default class DraggableCanvas {
     getObjectAt (loc) {
         for (const obj of this.objects) {
             if (obj instanceof Circle) {
-                if (distance(loc, obj.loc) < obj.radius) return obj
+                if (distance(loc, obj.loc) < obj.options.radius) return obj
             }
         }
 
@@ -232,11 +243,17 @@ export default class DraggableCanvas {
         const height = this.canvas.height * Math.min(Math.abs(1 / this.zoomDelta), 2)
 
         for (let x = -GRID_SIZE; x < width + GRID_SIZE; x += GRID_CELL_SIZE) {
-            new StraightLine({ x: x, y: -GRID_SIZE }, { x: x, y: height + GRID_SIZE }, 1, 'rgba(0,0,0,0.06)').draw(this.renderer)
+            new StraightLine({ x: x, y: -GRID_SIZE }, { x: x, y: height + GRID_SIZE }, {
+                width: 1,
+                color: 'rgba(0,0,0,0.06)'
+            }).draw(this.renderer)
         }
 
         for (let y = -GRID_SIZE; y < height + GRID_SIZE; y += GRID_CELL_SIZE) {
-            new StraightLine({ x: -GRID_SIZE, y: y }, { x: width + GRID_SIZE, y: y }, 1, 'rgba(0,0,0,0.06)').draw(this.renderer)
+            new StraightLine({ x: -GRID_SIZE, y: y }, { x: width + GRID_SIZE, y: y }, {
+                width: 1,
+                color: 'rgba(0,0,0,0.06)'
+            }).draw(this.renderer)
         }
     }
 
@@ -245,6 +262,7 @@ export default class DraggableCanvas {
      */
     draw () {
         if (!this.redrawCanvas) { return }
+        this.redrawCanvas = false
 
         // Change the size depending on the zoom level
         const width = this.canvas.width * Math.min(Math.abs(1 / this.zoomDelta), 2)
@@ -253,7 +271,5 @@ export default class DraggableCanvas {
 
         this.drawGrid()
         this.objects.forEach(e => e.draw(this.renderer))
-
-        this.redrawCanvas = false
     }
 }

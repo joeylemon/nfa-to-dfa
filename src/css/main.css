@@ -24,8 +24,9 @@ canvas {
     width: 100%;
     padding: 5px 0px 5px 0px;
     color: #000;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     cursor: pointer;
+    user-select: none;
 }
 
 .edit-node-menu .option:active {

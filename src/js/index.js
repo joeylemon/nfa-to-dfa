@@ -1,8 +1,7 @@
 import FSA from './fsa/fsa.js'
 import NFAConverter from './fsa/nfa_converter.js'
 import DraggableCanvas from './canvas/draggable_canvas.js'
-import Circle from './canvas/drawables/circle.js'
-import Text from './canvas/drawables/text.js'
+import VisualFSA from './fsa/visual_fsa.js'
 
 // const nfaTest = new FSA(['1', '2', '3'], ['a', 'b'], {
 //     '1': {
@@ -53,13 +52,20 @@ console.log(nfaConverter.stepForward())
 console.log(nfaConverter)
 
 const nfaCanvas = new DraggableCanvas('#nfa')
-nfaCanvas.addObject(new Circle({ x: 50, y: 50 }, 20, 'darkblue', new Text(null, 'q1', 24, '#fff', 'Helvetica')))
-nfaCanvas.addObject(new Circle({ x: 150, y: 50 }, 20, 'darkblue', new Text(null, 'q2', 24, '#fff', 'Helvetica')))
-nfaCanvas.addObject(new Circle({ x: 100, y: 150 }, 20, 'darkblue', new Text(null, 'q3', 24, '#fff', 'Helvetica')))
+const visualNFA = new VisualFSA(nfaTest, true)
+visualNFA.setAlphabet(['a', 'b'])
+visualNFA.addNode('q1', { x: 200, y: 200 })
+visualNFA.addNode('q2', { x: 300, y: 200 })
+visualNFA.addNode('q3', { x: 250, y: 300 })
+visualNFA.addTransition('q1', 'q2', 'a')
+visualNFA.render(nfaCanvas)
+// nfaCanvas.addObject(new Circle({ x: 50, y: 50 }, 20, 'darkblue', new Text(null, 'q1', 24, '#fff', 'Helvetica')))
+// nfaCanvas.addObject(new Circle({ x: 150, y: 50 }, 20, 'darkblue', new Text(null, 'q2', 24, '#fff', 'Helvetica')))
+// nfaCanvas.addObject(new Circle({ x: 100, y: 150 }, 20, 'darkblue', new Text(null, 'q3', 24, '#fff', 'Helvetica')))
 
 const dfaCanvas = new DraggableCanvas('#dfa')
-dfaCanvas.addObject(new Circle({ x: 150, y: 150 }, 20, 'darkred', new Text(null, '1', 24, '#fff', 'Helvetica')))
-dfaCanvas.addObject(new Circle({ x: 0, y: 0 }, 5, 'green'))
+// dfaCanvas.addObject(new Circle({ x: 150, y: 150 }, 20, 'darkred', new Text(null, '1', 24, '#fff', 'Helvetica')))
+// dfaCanvas.addObject(new Circle({ x: 0, y: 0 }, 5, 'green'))
 
 draw()
 function draw () {
