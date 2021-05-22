@@ -64,10 +64,12 @@ export default class VisualFSA {
 
         const fromNode = this.getNode(from)
 
+        // Set up object structure if it doesn't exist
         if (!this.fsa.transitions[from]) this.fsa.transitions[from] = {}
         if (!this.fsa.transitions[from][symbol]) this.fsa.transitions[from][symbol] = []
         if (!fromNode.transitionText[to]) fromNode.transitionText[to] = []
 
+        // Add the transitions to the arrays
         this.fsa.transitions[from][symbol].push(to)
         fromNode.transitionText[to].push(symbol)
 
