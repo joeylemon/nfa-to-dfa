@@ -23,7 +23,8 @@ export default class Circle extends Drawable {
     move (to) {
         this.loc = to
         if (this.options.text) { this.options.text.loc = { x: to.x, y: to.y + this.options.text.options.size / 4 } }
-        if (this.onmove) this.onmove(to)
+
+        this.dispatchEvent('move', { newLocation: to })
     }
 
     draw (rend) {

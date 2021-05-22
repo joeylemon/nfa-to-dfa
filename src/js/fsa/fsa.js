@@ -17,6 +17,26 @@ export default class FSA {
     }
 
     /**
+     * Remove all of a state's references from the FSA
+     *
+     * @param {String} state The name of the state
+     */
+    removeState (state) {
+        this.states = this.states.filter(s => s !== state)
+        this.acceptStates = this.acceptStates.filter(s => s !== state)
+        delete this.transitions[state]
+
+        // Remove all transitions that lead to the state
+        for (const fromState of Object.keys(this.transitions)) {
+            for (const symbol of Object.keys(this.transitions[fromState])) {
+                if (this.transitions[fromState][symbol]) {
+                    this.transitions[fromState][symbol] = this.transitions[fromState][symbol].filter(e => e !== state)
+                }
+            }
+        }
+    }
+
+    /**
      * Get the array of arrays that describes the powerset of this FSA's states
      *
      * @example

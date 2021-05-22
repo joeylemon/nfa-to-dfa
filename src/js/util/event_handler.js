@@ -1,15 +1,13 @@
-export default class CustomElement {
+export default class EventHandler {
     /**
-     * CustomElement provides the base functionality of a new element that can be
-     * added to the DOM. This includes event listeners, since it is not possible to
-     * extend the built-in event handling on a custom class
+     * EventHandler provides the ability to listen and dispatch events from a class
      */
     constructor () {
         this.eventListeners = []
     }
 
     /**
-     * Register a new event with the element
+     * Register a new event
      *
      * @param {String} name The name of the event
      * @param {Function} fn The function to execute upon the event occurring

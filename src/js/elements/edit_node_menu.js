@@ -1,6 +1,6 @@
-import CustomElement from './custom_element.js'
+import EventHandler from '../util/event_handler.js'
 
-export default class EditNodeMenu extends CustomElement {
+export default class EditNodeMenu extends EventHandler {
     /**
     * Create a new node edit menu in the DOM
     *
@@ -16,8 +16,8 @@ export default class EditNodeMenu extends CustomElement {
                 <div class="option" id="edit-node-menu-set-start">
                     <span class="material-icons" style="color: #5599ff;">play_circle</span>Set as start state
                 </div>
-                <div class="option" id="edit-node-menu-set-accept">
-                    <span class="material-icons" style="color: #72b771;">check_circle</span>Set as accept state
+                <div class="option" id="edit-node-menu-toggle-accept">
+                    <span class="material-icons" style="color: #72b771;">check_circle</span>Toggle as accept state
                 </div class="option">
                 <div class="option" id="edit-node-menu-delete">
                     <span class="material-icons" style="color: #ff6767;">remove_circle</span>Delete state
@@ -38,8 +38,8 @@ export default class EditNodeMenu extends CustomElement {
             this.dispatchEvent('selectedstart')
         })
 
-        document.querySelector('#edit-node-menu-set-accept').addEventListener('click', () => {
-            this.dispatchEvent('selectedaccept')
+        document.querySelector('#edit-node-menu-toggle-accept').addEventListener('click', () => {
+            this.dispatchEvent('toggledaccept')
         })
 
         document.querySelector('#edit-node-menu-delete').addEventListener('click', () => {

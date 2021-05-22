@@ -71,17 +71,10 @@ export default class DraggableCanvas {
                 this.redrawCanvas = true
 
                 const editMenu = new EditNodeMenu(e.clientX, e.clientY)
-                editMenu.addEventListener('selectedstart', function () {
-                    console.log('set start in canvas')
-                })
-                editMenu.addEventListener('selectedaccept', function () {
-                    console.log('set accept in canvas')
-                })
-                editMenu.addEventListener('delete', function () {
-                    console.log('delete in canvas')
-                })
+                editMenu.addEventListener('selectedstart', () => { obj.dispatchEvent('selectedstart') })
+                editMenu.addEventListener('toggledaccept', () => { obj.dispatchEvent('toggledaccept') })
+                editMenu.addEventListener('delete', () => { obj.dispatchEvent('delete') })
                 editMenu.addEventListener('close', function () {
-                    console.log('close in canvas')
                     obj.options.color = prevColor
                     this.redrawCanvas = true
                 }.bind(this))

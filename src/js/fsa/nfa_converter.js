@@ -134,10 +134,7 @@ export default class NFAConverter {
             // Pop the first state from unreachableStates
             const stateToDelete = this.unreachableStates.shift()
 
-            // Delete the state from the states array, the acceptStates array, and the transitions map
-            this.dfa.states = this.dfa.states.filter(s => s !== stateToDelete)
-            this.dfa.acceptStates = this.dfa.acceptStates.filter(s => s !== stateToDelete)
-            delete this.dfa.transitions[stateToDelete]
+            this.dfa.removeState(stateToDelete)
 
             console.log(`delete state ${stateToDelete}`)
             return this.dfa
