@@ -9,7 +9,8 @@ export default class Circle extends Drawable {
      *         radius: 20,
      *         color: '#fff',
      *         text: new Text(...textOptions),
-     *         borderOptions: {color: '#000', width: 2}
+     *         borderOptions: {color: '#000', width: 2},
+     *         outlineOptions: {color: '#000', width: 2, distance: 5}
      *     })
      */
     constructor (loc, options) {
@@ -33,6 +34,14 @@ export default class Circle extends Drawable {
             rend.ctx.beginPath()
             rend.ctx.arc(this.loc.x, this.loc.y, this.options.radius + this.options.borderOptions.width, 0, 2 * Math.PI)
             rend.ctx.fill()
+        }
+
+        if (this.options.outlineOptions) {
+            rend.ctx.lineWidth = this.options.outlineOptions.width
+            rend.setColor(this.options.outlineOptions.color)
+            rend.ctx.beginPath()
+            rend.ctx.arc(this.loc.x, this.loc.y, this.options.radius + this.options.outlineOptions.distance, 0, 2 * Math.PI)
+            rend.ctx.stroke()
         }
 
         rend.setColor(this.options.color)

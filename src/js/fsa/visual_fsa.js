@@ -6,6 +6,7 @@ import CurvedLine from '../canvas/drawables/curved_line.js'
 const NODE_RADIUS = 20
 const NODE_COLOR = '#34b1eb'
 const NODE_LABEL_SIZE = 24
+const NODE_OUTLINE_RADIUS = 5
 
 const TRANSITION_WIDTH = 2
 const TRANSITION_COLOR = 'rgba(0,0,0,1)'
@@ -24,7 +25,8 @@ export default class VisualFSA {
     }
 
     addAcceptState (label) {
-        if (!this.fsa.acceptStates.includes(label)) { this.fsa.acceptStates.push(label) }
+        this.fsa.acceptStates.push(label)
+        this.getNode(label).acceptState = true
     }
 
     removeAcceptState (label) {
@@ -122,8 +124,8 @@ export default class VisualFSA {
 
                 // Calculate the location of the outermost point of the toNode so the arrowhead perfectly points to the circle
                 const toOutsideRadius = {
-                    x: toNode.loc.x - Math.cos(angleControlTo) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS),
-                    y: toNode.loc.y - Math.sin(angleControlTo) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS)
+                    x: toNode.loc.x - Math.cos(angleControlTo) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (toNode.acceptState ? NODE_OUTLINE_RADIUS : 0)),
+                    y: toNode.loc.y - Math.sin(angleControlTo) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (toNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
                 }
 
                 draggableCanvas.addObject(new CurvedLine(fromNode.loc, toOutsideRadius, controlPoint, {
@@ -145,16 +147,27 @@ export default class VisualFSA {
 
         // Draw node circles
         for (const node of this.nodes) {
+            let color = NODE_COLOR
+            let outline
+
+            if (this.fsa.startState === node.label) {
+                color = '#4162d1'
+            } else if (node.acceptState) {
+                color = 'green'
+                outline = { color: '#000', width: 2, distance: NODE_OUTLINE_RADIUS }
+            }
+
             const circle = new Circle(node.loc, {
                 radius: NODE_RADIUS,
-                color: NODE_COLOR,
+                color: color,
                 text: new Text(null, {
                     text: node.label,
                     size: NODE_LABEL_SIZE,
                     color: '#fff',
                     font: 'Helvetica'
                 }),
-                borderOptions: { color: '#000', width: 2 }
+                borderOptions: { color: '#000', width: 2 },
+                outlineOptions: outline
             })
 
             circle.addEventListener('move', e => {
@@ -164,14 +177,16 @@ export default class VisualFSA {
 
             circle.addEventListener('selectedstart', () => {
                 this.setStartState(node.label)
+                this.render(draggableCanvas)
             })
 
             circle.addEventListener('toggledaccept', () => {
-                if (!this.fsa.acceptStates.includes(node.label)) {
+                if (!node.acceptState) {
                     this.addAcceptState(node.label)
                 } else {
                     this.removeAcceptState(node.label)
                 }
+                this.render(draggableCanvas)
             })
 
             circle.addEventListener('delete', () => {
