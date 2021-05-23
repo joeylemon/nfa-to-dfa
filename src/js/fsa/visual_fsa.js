@@ -2,15 +2,18 @@ import Circle from '../canvas/drawables/circle.js'
 import Text from '../canvas/drawables/text.js'
 import FSA from './fsa.js'
 import CurvedLine from '../canvas/drawables/curved_line.js'
+import ArrowedStraightLine from '../canvas/drawables/arrowed_straight_line.js'
 
 const NODE_RADIUS = 20
 const NODE_COLOR = '#34b1eb'
 const NODE_LABEL_SIZE = 24
 const NODE_OUTLINE_RADIUS = 5
 
-const TRANSITION_WIDTH = 2
+const START_NODE_ARROW_ANGLE = -135 * (Math.PI / 180)
+
+const TRANSITION_WIDTH = 3
 const TRANSITION_COLOR = 'rgba(0,0,0,1)'
-const TRANSITION_ARROW_RADIUS = 9
+const TRANSITION_ARROW_RADIUS = 10
 const TRANSITION_CONTROL_RADIUS = 50
 
 export default class VisualFSA {
@@ -152,7 +155,23 @@ export default class VisualFSA {
 
             if (this.fsa.startState === node.label) {
                 color = '#4162d1'
-            } else if (node.acceptState) {
+
+                const from = {
+                    x: node.loc.x + Math.cos(START_NODE_ARROW_ANGLE) * 100,
+                    y: node.loc.y + Math.sin(START_NODE_ARROW_ANGLE) * 100
+                }
+                const to = {
+                    x: node.loc.x + Math.cos(START_NODE_ARROW_ANGLE) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (node.acceptState ? NODE_OUTLINE_RADIUS : 0)),
+                    y: node.loc.y + Math.sin(START_NODE_ARROW_ANGLE) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (node.acceptState ? NODE_OUTLINE_RADIUS : 0))
+                }
+                draggableCanvas.addObject(new ArrowedStraightLine(from, to, {
+                    width: TRANSITION_WIDTH,
+                    color: TRANSITION_COLOR,
+                    arrowRadius: TRANSITION_ARROW_RADIUS
+                }))
+            }
+
+            if (node.acceptState) {
                 color = 'green'
                 outline = { color: '#000', width: 2, distance: NODE_OUTLINE_RADIUS }
             }
