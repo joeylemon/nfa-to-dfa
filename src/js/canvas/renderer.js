@@ -20,13 +20,13 @@ export default class Renderer {
      * @param {Position} drawLoc The location that will be drawn at (must draw the desired object at 0, 0)
      *
      * @example
-     *     canvas.renderer.rotate(45, {x: 25, y: 50})
+     *     canvas.renderer.rotate(Math.PI, {x: 25, y: 50})
      *     canvas.renderer.drawText('Hello world!', 15, {x: 0, y: 0})
      */
     rotate (angle, drawLoc) {
         this.ctx.save()
         this.ctx.translate(drawLoc.x, drawLoc.y)
-        this.ctx.rotate(angle * (Math.PI / 180))
+        this.ctx.rotate(angle)
     }
 
     /**

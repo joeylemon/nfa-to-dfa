@@ -3,6 +3,8 @@ import Text from '../canvas/drawables/text.js'
 import FSA from './fsa.js'
 import CurvedLine from '../canvas/drawables/curved_line.js'
 import ArrowedStraightLine from '../canvas/drawables/arrowed_straight_line.js'
+import EditNodeMenu from '../elements/edit_node_menu.js'
+import { angleBetween, moveToAngle, moveFromAngle } from '../util/util.js'
 
 const NODE_RADIUS = 20
 const NODE_COLOR = '#34b1eb'
@@ -14,7 +16,8 @@ const START_NODE_ARROW_ANGLE = -135 * (Math.PI / 180)
 const TRANSITION_WIDTH = 3
 const TRANSITION_COLOR = 'rgba(0,0,0,1)'
 const TRANSITION_ARROW_RADIUS = 10
-const TRANSITION_CONTROL_RADIUS = 50
+const TRANSITION_CONTROL_RADIUS = 60
+const TRANSITION_TEXT_RADIUS = 25
 
 export default class VisualFSA {
     constructor (isNFA) {
@@ -34,6 +37,7 @@ export default class VisualFSA {
 
     removeAcceptState (label) {
         this.fsa.acceptStates = this.fsa.acceptStates.filter(e => e !== label)
+        this.getNode(label).acceptState = false
     }
 
     removeState (label) {
@@ -105,7 +109,7 @@ export default class VisualFSA {
                 const toNode = this.getNode(endState)
 
                 // Get the angle between the fromNode and the toNode
-                const angleFromTo = Math.atan2(toNode.loc.y - fromNode.loc.y, toNode.loc.x - fromNode.loc.x)
+                const angleFromTo = angleBetween(fromNode.loc, toNode.loc)
 
                 // Get the midpoint between the fromNode and the toNode
                 const midpoint = {
@@ -117,34 +121,35 @@ export default class VisualFSA {
                 const perpendicularAngle = angleFromTo + (Math.PI / 2)
 
                 // Set the control point of the quadratic curve to TRANSITION_CONTROL_RADIUS towards the perpendicular angle
-                const controlPoint = {
-                    x: midpoint.x + Math.cos(perpendicularAngle) * TRANSITION_CONTROL_RADIUS,
-                    y: midpoint.y + Math.sin(perpendicularAngle) * TRANSITION_CONTROL_RADIUS
-                }
+                const controlPoint = moveToAngle(midpoint, perpendicularAngle, TRANSITION_CONTROL_RADIUS)
 
-                // Get the angle between the control point and the toNode
-                const angleControlTo = Math.atan2(toNode.loc.y - controlPoint.y, toNode.loc.x - controlPoint.x)
+                // Calculate the outermost point of the fromNode so the beginning of the line extends perfectly from outside the circle
+                const fromOutsideRadius = moveToAngle(fromNode.loc, angleBetween(fromNode.loc, controlPoint), NODE_RADIUS + (fromNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
 
-                // Calculate the location of the outermost point of the toNode so the arrowhead perfectly points to the circle
-                const toOutsideRadius = {
-                    x: toNode.loc.x - Math.cos(angleControlTo) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (toNode.acceptState ? NODE_OUTLINE_RADIUS : 0)),
-                    y: toNode.loc.y - Math.sin(angleControlTo) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (toNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
-                }
+                // Calculate the outermost point of the toNode so the arrowhead perfectly points to the circle
+                const toOutsideRadius = moveFromAngle(toNode.loc, angleBetween(controlPoint, toNode.loc), NODE_RADIUS + TRANSITION_ARROW_RADIUS + (toNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
 
-                draggableCanvas.addObject(new CurvedLine(fromNode.loc, toOutsideRadius, controlPoint, {
+                const transitionLine = new CurvedLine(fromOutsideRadius, toOutsideRadius, controlPoint, {
                     width: TRANSITION_WIDTH,
                     color: TRANSITION_COLOR,
                     arrowRadius: TRANSITION_ARROW_RADIUS
-                }))
+                })
 
-                const text = new Text(controlPoint, {
+                draggableCanvas.addObject(transitionLine)
+
+                // Get the midpoint of the curved line
+                const textLocation = moveToAngle(transitionLine.midpoint(), perpendicularAngle, TRANSITION_TEXT_RADIUS)
+                const textRotation = Math.abs(angleFromTo) > (Math.PI / 2) ? angleFromTo + Math.PI : angleFromTo
+
+                // Add the transition symbols to the center of the transition line, joined by commas
+                // console.log(`angle between ${fromNode.label} and ${toNode.label} is ${angleFromTo} (adjusted: ${textRotation})`)
+                draggableCanvas.addObject(new Text(textLocation, {
                     text: fromNode.transitionText[endState].join(', '),
+                    rotation: textRotation,
                     color: '#000',
                     size: 24,
                     font: 'Roboto'
-                })
-
-                draggableCanvas.addObject(text)
+                }))
             }
         }
 
@@ -156,6 +161,7 @@ export default class VisualFSA {
             if (this.fsa.startState === node.label) {
                 color = '#4162d1'
 
+                // Add incoming arrow to the start state
                 const from = {
                     x: node.loc.x + Math.cos(START_NODE_ARROW_ANGLE) * 100,
                     y: node.loc.y + Math.sin(START_NODE_ARROW_ANGLE) * 100
@@ -173,6 +179,8 @@ export default class VisualFSA {
 
             if (node.acceptState) {
                 color = 'green'
+
+                // Add a double outline to the accept state
                 outline = { color: '#000', width: 2, distance: NODE_OUTLINE_RADIUS }
             }
 
@@ -189,27 +197,30 @@ export default class VisualFSA {
                 outlineOptions: outline
             })
 
+            circle.addEventListener('edit', e => {
+                const editMenu = new EditNodeMenu(e.clientX, e.clientY)
+                editMenu.addEventListener('selectedstart', () => {
+                    this.setStartState(node.label)
+                    this.render(draggableCanvas)
+                })
+
+                editMenu.addEventListener('toggledaccept', () => {
+                    if (!node.acceptState) {
+                        this.addAcceptState(node.label)
+                    } else {
+                        this.removeAcceptState(node.label)
+                    }
+                    this.render(draggableCanvas)
+                })
+
+                editMenu.addEventListener('delete', () => {
+                    this.removeState(node.label)
+                    this.render(draggableCanvas)
+                })
+            })
+
             circle.addEventListener('move', e => {
                 node.loc = e.newLocation
-                this.render(draggableCanvas)
-            })
-
-            circle.addEventListener('selectedstart', () => {
-                this.setStartState(node.label)
-                this.render(draggableCanvas)
-            })
-
-            circle.addEventListener('toggledaccept', () => {
-                if (!node.acceptState) {
-                    this.addAcceptState(node.label)
-                } else {
-                    this.removeAcceptState(node.label)
-                }
-                this.render(draggableCanvas)
-            })
-
-            circle.addEventListener('delete', () => {
-                this.removeState(node.label)
                 this.render(draggableCanvas)
             })
 

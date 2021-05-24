@@ -23,7 +23,13 @@ export default class Text extends Drawable {
 
         rend.ctx.textAlign = 'center'
         rend.ctx.font = `${this.options.size}px ${this.options.font}`
-        rend.ctx.fillText(this.options.text, this.loc.x, this.loc.y)
+        if (this.options.rotation) {
+            rend.rotate(this.options.rotation, this.loc)
+            rend.ctx.fillText(this.options.text, 0, 0 + (this.options.size / 5))
+            rend.unrotate()
+        } else {
+            rend.ctx.fillText(this.options.text, this.loc.x, this.loc.y + (this.options.size / 5))
+        }
 
         rend.resetColor()
     }

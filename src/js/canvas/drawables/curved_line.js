@@ -22,6 +22,17 @@ export default class CurvedLine extends Drawable {
         this.arrowhead = new Arrow(controlPoint, to, options)
     }
 
+    /**
+     * Get the midpoint of the curve via the bezier point equation
+     */
+    midpoint () {
+        const position = 0.5
+        return {
+            x: Math.pow(1 - position, 2) * this.from.x + 2 * (1 - position) * position * this.controlPoint.x + Math.pow(position, 2) * this.to.x,
+            y: Math.pow(1 - position, 2) * this.from.y + 2 * (1 - position) * position * this.controlPoint.y + Math.pow(position, 2) * this.to.y
+        }
+    }
+
     draw (rend) {
         rend.setColor(this.options.color)
         rend.ctx.lineWidth = this.options.width

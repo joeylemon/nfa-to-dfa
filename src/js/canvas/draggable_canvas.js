@@ -1,10 +1,18 @@
 import Renderer from './renderer.js'
 import StraightLine from './drawables/straight_line.js'
-import Circle from './drawables/circle.js'
-import { distance } from '../util/util.js'
-import { GRID_CELL_SIZE, GRID_SIZE, MIN_ZOOM_DELTA, MAX_ZOOM_DELTA } from '../util/constant.js'
 import Drawable from './drawables/drawable.js'
-import EditNodeMenu from '../elements/edit_node_menu.js'
+
+// How large is each cell in the canvas grid?
+const GRID_CELL_SIZE = 40
+
+// How far should the grid extend in the x and y directions?
+const GRID_SIZE = 500
+
+// How much below 1 can the canvas be zoomed?
+const MIN_ZOOM_DELTA = -0.5
+
+// How much above 1 can the canvas be zoomed?
+const MAX_ZOOM_DELTA = 3
 
 export default class DraggableCanvas {
     /**
@@ -63,21 +71,11 @@ export default class DraggableCanvas {
 
             const obj = this.getObjectAt(loc)
             if (obj && obj.editable) {
-                this.modifyObject = obj
-
-                // Set the color to indicate that the object is being edited
-                const prevColor = obj.options.color
-                obj.options.color = '#f0a330'
-                this.redrawCanvas = true
-
-                const editMenu = new EditNodeMenu(e.clientX, e.clientY)
-                editMenu.addEventListener('selectedstart', () => { obj.dispatchEvent('selectedstart') })
-                editMenu.addEventListener('toggledaccept', () => { obj.dispatchEvent('toggledaccept') })
-                editMenu.addEventListener('delete', () => { obj.dispatchEvent('delete') })
-                editMenu.addEventListener('close', function () {
-                    obj.options.color = prevColor
-                    this.redrawCanvas = true
-                }.bind(this))
+                obj.dispatchEvent('edit', {
+                    clientX: e.clientX,
+                    clientY: e.clientY,
+                    previousColor: obj.options.color
+                })
             }
         }.bind(this))
 
@@ -172,12 +170,10 @@ export default class DraggableCanvas {
      */
     getObjectAt (loc) {
         for (const obj of this.objects) {
-            if (obj instanceof Circle) {
-                if (distance(loc, obj.loc) < obj.options.radius) return obj
+            if (typeof obj.touches === 'function') {
+                if (obj.touches(loc)) return obj
             }
         }
-
-        return undefined
     }
 
     /**

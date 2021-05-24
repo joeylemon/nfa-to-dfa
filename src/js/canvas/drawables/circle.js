@@ -1,4 +1,5 @@
 import Drawable from './drawable.js'
+import { distance } from '../../util/util.js'
 
 export default class Circle extends Drawable {
     /**
@@ -19,6 +20,10 @@ export default class Circle extends Drawable {
         this.options = options
         this.editable = true
         this.move(this.loc)
+    }
+
+    touches (loc) {
+        return distance(loc, this.loc) < this.options.radius
     }
 
     move (to) {
