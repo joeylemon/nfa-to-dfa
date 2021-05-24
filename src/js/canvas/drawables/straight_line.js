@@ -6,7 +6,7 @@ export default class StraightLine extends Drawable {
      * @param {Location} to The end location to end the line
      * @param {Object} options The options with which to draw the line
      * @example
-     *     new StraightLine({x: 0, y: 0}, {x: 50, y: 0}, {
+     *     new StraightLine(new Location(0, 0), new Location(50, 0), {
      *         width: 5,
      *         color: '#fff',
      *         dash: [10, 2]

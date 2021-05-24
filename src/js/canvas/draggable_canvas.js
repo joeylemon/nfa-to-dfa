@@ -1,6 +1,7 @@
 import Renderer from './renderer.js'
 import StraightLine from './drawables/straight_line.js'
 import Drawable from './drawables/drawable.js'
+import Location from './location.js'
 
 // How large is each cell in the canvas grid?
 const GRID_CELL_SIZE = 40
@@ -65,7 +66,7 @@ export default class DraggableCanvas {
         }.bind(this))
 
         this.canvas.addEventListener('contextmenu', function (e) {
-            const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
+            const loc = this.normalizeLocation(new Location(e.offsetX, e.offsetY))
 
             e.preventDefault()
 
@@ -82,7 +83,7 @@ export default class DraggableCanvas {
         this.canvas.addEventListener('mousedown', function (e) {
             if (e.button !== 0) return
 
-            const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
+            const loc = this.normalizeLocation(new Location(e.offsetX, e.offsetY))
 
             const obj = this.getObjectAt(loc)
             if (obj) {
@@ -97,7 +98,7 @@ export default class DraggableCanvas {
         }.bind(this))
 
         this.canvas.addEventListener('mousemove', function (e) {
-            const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
+            const loc = this.normalizeLocation(new Location(e.offsetX, e.offsetY))
 
             if (this.panGrabLocation) {
                 // Pan the canvas by the difference between the mouse location and the grab location
@@ -111,7 +112,7 @@ export default class DraggableCanvas {
         }.bind(this))
 
         this.canvas.addEventListener('mouseup', function (e) {
-            const loc = this.normalizeLocation({ x: e.offsetX, y: e.offsetY })
+            const loc = this.normalizeLocation(new Location(e.offsetX, e.offsetY))
 
             if (this.panGrabLocation) {
                 this.redrawCanvas = true
@@ -135,7 +136,6 @@ export default class DraggableCanvas {
             this.redrawCanvas = true
         }.bind(this))
 
-        this.center = { x: this.canvas.width / 2, y: this.canvas.height / 2 }
         this.renderer = new Renderer(this.canvas, this.ctx)
         this.redrawCanvas = true
         this.objects = []
@@ -182,7 +182,7 @@ export default class DraggableCanvas {
      * @param {Location} loc The location to normalize
      */
     normalizeLocation (loc) {
-        return { x: loc.x / this.scale - this.translation.x, y: loc.y / this.scale - this.translation.y }
+        return new Location(loc.x / this.scale - this.translation.x, loc.y / this.scale - this.translation.y)
     }
 
     /**
@@ -210,7 +210,7 @@ export default class DraggableCanvas {
      *
      * @param {Number} amount The new scaling of the canvas (normal zoom = 1)
      */
-    setZoom (amount, fromLocation = { x: 0, y: 0 }) {
+    setZoom (amount) {
         // For some reason we have to untranslate canvas before zooming
         this.ctx.translate(-this.translation.x, -this.translation.y)
 
@@ -232,14 +232,14 @@ export default class DraggableCanvas {
         const height = this.canvas.height * Math.min(Math.abs(1 / this.zoomDelta), 2)
 
         for (let x = -GRID_SIZE; x < width + GRID_SIZE; x += GRID_CELL_SIZE) {
-            new StraightLine({ x: x, y: -GRID_SIZE }, { x: x, y: height + GRID_SIZE }, {
+            new StraightLine(new Location(x, -GRID_SIZE), new Location(x, height + GRID_SIZE), {
                 width: 1,
                 color: 'rgba(0,0,0,0.06)'
             }).draw(this.renderer)
         }
 
         for (let y = -GRID_SIZE; y < height + GRID_SIZE; y += GRID_CELL_SIZE) {
-            new StraightLine({ x: -GRID_SIZE, y: y }, { x: width + GRID_SIZE, y: y }, {
+            new StraightLine(new Location(-GRID_SIZE, y), new Location(width + GRID_SIZE, y), {
                 width: 1,
                 color: 'rgba(0,0,0,0.06)'
             }).draw(this.renderer)

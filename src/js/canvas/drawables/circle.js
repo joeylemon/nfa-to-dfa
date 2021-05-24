@@ -1,12 +1,12 @@
 import Drawable from './drawable.js'
-import { distance } from '../../util/util.js'
+import Location from '../location.js'
 
 export default class Circle extends Drawable {
     /**
      * @param {Location} loc The location to draw the circle
      * @param {Object} options The options with which to draw the circle
      * @example
-     *     new Circle({x: 0, y: 0}, {
+     *     new Circle(new Location(0, 0), {
      *         radius: 20,
      *         color: '#fff',
      *         text: new Text(...textOptions),
@@ -23,12 +23,12 @@ export default class Circle extends Drawable {
     }
 
     touches (loc) {
-        return distance(loc, this.loc) < this.options.radius
+        return loc.distance(this.loc) < this.options.radius
     }
 
     move (to) {
         this.loc = to
-        if (this.options.text) { this.options.text.loc = { x: to.x, y: to.y + this.options.text.options.size / 4 } }
+        if (this.options.text) { this.options.text.loc = new Location(to.x, to.y) }
 
         this.dispatchEvent('move', { newLocation: to })
     }

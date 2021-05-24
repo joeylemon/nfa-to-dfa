@@ -6,7 +6,7 @@ export default class Arrow extends Drawable {
      * @param {Location} to The end location to end the arrow
      * @param {Object} options The options with which to draw the arrow
      * @example
-     *     new Arrow({x: 0, y: 0}, {x: 50, y: 0}, {
+     *     new Arrow(new Location(0, 0), new Location(0, 0), {
      *         color: '#000',
      *         arrowRadius: 5
      *     })

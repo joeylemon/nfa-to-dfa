@@ -1,10 +1,10 @@
 import Circle from '../canvas/drawables/circle.js'
 import Text from '../canvas/drawables/text.js'
 import FSA from './fsa.js'
+import Location from '../canvas/location.js'
 import CurvedLine from '../canvas/drawables/curved_line.js'
 import ArrowedStraightLine from '../canvas/drawables/arrowed_straight_line.js'
 import EditNodeMenu from '../elements/edit_node_menu.js'
-import { angleBetween, moveToAngle, moveFromAngle } from '../util/util.js'
 
 const NODE_RADIUS = 20
 const NODE_COLOR = '#34b1eb'
@@ -109,25 +109,22 @@ export default class VisualFSA {
                 const toNode = this.getNode(endState)
 
                 // Get the angle between the fromNode and the toNode
-                const angleFromTo = angleBetween(fromNode.loc, toNode.loc)
+                const angleFromTo = fromNode.loc.angleTo(toNode.loc)
 
                 // Get the midpoint between the fromNode and the toNode
-                const midpoint = {
-                    x: (fromNode.loc.x + toNode.loc.x) / 2,
-                    y: (fromNode.loc.y + toNode.loc.y) / 2
-                }
+                const midpoint = new Location((fromNode.loc.x + toNode.loc.x) / 2, (fromNode.loc.y + toNode.loc.y) / 2)
 
                 // Get the perpendicular angle to the angle between the fromNode and the toNode
                 const perpendicularAngle = angleFromTo + (Math.PI / 2)
 
                 // Set the control point of the quadratic curve to TRANSITION_CONTROL_RADIUS towards the perpendicular angle
-                const controlPoint = moveToAngle(midpoint, perpendicularAngle, TRANSITION_CONTROL_RADIUS)
+                const controlPoint = midpoint.moveToAngle(perpendicularAngle, TRANSITION_CONTROL_RADIUS)
 
                 // Calculate the outermost point of the fromNode so the beginning of the line extends perfectly from outside the circle
-                const fromOutsideRadius = moveToAngle(fromNode.loc, angleBetween(fromNode.loc, controlPoint), NODE_RADIUS + (fromNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
+                const fromOutsideRadius = fromNode.loc.moveToAngle(fromNode.loc.angleTo(controlPoint), NODE_RADIUS + (fromNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
 
                 // Calculate the outermost point of the toNode so the arrowhead perfectly points to the circle
-                const toOutsideRadius = moveFromAngle(toNode.loc, angleBetween(controlPoint, toNode.loc), NODE_RADIUS + TRANSITION_ARROW_RADIUS + (toNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
+                const toOutsideRadius = toNode.loc.moveFromAngle(controlPoint.angleTo(toNode.loc), NODE_RADIUS + TRANSITION_ARROW_RADIUS + (toNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
 
                 const transitionLine = new CurvedLine(fromOutsideRadius, toOutsideRadius, controlPoint, {
                     width: TRANSITION_WIDTH,
@@ -138,7 +135,7 @@ export default class VisualFSA {
                 draggableCanvas.addObject(transitionLine)
 
                 // Get the midpoint of the curved line
-                const textLocation = moveToAngle(transitionLine.midpoint(), perpendicularAngle, TRANSITION_TEXT_RADIUS)
+                const textLocation = transitionLine.midpoint().moveToAngle(perpendicularAngle, TRANSITION_TEXT_RADIUS)
                 const textRotation = Math.abs(angleFromTo) > (Math.PI / 2) ? angleFromTo + Math.PI : angleFromTo
 
                 // Add the transition symbols to the center of the transition line, joined by commas
@@ -162,14 +159,14 @@ export default class VisualFSA {
                 color = '#4162d1'
 
                 // Add incoming arrow to the start state
-                const from = {
-                    x: node.loc.x + Math.cos(START_NODE_ARROW_ANGLE) * 100,
-                    y: node.loc.y + Math.sin(START_NODE_ARROW_ANGLE) * 100
-                }
-                const to = {
-                    x: node.loc.x + Math.cos(START_NODE_ARROW_ANGLE) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (node.acceptState ? NODE_OUTLINE_RADIUS : 0)),
-                    y: node.loc.y + Math.sin(START_NODE_ARROW_ANGLE) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (node.acceptState ? NODE_OUTLINE_RADIUS : 0))
-                }
+                const from = new Location(
+                    node.loc.x + Math.cos(START_NODE_ARROW_ANGLE) * 100,
+                    node.loc.y + Math.sin(START_NODE_ARROW_ANGLE) * 100
+                )
+                const to = new Location(
+                    node.loc.x + Math.cos(START_NODE_ARROW_ANGLE) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (node.acceptState ? NODE_OUTLINE_RADIUS : 0)),
+                    node.loc.y + Math.sin(START_NODE_ARROW_ANGLE) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (node.acceptState ? NODE_OUTLINE_RADIUS : 0))
+                )
                 draggableCanvas.addObject(new ArrowedStraightLine(from, to, {
                     width: TRANSITION_WIDTH,
                     color: TRANSITION_COLOR,
