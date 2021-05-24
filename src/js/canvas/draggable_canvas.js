@@ -2,6 +2,7 @@ import Renderer from './renderer.js'
 import StraightLine from './drawables/straight_line.js'
 import Drawable from './drawables/drawable.js'
 import Location from './location.js'
+import EventHandler from '../util/event_handler.js'
 
 // How large is each cell in the canvas grid?
 const GRID_CELL_SIZE = 40
@@ -13,9 +14,9 @@ const GRID_SIZE = 500
 const MIN_ZOOM_DELTA = -0.5
 
 // How much above 1 can the canvas be zoomed?
-const MAX_ZOOM_DELTA = 3
+const MAX_ZOOM_DELTA = 1
 
-export default class DraggableCanvas {
+export default class DraggableCanvas extends EventHandler {
     /**
      * DraggableCanvas represents a canvas element with added functionality such as:
      *   - zooming and panning the canvas
@@ -24,6 +25,7 @@ export default class DraggableCanvas {
      * @param {String} selector The query selector to get the canvas element
      */
     constructor (selector) {
+        super()
         this.canvas = document.querySelector(selector)
 
         // Perform some sanity checks on the element
@@ -71,11 +73,16 @@ export default class DraggableCanvas {
             e.preventDefault()
 
             const obj = this.getObjectAt(loc)
-            if (obj && obj.editable) {
+            if (obj) {
                 obj.dispatchEvent('edit', {
                     clientX: e.clientX,
+                    clientY: e.clientY
+                })
+            } else {
+                this.dispatchEvent('rightclick', {
+                    clientX: e.clientX,
                     clientY: e.clientY,
-                    previousColor: obj.options.color
+                    loc: loc
                 })
             }
         }.bind(this))
@@ -84,9 +91,10 @@ export default class DraggableCanvas {
             if (e.button !== 0) return
 
             const loc = this.normalizeLocation(new Location(e.offsetX, e.offsetY))
-
             const obj = this.getObjectAt(loc)
-            if (obj) {
+            this.dispatchEvent('mousedown', { loc: loc, obj: obj })
+
+            if (obj && typeof obj.move === 'function') {
                 // If we found an object on the mousedown location, start dragging it
                 this.draggingObject = obj
                 document.body.style.cursor = 'grabbing'
@@ -99,6 +107,7 @@ export default class DraggableCanvas {
 
         this.canvas.addEventListener('mousemove', function (e) {
             const loc = this.normalizeLocation(new Location(e.offsetX, e.offsetY))
+            this.dispatchEvent('mousemove', { loc: loc })
 
             if (this.panGrabLocation) {
                 // Pan the canvas by the difference between the mouse location and the grab location

@@ -2,7 +2,6 @@ import FSA from './fsa/fsa.js'
 import NFAConverter from './fsa/nfa_converter.js'
 import DraggableCanvas from './canvas/draggable_canvas.js'
 import VisualFSA from './fsa/visual_fsa.js'
-import Location from './canvas/location.js'
 
 // const nfaTest = new FSA(['1', '2', '3'], ['a', 'b'], {
 //     '1': {
@@ -53,18 +52,20 @@ console.log(nfaConverter.stepForward())
 console.log(nfaConverter)
 
 const nfaCanvas = new DraggableCanvas('#nfa')
-const visualNFA = new VisualFSA(nfaTest, true)
-visualNFA.setAlphabet(['a', 'b'])
-visualNFA.addNode('q1', new Location(200, 100))
-visualNFA.addNode('q2', new Location(600, 100))
-visualNFA.addNode('q3', new Location(400, 400))
-visualNFA.addTransition('q1', 'q2', 'a')
-visualNFA.addTransition('q1', 'q2', 'b')
-visualNFA.addTransition('q2', 'q1', 'a')
-visualNFA.addTransition('q2', 'q3', 'a')
-visualNFA.addTransition('q3', 'q1', 'b')
-visualNFA.addTransition('q3', 'q2', 'ε')
-visualNFA.addTransition('q3', 'q2', 'a')
+const visualNFA = new VisualFSA(nfaCanvas)
+// visualNFA.addNode('q1', new Location(200, 100))
+// visualNFA.addNode('q2', new Location(600, 100))
+// visualNFA.addNode('q3', new Location(400, 400))
+// visualNFA.addTransition('q1', 'q2', 'a')
+// visualNFA.addTransition('q1', 'q1', 'a')
+// visualNFA.addTransition('q1', 'q1', 'b')
+// visualNFA.addTransition('q3', 'q3', 'b')
+// visualNFA.addTransition('q1', 'q2', 'b')
+// visualNFA.addTransition('q2', 'q1', 'a')
+// visualNFA.addTransition('q2', 'q3', 'a')
+// visualNFA.addTransition('q3', 'q1', 'b')
+// visualNFA.addTransition('q3', 'q2', 'ε')
+// visualNFA.addTransition('q3', 'q2', 'a')
 visualNFA.render(nfaCanvas)
 
 const dfaCanvas = new DraggableCanvas('#dfa')

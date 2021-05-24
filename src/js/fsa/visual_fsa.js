@@ -1,16 +1,21 @@
-import Circle from '../canvas/drawables/circle.js'
-import Text from '../canvas/drawables/text.js'
 import FSA from './fsa.js'
 import Location from '../canvas/location.js'
-import CurvedLine from '../canvas/drawables/curved_line.js'
-import ArrowedStraightLine from '../canvas/drawables/arrowed_straight_line.js'
 import EditNodeMenu from '../elements/edit_node_menu.js'
+import AddNodeMenu from '../elements/add_node_menu.js'
+import EditTransitionMenu from '../elements/edit_transition_menu.js'
+import OverlayMessage from '../elements/overlay_message.js'
+import Circle from '../canvas/drawables/circle.js'
+import Text from '../canvas/drawables/text.js'
+import QuadraticCurvedLine from '../canvas/drawables/quadratic_curved_line.js'
+import BezierCurvedLine from '../canvas/drawables/bezier_curved_line.js'
+import ArrowedStraightLine from '../canvas/drawables/arrowed_straight_line.js'
 
 const NODE_RADIUS = 20
 const NODE_COLOR = '#34b1eb'
 const NODE_LABEL_SIZE = 24
 const NODE_OUTLINE_RADIUS = 5
 
+const START_NODE_ARROW_LENGTH = 100
 const START_NODE_ARROW_ANGLE = -135 * (Math.PI / 180)
 
 const TRANSITION_WIDTH = 3
@@ -19,11 +24,84 @@ const TRANSITION_ARROW_RADIUS = 10
 const TRANSITION_CONTROL_RADIUS = 60
 const TRANSITION_TEXT_RADIUS = 25
 
+const SELF_TRANSITION_CONTROL_RADIUS = 125
+const SELF_TRANSITION_START_ANGLE = Math.PI
+const SELF_TRANSITION_END_ANGLE = 3 * Math.PI / 2
+
 export default class VisualFSA {
-    constructor (isNFA) {
+    constructor (draggableCanvas) {
+        this.draggableCanvas = draggableCanvas
         this.fsa = new FSA([], [], {}, undefined, [])
-        this.isNFA = isNFA
         this.nodes = []
+
+        // Listen for mouse moves to draw a transition-in-progress
+        this.draggableCanvas.addEventListener('mousemove', e => {
+            if (this.addingTransitionNode) {
+                this.transitionInProgress = this.getQuadraticLine(this.addingTransitionNode.loc, e.loc)
+                this.render()
+            }
+        })
+
+        // Listen for mouse down to add a transition
+        this.draggableCanvas.addEventListener('mousedown', e => {
+            if (this.addingTransitionNode) {
+                if (e.obj && e.obj instanceof Circle && e.obj.options.text) {
+                    const endState = e.obj.options.text.options.text
+                    this.overlay = new OverlayMessage('#nfa-container', 'Press the key of the symbol for the transition')
+
+                    this.overlay.addEventListener('keydown', function (e) {
+                        if (!this.overlay) return
+
+                        if (e.key.length === 1) {
+                            try {
+                                this.addTransition(this.addingTransitionNode.label, endState, e.key === 'e' ? 'ε' : e.key)
+                                this.render()
+                            } catch (e) {
+                                this.overlay.setMessage('That symbol is not in the given alphabet')
+                                return
+                            }
+                        }
+
+                        this.overlay.deletePrevious()
+                    }.bind(this))
+
+                    this.overlay.addEventListener('close', () => {
+                        this.addingTransitionNode = undefined
+                        this.transitionInProgress = undefined
+                        this.overlay = undefined
+                        this.draggableCanvas.draggingObject = undefined
+                        document.body.style.cursor = 'auto'
+                        this.render()
+                    })
+                } else {
+                    this.addingTransitionNode = undefined
+                    this.transitionInProgress = undefined
+                    this.render()
+                }
+            }
+        })
+
+        // Listen for right clicks on an empty spot to create new nodes
+        this.draggableCanvas.addEventListener('rightclick', e => {
+            // Don't show the menu if the user is currently creating a transition
+            if (this.transitionInProgress) { return }
+
+            const addMenu = new AddNodeMenu(e.clientX, e.clientY)
+            addMenu.addEventListener('create', () => {
+                this.addNode(this.getNextStateNumber().toString(), e.loc)
+                this.render()
+            })
+        })
+
+        // Listen for keydown to stop transition-in-progress if the user presses escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                this.addingTransitionNode = undefined
+                this.transitionInProgress = undefined
+                if (this.overlay) { this.overlay.deletePrevious() }
+                this.render()
+            }
+        })
     }
 
     setStartState (label) {
@@ -40,18 +118,6 @@ export default class VisualFSA {
         this.getNode(label).acceptState = false
     }
 
-    removeState (label) {
-        this.fsa.removeState(label)
-        this.nodes = this.nodes.filter(e => e.label !== label)
-        for (const node of this.nodes) {
-            if (node.transitionText[label]) delete node.transitionText[label]
-        }
-    }
-
-    setAlphabet (alphabet) {
-        this.fsa.alphabet = alphabet
-    }
-
     addNode (label, loc) {
         this.fsa.states.push(label)
         this.nodes.push({
@@ -61,6 +127,14 @@ export default class VisualFSA {
         })
     }
 
+    removeNode (label) {
+        this.fsa.removeState(label)
+        this.nodes = this.nodes.filter(e => e.label !== label)
+        for (const node of this.nodes) {
+            if (node.transitionText[label]) delete node.transitionText[label]
+        }
+    }
+
     getNode (label) {
         const node = this.nodes.find(e => e.label === label)
         if (!node) { throw new Error(`could not find node with label ${label}`) }
@@ -68,9 +142,25 @@ export default class VisualFSA {
         return node
     }
 
-    addTransition (from, to, symbol) {
-        if (!this.fsa.alphabet.concat('ε').includes(symbol)) { throw new Error(`could not add transition of symbol ${symbol} since it is not in the alphabet`) }
+    getNextStateNumber () {
+        for (let i = 1; i < 100; i++) {
+            if (!this.fsa.states.includes(i.toString())) { return i }
+        }
 
+        throw new Error('max state count exceeded')
+    }
+
+    updateAlphabet () {
+        const alphabet = []
+        for (const fromState of Object.keys(this.fsa.transitions)) {
+            for (const symbol of Object.keys(this.fsa.transitions[fromState])) {
+                if (symbol !== 'ε') { alphabet.push(symbol) }
+            }
+        }
+        this.fsa.alphabet = [...new Set(alphabet)].sort()
+    }
+
+    addTransition (from, to, symbol) {
         const fromNode = this.getNode(from)
 
         // Set up object structure if it doesn't exist
@@ -86,6 +176,42 @@ export default class VisualFSA {
         fromNode.transitionText[to] = [...new Set(fromNode.transitionText[to])].sort()
         this.fsa.transitions[from][symbol] = [...new Set(this.fsa.transitions[from][symbol])].sort()
         console.log('post addTransition', this.fsa, this)
+
+        this.updateAlphabet()
+    }
+
+    removeTransitions (from, to) {
+        const fromNode = this.getNode(from)
+        this.fsa.transitions[from] = {}
+        delete fromNode.transitionText[to]
+
+        this.updateAlphabet()
+    }
+
+    getQuadraticLine (from, to, fromNode, toNode) {
+        // Get the angle between the fromNode and the toNode
+        const angleFromTo = from.angleTo(to)
+
+        // Get the perpendicular angle to the angle between the fromNode and the toNode
+        const perpendicularAngle = angleFromTo - (Math.PI / 2)
+
+        // Get the midpoint between the fromNode and the toNode
+        const midpoint = new Location((from.x + to.x) / 2, (from.y + to.y) / 2)
+
+        // Set the control point of the quadratic curve to TRANSITION_CONTROL_RADIUS towards the perpendicular angle
+        const controlPoint = midpoint.moveToAngle(perpendicularAngle, TRANSITION_CONTROL_RADIUS)
+
+        // Calculate the outermost point of the fromNode so the beginning of the line extends perfectly from outside the circle
+        const fromOutsideRadius = from.moveToAngle(from.angleTo(controlPoint), NODE_RADIUS + (fromNode && fromNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
+
+        // Calculate the outermost point of the toNode so the arrowhead perfectly points to the circle
+        const toOutsideRadius = to.moveFromAngle(controlPoint.angleTo(to), NODE_RADIUS + TRANSITION_ARROW_RADIUS + (toNode && toNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
+
+        return new QuadraticCurvedLine(fromOutsideRadius, toOutsideRadius, controlPoint, {
+            width: TRANSITION_WIDTH,
+            color: TRANSITION_COLOR,
+            arrowRadius: TRANSITION_ARROW_RADIUS
+        })
     }
 
     /**
@@ -97,56 +223,75 @@ export default class VisualFSA {
     }
 
     /**
-     * Render the FSA onto a canvas
-     * @param {DraggableCanvas} draggableCanvas The canvas to render the FSA onto
+     * Render the FSA onto the canvas
      */
-    render (draggableCanvas) {
-        draggableCanvas.clear()
+    render () {
+        this.draggableCanvas.clear()
+
+        if (this.transitionInProgress) { this.draggableCanvas.addObject(this.transitionInProgress) }
 
         // Draw transition lines
         for (const fromNode of this.nodes) {
             for (const endState of Object.keys(fromNode.transitionText)) {
                 const toNode = this.getNode(endState)
 
-                // Get the angle between the fromNode and the toNode
-                const angleFromTo = fromNode.loc.angleTo(toNode.loc)
+                let textLocation
+                let textRotation
 
-                // Get the midpoint between the fromNode and the toNode
-                const midpoint = new Location((fromNode.loc.x + toNode.loc.x) / 2, (fromNode.loc.y + toNode.loc.y) / 2)
+                const editFn = e => {
+                    const editMenu = new EditTransitionMenu(e.clientX, e.clientY)
+                    editMenu.addEventListener('delete', () => {
+                        console.log('delete transition')
+                        this.removeTransitions(fromNode.label, toNode.label)
+                        this.render(this.draggableCanvas)
+                    })
+                }
 
-                // Get the perpendicular angle to the angle between the fromNode and the toNode
-                const perpendicularAngle = angleFromTo + (Math.PI / 2)
+                if (fromNode.label !== toNode.label) {
+                    const angleFromTo = fromNode.loc.angleTo(toNode.loc)
+                    const perpendicularAngle = angleFromTo + (Math.PI / 2)
 
-                // Set the control point of the quadratic curve to TRANSITION_CONTROL_RADIUS towards the perpendicular angle
-                const controlPoint = midpoint.moveToAngle(perpendicularAngle, TRANSITION_CONTROL_RADIUS)
+                    const transitionLine = this.getQuadraticLine(fromNode.loc, toNode.loc, fromNode, toNode)
 
-                // Calculate the outermost point of the fromNode so the beginning of the line extends perfectly from outside the circle
-                const fromOutsideRadius = fromNode.loc.moveToAngle(fromNode.loc.angleTo(controlPoint), NODE_RADIUS + (fromNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
+                    transitionLine.addEventListener('edit', editFn)
+                    this.draggableCanvas.addObject(transitionLine)
 
-                // Calculate the outermost point of the toNode so the arrowhead perfectly points to the circle
-                const toOutsideRadius = toNode.loc.moveFromAngle(controlPoint.angleTo(toNode.loc), NODE_RADIUS + TRANSITION_ARROW_RADIUS + (toNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
+                    textLocation = transitionLine.midpoint().moveFromAngle(perpendicularAngle, TRANSITION_TEXT_RADIUS)
+                    textRotation = Math.abs(angleFromTo) > (Math.PI / 2) ? angleFromTo + Math.PI : angleFromTo
+                } else {
+                    // Set the control points towards the start and end angles
+                    const cp1 = fromNode.loc.moveToAngle(-SELF_TRANSITION_START_ANGLE, SELF_TRANSITION_CONTROL_RADIUS)
+                    const cp2 = fromNode.loc.moveToAngle(-SELF_TRANSITION_END_ANGLE, SELF_TRANSITION_CONTROL_RADIUS)
 
-                const transitionLine = new CurvedLine(fromOutsideRadius, toOutsideRadius, controlPoint, {
-                    width: TRANSITION_WIDTH,
-                    color: TRANSITION_COLOR,
-                    arrowRadius: TRANSITION_ARROW_RADIUS
-                })
+                    // Calculate the outermost point of the node so the beginning/end of the line perfectly touches the circle
+                    const fromOutsideRadius = fromNode.loc.moveToAngle(SELF_TRANSITION_START_ANGLE, NODE_RADIUS + (fromNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
+                    const toOutsideRadius = fromNode.loc.moveFromAngle(SELF_TRANSITION_END_ANGLE, NODE_RADIUS + TRANSITION_ARROW_RADIUS + (fromNode.acceptState ? NODE_OUTLINE_RADIUS : 0))
 
-                draggableCanvas.addObject(transitionLine)
+                    const transitionLine = new BezierCurvedLine(fromOutsideRadius, toOutsideRadius, cp1, cp2, {
+                        width: TRANSITION_WIDTH,
+                        color: TRANSITION_COLOR,
+                        arrowRadius: TRANSITION_ARROW_RADIUS
+                    })
 
-                // Get the midpoint of the curved line
-                const textLocation = transitionLine.midpoint().moveToAngle(perpendicularAngle, TRANSITION_TEXT_RADIUS)
-                const textRotation = Math.abs(angleFromTo) > (Math.PI / 2) ? angleFromTo + Math.PI : angleFromTo
+                    transitionLine.addEventListener('edit', editFn)
+                    this.draggableCanvas.addObject(transitionLine)
 
-                // Add the transition symbols to the center of the transition line, joined by commas
-                // console.log(`angle between ${fromNode.label} and ${toNode.label} is ${angleFromTo} (adjusted: ${textRotation})`)
-                draggableCanvas.addObject(new Text(textLocation, {
+                    // Add the text to the midpoint of the transition line with the appropriate rotation angle
+                    const midpointAngle = transitionLine.midpointAngle()
+                    textLocation = transitionLine.midpoint().moveToAngle(-(SELF_TRANSITION_START_ANGLE + SELF_TRANSITION_END_ANGLE) / 2, TRANSITION_TEXT_RADIUS)
+                    textRotation = Math.abs(midpointAngle) > (Math.PI / 2) ? midpointAngle + Math.PI : midpointAngle
+                }
+
+                // Add the transition symbols to the line, joined by commas
+                const text = new Text(textLocation, {
                     text: fromNode.transitionText[endState].join(', '),
                     rotation: textRotation,
                     color: '#000',
                     size: 24,
                     font: 'Roboto'
-                }))
+                })
+                text.addEventListener('edit', editFn)
+                this.draggableCanvas.addObject(text)
             }
         }
 
@@ -159,15 +304,9 @@ export default class VisualFSA {
                 color = '#4162d1'
 
                 // Add incoming arrow to the start state
-                const from = new Location(
-                    node.loc.x + Math.cos(START_NODE_ARROW_ANGLE) * 100,
-                    node.loc.y + Math.sin(START_NODE_ARROW_ANGLE) * 100
-                )
-                const to = new Location(
-                    node.loc.x + Math.cos(START_NODE_ARROW_ANGLE) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (node.acceptState ? NODE_OUTLINE_RADIUS : 0)),
-                    node.loc.y + Math.sin(START_NODE_ARROW_ANGLE) * (NODE_RADIUS + TRANSITION_ARROW_RADIUS + (node.acceptState ? NODE_OUTLINE_RADIUS : 0))
-                )
-                draggableCanvas.addObject(new ArrowedStraightLine(from, to, {
+                const from = node.loc.moveToAngle(START_NODE_ARROW_ANGLE, START_NODE_ARROW_LENGTH)
+                const to = node.loc.moveToAngle(START_NODE_ARROW_ANGLE, NODE_RADIUS + TRANSITION_ARROW_RADIUS + (node.acceptState ? NODE_OUTLINE_RADIUS : 0))
+                this.draggableCanvas.addObject(new ArrowedStraightLine(from, to, {
                     width: TRANSITION_WIDTH,
                     color: TRANSITION_COLOR,
                     arrowRadius: TRANSITION_ARROW_RADIUS
@@ -195,10 +334,18 @@ export default class VisualFSA {
             })
 
             circle.addEventListener('edit', e => {
+                // Don't show the edit menu if the user is currently creating a transition
+                if (this.transitionInProgress) { return }
+
                 const editMenu = new EditNodeMenu(e.clientX, e.clientY)
+
+                editMenu.addEventListener('addtransition', () => {
+                    this.addingTransitionNode = node
+                })
+
                 editMenu.addEventListener('selectedstart', () => {
                     this.setStartState(node.label)
-                    this.render(draggableCanvas)
+                    this.render(this.draggableCanvas)
                 })
 
                 editMenu.addEventListener('toggledaccept', () => {
@@ -207,21 +354,21 @@ export default class VisualFSA {
                     } else {
                         this.removeAcceptState(node.label)
                     }
-                    this.render(draggableCanvas)
+                    this.render(this.draggableCanvas)
                 })
 
                 editMenu.addEventListener('delete', () => {
-                    this.removeState(node.label)
-                    this.render(draggableCanvas)
+                    this.removeNode(node.label)
+                    this.render(this.draggableCanvas)
                 })
             })
 
             circle.addEventListener('move', e => {
                 node.loc = e.newLocation
-                this.render(draggableCanvas)
+                this.render(this.draggableCanvas)
             })
 
-            draggableCanvas.addObject(circle)
+            this.draggableCanvas.addObject(circle)
         }
     }
 }

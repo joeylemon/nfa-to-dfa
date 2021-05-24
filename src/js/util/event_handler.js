@@ -7,6 +7,18 @@ export default class EventHandler {
     }
 
     /**
+     * Update an event if it exists, otherwise register a new one
+     *
+     * @param {String} name The name of the event
+     * @param {Function} fn The function to execute upon the event occurring
+     */
+    updateEventListener (name, fn) {
+        const index = this.eventListeners.findIndex(e => e.name === name)
+        if (index > -1) { this.eventListeners.splice(index, 1) }
+        this.addEventListener(name, fn)
+    }
+
+    /**
      * Register a new event
      *
      * @param {String} name The name of the event
@@ -23,6 +35,6 @@ export default class EventHandler {
      * @param {Object} event The parameters to pass to the function
      */
     dispatchEvent (name, event) {
-        this.eventListeners.filter(e => e.name === name).forEach(e => e.fn(event))
+        if (this.eventListeners) { this.eventListeners.filter(e => e.name === name).forEach(e => e.fn(event)) }
     }
 }

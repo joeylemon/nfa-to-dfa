@@ -18,6 +18,10 @@ export default class Text extends Drawable {
         this.options = options
     }
 
+    touches (loc) {
+        return loc.distance(this.loc) < this.options.size
+    }
+
     draw (rend) {
         rend.setColor(this.options.color)
 

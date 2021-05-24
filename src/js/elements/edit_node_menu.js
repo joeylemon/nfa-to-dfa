@@ -2,7 +2,7 @@ import EventHandler from '../util/event_handler.js'
 
 export default class EditNodeMenu extends EventHandler {
     /**
-    * Create a new node edit menu in the DOM
+    * Create a menu in the DOM that allows the user to edit aspects of an FSA node
     *
     * @param {Number} x The x-coordinate of the menu
     * @param {Number} y The y-coordinate of the menu
@@ -12,7 +12,10 @@ export default class EditNodeMenu extends EventHandler {
         this.deletePrevious()
 
         document.body.insertAdjacentHTML('beforeend', `
-            <div class="edit-node-menu" id="edit-node-menu">
+            <div class="edit-menu" id="edit-node-menu">
+                <div class="option" id="edit-node-menu-add-transition">
+                    <span class="material-icons" style="color: #a4a4a4;">add_circle</span>Add transition
+                </div>
                 <div class="option" id="edit-node-menu-set-start">
                     <span class="material-icons" style="color: #5599ff;">play_circle</span>Set as start state
                 </div>
@@ -25,6 +28,8 @@ export default class EditNodeMenu extends EventHandler {
             </div>`)
         const elem = document.querySelector('#edit-node-menu')
 
+        x -= 10
+        y -= 10
         elem.style.top = `${y}px`
         elem.style.left = `${x}px`
 
@@ -33,6 +38,10 @@ export default class EditNodeMenu extends EventHandler {
         if (left + elem.clientWidth > window.innerWidth) {
             elem.style.left = `${window.innerWidth - elem.clientWidth - 10}px`
         }
+
+        document.querySelector('#edit-node-menu-add-transition').addEventListener('click', () => {
+            this.dispatchEvent('addtransition')
+        })
 
         document.querySelector('#edit-node-menu-set-start').addEventListener('click', () => {
             this.dispatchEvent('selectedstart')
@@ -50,13 +59,17 @@ export default class EditNodeMenu extends EventHandler {
             this.dispatchEvent('close')
         })
 
+        // If the user clicks elsewhere in the webpage, delete the menu
         window.addEventListener('click', () => {
             this.deletePrevious()
         })
     }
 
+    /**
+     * Delete the previous EditNodeMenu if it exists in the DOM
+     */
     deletePrevious () {
-        const elem = document.querySelector('#edit-node-menu')
+        const elem = document.querySelector('.edit-menu')
 
         // Delete the previous menu first
         if (elem !== null) {

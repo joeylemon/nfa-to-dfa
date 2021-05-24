@@ -1,4 +1,10 @@
 export default class Location {
+    /**
+     * Location represents a Cartesian point on a grid with an x- and y-coordinate
+     *
+     * @param {Number} x The x-coordinate of the location
+     * @param {Number} y The y-coordinate of the location
+     */
     constructor (x, y) {
         this.x = x
         this.y = y

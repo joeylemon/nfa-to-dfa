@@ -4,12 +4,28 @@ canvas {
     box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
 }
 
+.message-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    background-color: rgba(0,0,0,0.5);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color: #fff;
+    font-family: Roboto;
+    font-size: 25px;
+    user-select: none;
+}
+
 .material-icons {
     vertical-align: -6px;
     margin-right: 5px;
 }
 
-.edit-node-menu {
+.edit-menu {
     position: fixed;
     top: 50px;
     left: 50px;
@@ -20,7 +36,7 @@ canvas {
     padding: 5px;
 }
 
-.edit-node-menu .option {
+.edit-menu .option {
     width: 100%;
     padding: 5px 0px 5px 0px;
     color: #000;
@@ -29,10 +45,10 @@ canvas {
     user-select: none;
 }
 
-.edit-node-menu .option:active {
+.edit-menu .option:active {
     transform: scale(0.95);
 }
 
-.edit-node-menu > *:not(:last-child) {
+.edit-menu > *:not(:last-child) {
     border-bottom: 1px solid #aaa;
 }

@@ -18,7 +18,6 @@ export default class Circle extends Drawable {
         super()
         this.loc = loc
         this.options = options
-        this.editable = true
         this.move(this.loc)
     }
 

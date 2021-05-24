@@ -10,14 +10,7 @@ export default class Drawable extends EventHandler {
         // Generate a random id for this drawable object
         this.id = Math.floor(Math.random() * 10000000)
 
-        // Can this object be edited with a right-click menu?
-        this.editable = false
-
         this.eventListeners = []
-    }
-
-    move () {
-        console.warn('a drawable object was attempted to be moved without a move function defined')
     }
 
     draw () {
