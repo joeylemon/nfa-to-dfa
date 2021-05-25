@@ -24,7 +24,7 @@ describe('NFA Conversion 1', () => {
     const conversion = new NFAConverter(nfa)
 
     it('should generate the initial DFA', done => {
-        const dfa = conversion.stepForward()
+        const [dfa] = conversion.stepForward()
 
         dfa.states.should.eql(['Ø', '1', '2', '1,2', '3', '1,3', '2,3', '1,2,3'])
         dfa.alphabet.should.eql(['a', 'b'])
@@ -103,7 +103,7 @@ describe('NFA Conversion 2', () => {
     const conversion = new NFAConverter(nfa)
 
     it('should generate the initial DFA', done => {
-        const dfa = conversion.stepForward()
+        const [dfa] = conversion.stepForward()
 
         dfa.states.should.eql(['Ø', 'q1', 'q2', 'q1,q2', 'q3', 'q1,q3', 'q2,q3', 'q1,q2,q3'])
         dfa.alphabet.should.eql(['0', '1'])
