@@ -9,7 +9,8 @@ export default class Text extends Drawable {
      *         text: 'Hello world!',
      *         color: '#fff',
      *         size: 15,
-     *         font: 'Roboto'
+     *         font: 'Roboto',
+     *         outline: { color: '#000', width: 5 }
      *     })
      */
     constructor (loc, options) {
@@ -25,13 +26,25 @@ export default class Text extends Drawable {
     draw (rend) {
         rend.setColor(this.options.color)
 
+        if (this.options.outline) { rend.ctx.lineWidth = this.options.outline.width }
+
         rend.ctx.textAlign = 'center'
         rend.ctx.font = `${this.options.size}px ${this.options.font}`
         if (this.options.rotation) {
             rend.rotate(this.options.rotation, this.loc)
+            if (this.options.outline) {
+                rend.setColor(this.options.outline.color)
+                rend.ctx.strokeText(this.options.text, 0, 0 + (this.options.size / 4))
+                rend.setColor(this.options.color)
+            }
             rend.ctx.fillText(this.options.text, 0, 0 + (this.options.size / 4))
             rend.unrotate()
         } else {
+            if (this.options.outline) {
+                rend.setColor(this.options.outline.color)
+                rend.ctx.strokeText(this.options.text, this.loc.x, this.loc.y + (this.options.size / 4))
+                rend.setColor(this.options.color)
+            }
             rend.ctx.fillText(this.options.text, this.loc.x, this.loc.y + (this.options.size / 4))
         }
 

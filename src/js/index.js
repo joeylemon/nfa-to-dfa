@@ -2,92 +2,50 @@ import FSA from './fsa/fsa.js'
 import NFAConverter from './fsa/nfa_converter.js'
 import DraggableCanvas from './canvas/draggable_canvas.js'
 import VisualFSA from './fsa/visual_fsa.js'
-import Location from './canvas/location.js'
-import { keepElementsHeightSynced, downloadFile, selectFile } from './util/util.js'
+import { keepElementsHeightSynced, showWarning, downloadFile, selectFile } from './util/util.js'
 import AnimatedNFAConverter from './fsa/animated_nfa_converter.js'
 
-keepElementsHeightSynced([['#dfa-subtitle', '#nfa-subtitle'], ['#dfa-title', '#nfa-title']])
-
-// const nfaTest = new FSA(['1', '2', '3'], ['a', 'b'], {
-//     '1': {
-//         'a': undefined,
-//         'b': ['2'],
-//         'ε': ['3']
-//     },
-//     '2': {
-//         'a': ['2', '3'],
-//         'b': ['3'],
-//         'ε': undefined
-//     },
-//     '3': {
-//         'a': ['1'],
-//         'b': undefined,
-//         'ε': undefined
-//     }
-// }, '1', ['1'])
-
-// console.log(nfaTest)
-
-// const nfaConverter = new NFAConverter(nfaTest)
-// console.log(nfaConverter.stepForward())
-// console.log(nfaConverter)
-
-const nfaTest = new FSA(['q1', 'q2', 'q3'], ['0', '1'], {
-    'q1': {
-        '0': ['q3'],
-        '1': ['q2', 'q3'],
-        'ε': undefined
-    },
-    'q2': {
-        '0': ['q2'],
-        '1': ['q2'],
-        'ε': ['q3']
-    },
-    'q3': {
-        '0': ['q2'],
-        '1': ['q1', 'q2'],
-        'ε': undefined
-    }
-}, 'q1', ['q1', 'q3'])
-
-console.log(nfaTest)
-
-const nfaConverter = new NFAConverter(nfaTest)
-console.log(nfaConverter.stepForward())
-console.log(nfaConverter)
+keepElementsHeightSynced([['#dfa-instructions', '#nfa-instructions'], ['#dfa-title', '#nfa-title']])
 
 const nfaCanvas = new DraggableCanvas('#nfa')
 const dfaCanvas = new DraggableCanvas('#dfa')
 const visualNFA = new VisualFSA(nfaCanvas, false)
 const visualDFA = new VisualFSA(dfaCanvas, true)
-visualNFA.addNode('1', new Location(200, 100))
-visualNFA.addNode('2', new Location(600, 100))
-visualNFA.addNode('3', new Location(400, 400))
-visualNFA.addTransition('1', '2', 'b')
-visualNFA.addTransition('1', '3', 'ε')
-visualNFA.addTransition('2', '2', 'a')
-visualNFA.addTransition('2', '3', 'a')
-visualNFA.addTransition('2', '3', 'b')
-visualNFA.addTransition('3', '1', 'a')
-visualNFA.setStartState('1')
-visualNFA.addAcceptState('1')
-visualNFA.render()
-visualDFA.render()
-console.log(visualNFA)
-console.log(visualNFA)
-console.log(visualNFA)
-console.log(visualNFA)
 
 let converter
 let animatedConverter
 
+function validateNFA () {
+    if (visualNFA.fsa.states.length === 0) {
+        showWarning('#dfa-warning', 'You must add states to the NFA before performing the conversion.')
+        return false
+    }
+
+    if (!visualNFA.fsa.startState || visualNFA.fsa.startState === '') {
+        showWarning('#dfa-warning', 'You must set the start state in the NFA before performing the conversion.')
+        return false
+    }
+
+    if (visualNFA.fsa.alphabet.length === 0) {
+        showWarning('#dfa-warning', 'You must add at least one transition to establish an alphabet.')
+        return false
+    }
+
+    return true
+}
+
+/**
+ * Advance the NFA conversion one-by-one with the step button
+ */
 document.querySelector('#step').addEventListener('click', () => {
+    if (!validateNFA()) return
+
     if (animatedConverter) {
         animatedConverter.stop()
         animatedConverter = undefined
     }
 
-    if (!converter) {
+    if (!converter || !converter.nfa.startState) {
         converter = new NFAConverter(visualNFA.fsa)
         console.log(converter)
     }
@@ -96,12 +54,21 @@ document.querySelector('#step').addEventListener('click', () => {
     if (newDFA && step) {
         console.log(step, newDFA)
         visualDFA.syncDFA(step, newDFA)
+        document.querySelector('#dfa-conversion-step').innerHTML = step.desc
     } else {
-        console.log('done')
+        document.querySelectorAll('.conversion-button').forEach(e => {
+            e.disabled = true
+        })
+        document.querySelector('#dfa-conversion-step').innerHTML = ''
     }
 })
 
+/**
+ * Begin an automatic conversion animation with the animate button
+ */
 document.querySelector('#animate').addEventListener('click', () => {
+    if (!validateNFA()) return
+
     if (!animatedConverter) {
         if (!converter) {
             converter = new NFAConverter(visualNFA.fsa)
@@ -117,6 +84,13 @@ document.querySelector('#animate').addEventListener('click', () => {
             document.querySelector('#animate').innerHTML = '<i class="mdi mdi-play" aria-hidden="true"></i>Animate'
         })
 
+        animatedConverter.addEventListener('complete', () => {
+            document.querySelectorAll('.conversion-button').forEach(e => {
+                e.disabled = true
+            })
+            document.querySelector('#dfa-conversion-step').innerHTML = ''
+        })
+
         animatedConverter.play()
     } else {
         animatedConverter.stop()
@@ -124,7 +98,12 @@ document.querySelector('#animate').addEventListener('click', () => {
     }
 })
 
+/**
+ * Fully complete the conversion with the complete button
+ */
 document.querySelector('#complete').addEventListener('click', () => {
+    if (!validateNFA()) return
+
     if (animatedConverter) {
         animatedConverter.stop()
         animatedConverter = undefined
@@ -141,22 +120,21 @@ document.querySelector('#complete').addEventListener('click', () => {
             visualDFA.syncDFA(step, newDFA)
         }
     }
-})
 
-document.querySelector('#export').addEventListener('click', () => {
-    downloadFile('nfa.json', visualNFA.toJSON())
-})
-
-document.querySelector('#import').addEventListener('click', () => {
-    selectFile().then(contents => {
-        const obj = JSON.parse(contents)
-        if (obj.nodes && obj.fsa) {
-            visualNFA.fromJSON(obj)
-        }
+    document.querySelectorAll('.conversion-button').forEach(e => {
+        e.disabled = true
     })
 })
 
+/**
+ * Clear the DFA with the reset button
+ */
 document.querySelector('#reset').addEventListener('click', () => {
+    document.querySelectorAll('.conversion-button').forEach(e => {
+        e.disabled = false
+    })
+    document.querySelector('#dfa-conversion-step').innerHTML = ''
+
     if (animatedConverter) {
         animatedConverter.stop()
         animatedConverter = undefined
@@ -167,6 +145,60 @@ document.querySelector('#reset').addEventListener('click', () => {
         fsa: new FSA([], [], {}, undefined, [])
     })
     converter = new NFAConverter(visualNFA.fsa)
+})
+
+/**
+ * Download the NFA to a file with the export button
+ */
+document.querySelector('#export').addEventListener('click', () => {
+    downloadFile('nfa.json', visualNFA.toJSON())
+})
+
+/**
+ * Upload a saved NFA file with the import button
+ */
+document.querySelector('#import').addEventListener('click', () => {
+    selectFile().then(contents => {
+        try {
+            const obj = JSON.parse(contents)
+            if (obj.nodes && obj.fsa) {
+                visualNFA.fromJSON(obj)
+            } else {
+                showWarning('#nfa-warning', 'The given file is improperly formatted.')
+            }
+        } catch (e) {
+            showWarning('#nfa-warning', 'The given file is improperly formatted.')
+        }
+    })
+})
+
+/**
+ * Show the preset dropdown with the preset button
+ */
+document.querySelector('#dropdown-trigger').addEventListener('click', e => {
+    e.stopPropagation()
+    document.querySelector('#preset-dropdown').classList.toggle('is-active')
+})
+
+/**
+ * Remove the preset dropdown when the user clicks elsewhere on the page
+ */
+window.addEventListener('click', () => {
+    document.querySelector('#preset-dropdown').classList.remove('is-active')
+})
+
+/**
+ * Set the NFA to a preset configuration with the preset button
+ */
+document.querySelector('#preset-1').addEventListener('click', () => {
+    visualNFA.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 200, 'y': 100 }, 'transitionText': { '2': ['b'], '3': ['ε'] }, 'acceptState': true }, { 'label': '2', 'loc': { 'x': 600, 'y': 100 }, 'transitionText': { '2': ['a'], '3': ['a', 'b'] } }, { 'label': '3', 'loc': { 'x': 400, 'y': 400 }, 'transitionText': { '1': ['a'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'b': ['2'], 'ε': ['3'] }, '2': { 'a': ['2', '3'], 'b': ['3'] }, '3': { 'a': ['1'] } }, 'startState': '1', 'acceptStates': ['1'] } })
+})
+
+/**
+ * Set the NFA to a preset configuration with the preset button
+ */
+document.querySelector('#preset-2').addEventListener('click', () => {
+    visualNFA.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 154, 'y': 108 }, 'transitionText': { '2': ['ε'], '3': ['a'] } }, { 'label': '2', 'loc': { 'x': 535, 'y': 106 }, 'transitionText': {}, 'acceptState': true }, { 'label': '3', 'loc': { 'x': 334, 'y': 362 }, 'transitionText': { '2': ['a', 'b'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'ε': ['2'], 'a': ['3'] }, '3': { 'a': ['2'], 'b': ['2'] } }, 'startState': '1', 'acceptStates': ['2'] } })
 })
 
 draw()

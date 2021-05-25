@@ -72,7 +72,7 @@ export default class FSA {
     getEpsilonClosureStates (fromState) {
         if (!this.states.includes(fromState)) throw new Error(`FSA does not have a state named ${fromState}`)
 
-        if (!this.transitions[fromState]['ε']) {
+        if (!this.transitions[fromState] || !this.transitions[fromState]['ε']) {
             return [fromState]
         } else {
             return [fromState, ...this.transitions[fromState]['ε']]

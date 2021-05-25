@@ -27,25 +27,44 @@
 <body>
     <div class="columns is-desktop">
         <div class="column">
-            <div class="box title" id="nfa-title">
-                <h1>Non-deterministic Finite Automaton (NFA)</h1>
+            <div class="card title" id="nfa-title">
+                <div class="card-content">
+                    <h1>Non-deterministic Finite Automaton (NFA)</h1>
+                </div>
             </div>
-            <div class="box subtitle" id="nfa-subtitle">
-                <p>Create the NFA you wish to convert to a DFA. Or, you can import a saved NFA, or even use one from a
-                    list of presets. Start building the NFA by right-clicking
-                    <i class="mdi mdi-mouse" aria-hidden="true"></i>
-                    on the canvas below to create a node. Then, right-click
-                    <i class="mdi mdi-mouse" aria-hidden="true"></i>
-                    on the new node to create a transition, edit its properties, or delete it. You can also pan
-                    <i class="mdi mdi-cursor-pointer" aria-hidden="true"></i>
-                    and zoom
-                    <i class="mdi mdi-magnify-plus" aria-hidden="true"></i>
-                    the canvas.
-                </p>
+            <div class="card block" id="nfa-instructions">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Instructions
+                    </p>
+                </header>
+                <div class="card-content">
+                    <p class="subtitle">Create the NFA you wish to convert to a DFA. Or, you can import a saved NFA, or
+                        even use one from
+                        a
+                        list of presets. Start building the NFA by <nobr>right-clicking
+                            <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
+                        on the canvas below to create a node. Then, <nobr>right-click
+                            <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
+                        on the new node to create a transition, edit its properties, or delete it. You can also <nobr>
+                            pan
+                            <i class="mdi mdi-cursor-pointer" aria-hidden="true"></i></nobr>
+                        and <nobr>zoom
+                            <i class="mdi mdi-magnify-plus" aria-hidden="true"></i></nobr>
+                        the canvas.
+                    </p>
+                </div>
             </div>
             <div id="nfa-container" class="box" style="padding:0px; position: relative;">
                 <canvas id="nfa"></canvas>
             </div>
+            <article id="nfa-warning" class="message is-warning" style="display: none;">
+                <div class="message-header">
+                    <p>Warning</p>
+                    <button class="delete" aria-label="delete"></button>
+                </div>
+                <div class="message-body"></div>
+            </article>
             <div class="box">
                 <div class="columns">
                     <div class="column">
@@ -59,45 +78,91 @@
                         </button>
                     </div>
                     <div class="column">
-                        <button class="button blue-button" id="presets" style="width:100%;">
-                            <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>Presets
-                        </button>
+                        <div class="dropdown" id="preset-dropdown" style="width:100%;">
+                            <div class="dropdown-trigger" style="width:100%;">
+                                <button class="button blue-button" id="dropdown-trigger" aria-haspopup="true"
+                                    aria-controls="dropdown-menu" style="width:100%;">
+                                    <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>Presets
+                                </button>
+                            </div>
+                            <div class="dropdown-menu" id="dropdown-menu" role="menu" style="width:100%;">
+                                <div class="dropdown-content">
+                                    <a href="#" class="dropdown-item" id="preset-1">
+                                        <i class="mdi mdi-18px mdi-graph" aria-hidden="true"></i> Preset #1
+                                    </a>
+                                    <a href="#" class="dropdown-item" id="preset-2">
+                                        <i class="mdi mdi-18px mdi-graph" aria-hidden="true"></i> Preset #2
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </div>
+            <div class="card block" id="nfa-delta-transitions">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Delta Transition Table
+                    </p>
+                </header>
+                <div class="card-content">
+
                 </div>
             </div>
         </div>
         <div class="column">
-            <div class="box title" id="dfa-title">
-                <h1>Deterministic Finite Automaton (DFA)</h1>
+            <div class="card title" id="dfa-title">
+                <div class="card-content">
+                    <h1>Deterministic Finite Automaton (DFA)</h1>
+                </div>
             </div>
-            <div class="box subtitle" id="dfa-subtitle">
-                <p>After building the NFA, you can then start converting it to a DFA. This can be done in steps
-                    <i class="mdi mdi-skip-next" aria-hidden="true"></i>,
-                    animated
-                    <i class="mdi mdi-play" aria-hidden="true"></i>,
-                    or all at once
-                    <i class="mdi mdi-skip-forward" aria-hidden="true"></i>. You may drag nodes around to reorganize
-                    the visual layout. However, node-editing features are disabled. To change the DFA, you must first
-                    change the NFA.
-                </p>
+            <div class="card block" id="dfa-instructions">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Instructions
+                    </p>
+                </header>
+                <div class="card-content">
+                    <p class="subtitle">After building the NFA, you can then start converting it to a DFA. This can be
+                        done in <nobr>
+                            steps
+                            <i class="mdi mdi-skip-next" aria-hidden="true"></i></nobr>,
+                        <nobr>animated
+                            <i class="mdi mdi-play" aria-hidden="true"></i></nobr>,
+                        or all at <nobr>once
+                            <i class="mdi mdi-skip-forward" aria-hidden="true"></i></nobr>. You may drag nodes around to
+                        reorganize
+                        the visual layout. However, node-editing features are disabled. To change the DFA, you must
+                        first
+                        change the NFA.
+                    </p>
+                </div>
             </div>
             <div id="dfa-container" class="box" style="padding:0px; position: relative;">
+                <p class="dfa-conversion-step" id="dfa-conversion-step"></p>
                 <canvas id="dfa"></canvas>
             </div>
+            <article id="dfa-warning" class="message is-warning" style="display: none;">
+                <div class="message-header">
+                    <p>Warning</p>
+                    <button class="delete" aria-label="delete"></button>
+                </div>
+                <div class="message-body"></div>
+            </article>
             <div class="box">
                 <div class="columns">
                     <div class="column">
-                        <button class="button blue-button" id="step" style="width:100%;">
+                        <button class="button blue-button conversion-button" id="step" style="width:100%;">
                             <i class="mdi mdi-skip-next" aria-hidden="true"></i>Step
                         </button>
                     </div>
                     <div class="column">
-                        <button class="button blue-button" id="animate" style="width:100%;">
+                        <button class="button blue-button conversion-button" id="animate" style="width:100%;">
                             <i class="mdi mdi-play" aria-hidden="true"></i>Animate
                         </button>
                     </div>
                     <div class="column">
-                        <button class="button blue-button" id="complete" style="width:100%;">
+                        <button class="button blue-button conversion-button" id="complete" style="width:100%;">
                             <i class="mdi mdi-skip-forward" aria-hidden="true"></i>Complete
                         </button>
                     </div>
@@ -108,27 +173,39 @@
                     </div>
                 </div>
             </div>
+            <div class="card block" id="dfa-delta-transitions">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Delta Transition Table
+                    </p>
+                </header>
+                <div class="card-content">
+
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="box footnotes">
-        <p>
-            This website was created by
-            <a href="https://github.com/joeylemon">Joey Lemon
-                <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a>,
-            <a href="https://github.com/awillif">Camille Williford
-                <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a>,
-            and <a href="https://github.com/lproctor10242">Lauren Proctor
-                <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a>
-            during the summer of 2021 for Dr. Michael Berry in COSC493 at the University of Tennessee. It is an
-            adaptation of
-            the <a href="http://alexklibisz.github.io/FSA-Animate">original application</a> by
-            <a href="https://github.com/alexklibisz">Alex Klibisz
-                <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a>
-            and
-            <a href="https://github.com/c-minton">Connor Minton
-                <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a>.
-        </p>
+    <div class="card footnotes">
+        <div class="card-content">
+            <p>
+                This website was created by
+                <nobr><a href="https://github.com/joeylemon">Joey Lemon
+                        <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a></nobr>,
+                <nobr><a href="https://github.com/awillif">Camille Williford
+                        <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a></nobr>,
+                and <nobr><a href="https://github.com/lproctor10242">Lauren Proctor
+                        <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a></nobr>
+                during the summer of 2021 for Dr. Michael Berry in COSC493 at the University of Tennessee. It is an
+                adaptation of
+                the <a href="http://alexklibisz.github.io/FSA-Animate">original application</a> by
+                <nobr><a href="https://github.com/alexklibisz">Alex Klibisz
+                        <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a></nobr>
+                and
+                <nobr><a href="https://github.com/c-minton">Connor Minton
+                        <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a></nobr>.
+            </p>
+        </div>
     </div>
 
     <script src="src/js/index.js" type="module"></script>

@@ -1,3 +1,8 @@
+// Close a warning when the close button is clicked
+document.querySelectorAll('.delete').forEach(e => e.addEventListener('click', e => {
+    e.target.parentElement.parentElement.style.display = 'none'
+}))
+
 function syncHeight (selector1, selector2) {
     document.querySelector(selector1).style.height = `${document.querySelector(selector2).clientHeight}px`
 }
@@ -19,6 +24,23 @@ export function keepElementsHeightSynced (listOfPairs) {
     })
 }
 
+/**
+ * Display the given warning element with a message
+ *
+ * @param {String} selector The warning main parent element selector
+ * @param {String} message The message to put into the warning
+ */
+export function showWarning (selector, message) {
+    document.querySelector(selector).style.display = 'block'
+    document.querySelector(selector).querySelector('.message-body').innerHTML = message
+}
+
+/**
+ * Download a file onto the user's computer
+ *
+ * @param {String} filename The name of the file to create
+ * @param {String} content The string contents of the file
+ */
 export function downloadFile (filename, content) {
     const dataString = 'data:text/json;charset=utf-8,' + encodeURIComponent(content)
     const downloadNode = document.createElement('a')
@@ -29,6 +51,11 @@ export function downloadFile (filename, content) {
     downloadNode.remove()
 }
 
+/**
+ * Prompt the user to select a file and return a Promise with the contents
+ *
+ * @returns {Promise} The contents of the file
+ */
 export function selectFile () {
     return new Promise(resolve => {
         const input = document.createElement('input')

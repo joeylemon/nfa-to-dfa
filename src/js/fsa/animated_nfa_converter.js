@@ -19,8 +19,10 @@ export default class AnimatedNFAConverter extends EventHandler {
         const [newDFA, step] = this.converter.stepForward()
         if (newDFA && step) {
             this.visualDFA.syncDFA(step, newDFA)
+            document.querySelector('#dfa-conversion-step').innerHTML = step.desc
         } else {
             this.stop()
+            this.dispatchEvent('complete')
         }
     }
 

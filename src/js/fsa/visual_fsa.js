@@ -248,7 +248,7 @@ export default class VisualFSA {
      */
     syncDFA (step, dfa) {
         if (step.type === 'initialize') {
-            const maxCols = Math.ceil(dfa.states.length / (dfa.states.length < 16 ? 2 : 3))
+            const maxCols = Math.ceil(dfa.states.length / (Math.log2(dfa.states.length) - 1))
             let row = 0
             let col = 0
 
@@ -361,8 +361,6 @@ export default class VisualFSA {
             let outline
 
             if (this.fsa.startState === node.label) {
-                color = '#4162d1'
-
                 // Add incoming arrow to the start state
                 const from = node.loc.moveToAngle(START_NODE_ARROW_ANGLE, START_NODE_ARROW_LENGTH)
                 const to = node.loc.moveToAngle(START_NODE_ARROW_ANGLE, NODE_RADIUS + TRANSITION_ARROW_RADIUS + (node.acceptState ? NODE_OUTLINE_RADIUS : 0))
@@ -387,7 +385,8 @@ export default class VisualFSA {
                     text: node.label,
                     size: NODE_LABEL_SIZE,
                     color: '#fff',
-                    font: 'Helvetica'
+                    font: 'Helvetica',
+                    outline: { color: color === NODE_COLOR ? NODE_COLOR : 'green', width: 6 }
                 }),
                 borderOptions: { color: '#000', width: 2 },
                 outlineOptions: outline

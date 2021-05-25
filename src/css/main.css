@@ -1,5 +1,5 @@
 body {
-    padding: 10px;
+    padding: 20px;
     background-color: #f9f9f9;
 }
 
@@ -12,7 +12,7 @@ body {
     font-size: 30px;
 }
 
-.subtitle p {
+.subtitle {
     font-family: Roboto;
     font-size: 15px;
     line-height: 20px;
@@ -31,7 +31,7 @@ body {
     top: 0px;
 }
 
-.blue-button, .blue-button:focus {
+.blue-button, .blue-button:focus, .blue-button[disabled] {
     background-color: #34b1eb;
     border-color: transparent;
     color: #fff;
@@ -41,6 +41,20 @@ body {
     background-color: #2ba5de;
     border-color: transparent;
     color: #fff;
+}
+
+.dropdown-item {
+    font-family: Roboto;
+}
+
+.card-header {
+    background-color: #f0f0f0;
+    box-shadow: none;
+}
+
+.card-header-title {
+    font-family: Roboto;
+    font-weight: normal;
 }
 
 canvas {
@@ -94,4 +108,12 @@ canvas {
 
 .edit-menu > *:not(:last-child) {
     border-bottom: 1px solid #aaa;
+}
+
+.dfa-conversion-step {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    font-family: Roboto;
+    font-size: 18px;
 }
