@@ -158,6 +158,7 @@ export default class DraggableCanvas extends EventHandler {
      */
     clear () {
         this.objects = []
+        this.redrawCanvas = true
     }
 
     /**

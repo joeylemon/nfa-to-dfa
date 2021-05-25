@@ -110,6 +110,27 @@ export default class VisualFSA {
         }
     }
 
+    toJSON () {
+        return JSON.stringify({
+            nodes: this.nodes,
+            fsa: this.fsa
+        })
+    }
+
+    fromJSON (obj) {
+        this.nodes = obj.nodes
+
+        // Cast the given FSA
+        this.fsa = Object.assign(new FSA(), obj.fsa)
+
+        // Cast node locations to Locations
+        for (const node of this.nodes) {
+            node.loc = new Location(node.loc.x, node.loc.y)
+        }
+
+        this.render()
+    }
+
     setStartState (label) {
         this.fsa.startState = label
     }

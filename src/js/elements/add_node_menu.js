@@ -14,7 +14,7 @@ export default class AddNodeMenu extends EventHandler {
         document.body.insertAdjacentHTML('beforeend', `
             <div class="edit-menu" id="add-node-menu">
                 <div class="option" id="add-node-menu-add">
-                    <span class="material-icons" style="color: #a4a4a4;">add_circle</span>Add state
+                    <i class="mdi mdi-plus-circle" aria-hidden="true" style="color: #a4a4a4;"></i>Add state
                 </div class="option">
             </div>`)
         const elem = document.querySelector('#add-node-menu')

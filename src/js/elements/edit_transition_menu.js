@@ -14,7 +14,7 @@ export default class EditTransitionMenu extends EventHandler {
         document.body.insertAdjacentHTML('beforeend', `
             <div class="edit-menu" id="edit-transition-menu">
                 <div class="option" id="edit-transition-menu-delete">
-                    <span class="material-icons" style="color: #ff6767;">remove_circle</span>Delete transition
+                    <i class="mdi mdi-minus-circle" aria-hidden="true" style="color: #ff6767;"></i>Delete transition
                 </div class="option">
             </div>`)
         const elem = document.querySelector('#edit-transition-menu')

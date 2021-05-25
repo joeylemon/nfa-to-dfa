@@ -14,16 +14,16 @@ export default class EditNodeMenu extends EventHandler {
         document.body.insertAdjacentHTML('beforeend', `
             <div class="edit-menu" id="edit-node-menu">
                 <div class="option" id="edit-node-menu-add-transition">
-                    <span class="material-icons" style="color: #a4a4a4;">add_circle</span>Add transition
+                    <i class="mdi mdi-plus-circle" aria-hidden="true" style="color: #a4a4a4;"></i>Add transition
                 </div>
                 <div class="option" id="edit-node-menu-set-start">
-                    <span class="material-icons" style="color: #5599ff;">play_circle</span>Set as start state
+                    <i class="mdi mdi-play-circle" aria-hidden="true" style="color: #5599ff;"></i>Set as start state
                 </div>
                 <div class="option" id="edit-node-menu-toggle-accept">
-                    <span class="material-icons" style="color: #72b771;">check_circle</span>Toggle as accept state
+                    <i class="mdi mdi-check-circle" aria-hidden="true" style="color: #72b771;"></i>Toggle as accept state
                 </div class="option">
                 <div class="option" id="edit-node-menu-delete">
-                    <span class="material-icons" style="color: #ff6767;">remove_circle</span>Delete state
+                    <i class="mdi mdi-minus-circle" aria-hidden="true" style="color: #ff6767;"></i>Delete state
                 </div class="option">
             </div>`)
         const elem = document.querySelector('#edit-node-menu')

@@ -3,6 +3,10 @@ import NFAConverter from './fsa/nfa_converter.js'
 import DraggableCanvas from './canvas/draggable_canvas.js'
 import VisualFSA from './fsa/visual_fsa.js'
 import Location from './canvas/location.js'
+import { keepElementsHeightSynced, downloadFile, selectFile } from './util/util.js'
+import AnimatedNFAConverter from './fsa/animated_nfa_converter.js'
+
+keepElementsHeightSynced([['#dfa-subtitle', '#nfa-subtitle'], ['#dfa-title', '#nfa-title']])
 
 // const nfaTest = new FSA(['1', '2', '3'], ['a', 'b'], {
 //     '1': {
@@ -69,9 +73,20 @@ visualNFA.setStartState('1')
 visualNFA.addAcceptState('1')
 visualNFA.render()
 visualDFA.render()
+console.log(visualNFA)
+console.log(visualNFA)
+console.log(visualNFA)
+console.log(visualNFA)
 
 let converter
+let animatedConverter
+
 document.querySelector('#step').addEventListener('click', () => {
+    if (animatedConverter) {
+        animatedConverter.stop()
+        animatedConverter = undefined
+    }
+
     if (!converter) {
         converter = new NFAConverter(visualNFA.fsa)
         console.log(converter)
@@ -84,6 +99,74 @@ document.querySelector('#step').addEventListener('click', () => {
     } else {
         console.log('done')
     }
+})
+
+document.querySelector('#animate').addEventListener('click', () => {
+    if (!animatedConverter) {
+        if (!converter) {
+            converter = new NFAConverter(visualNFA.fsa)
+        }
+
+        animatedConverter = new AnimatedNFAConverter(converter, visualDFA, 750)
+
+        animatedConverter.addEventListener('start', () => {
+            document.querySelector('#animate').innerHTML = '<i class="mdi mdi-pause" aria-hidden="true"></i>Pause'
+        })
+
+        animatedConverter.addEventListener('stop', () => {
+            document.querySelector('#animate').innerHTML = '<i class="mdi mdi-play" aria-hidden="true"></i>Animate'
+        })
+
+        animatedConverter.play()
+    } else {
+        animatedConverter.stop()
+        animatedConverter = undefined
+    }
+})
+
+document.querySelector('#complete').addEventListener('click', () => {
+    if (animatedConverter) {
+        animatedConverter.stop()
+        animatedConverter = undefined
+    }
+
+    if (!converter) {
+        converter = new NFAConverter(visualNFA.fsa)
+    }
+
+    const changes = converter.complete()
+    if (changes.length > 0) {
+        for (const change of changes) {
+            const [newDFA, step] = change
+            visualDFA.syncDFA(step, newDFA)
+        }
+    }
+})
+
+document.querySelector('#export').addEventListener('click', () => {
+    downloadFile('nfa.json', visualNFA.toJSON())
+})
+
+document.querySelector('#import').addEventListener('click', () => {
+    selectFile().then(contents => {
+        const obj = JSON.parse(contents)
+        if (obj.nodes && obj.fsa) {
+            visualNFA.fromJSON(obj)
+        }
+    })
+})
+
+document.querySelector('#reset').addEventListener('click', () => {
+    if (animatedConverter) {
+        animatedConverter.stop()
+        animatedConverter = undefined
+    }
+
+    visualDFA.fromJSON({
+        nodes: [],
+        fsa: new FSA([], [], {}, undefined, [])
+    })
+    converter = new NFAConverter(visualNFA.fsa)
 })
 
 draw()

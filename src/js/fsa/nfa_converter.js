@@ -168,4 +168,21 @@ export default class NFAConverter {
 
         return this.dfa
     }
+
+    /**
+     * Complete the entire conversion process
+     *
+     * @returns {Array} Every step that was performed
+     */
+    complete () {
+        const allSteps = []
+
+        while (true) {
+            const [newDFA, step] = this.stepForward()
+            if (newDFA === undefined || step === undefined) break
+            allSteps.push([Object.assign({}, newDFA), step])
+        }
+
+        return allSteps
+    }
 }

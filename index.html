@@ -6,28 +6,129 @@
     <title>NFA to DFA Converter</title>
 
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="/src/img/favicon.png" />
 
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="node_modules/material-icons/iconfont/material-icons.css">
-    <link rel="stylesheet" href="src/css/util.css">
+    <!-- Import fonts from Google Fonts, such as Roboto -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto&display=swap">
+
+    <!-- Material Icons provides in-line action icons, such as those in the right-click edit menu in the canvas -->
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="src/css/mdi.css">
+
+    <!-- Bulma provides a lightweight CSS3 library, including Flexbox grid layouts and button styling -->
+    <link rel="stylesheet" href="node_modules/bulma/css/bulma.min.css">
+
     <link rel="stylesheet" href="src/css/main.css">
 </head>
 
 <body>
-    <div class="row">
+    <div class="columns is-desktop">
         <div class="column">
-            <a id="step" href="#">Next step</a>
+            <div class="box title" id="nfa-title">
+                <h1>Non-deterministic Finite Automaton (NFA)</h1>
+            </div>
+            <div class="box subtitle" id="nfa-subtitle">
+                <p>Create the NFA you wish to convert to a DFA. Or, you can import a saved NFA, or even use one from a
+                    list of presets. Start building the NFA by right-clicking
+                    <i class="mdi mdi-mouse" aria-hidden="true"></i>
+                    on the canvas below to create a node. Then, right-click
+                    <i class="mdi mdi-mouse" aria-hidden="true"></i>
+                    on the new node to create a transition, edit its properties, or delete it. You can also pan
+                    <i class="mdi mdi-cursor-pointer" aria-hidden="true"></i>
+                    and zoom
+                    <i class="mdi mdi-magnify-plus" aria-hidden="true"></i>
+                    the canvas.
+                </p>
+            </div>
+            <div id="nfa-container" class="box" style="padding:0px; position: relative;">
+                <canvas id="nfa"></canvas>
+            </div>
+            <div class="box">
+                <div class="columns">
+                    <div class="column">
+                        <button class="button blue-button" id="import" style="width:100%;">
+                            <i class="mdi mdi-upload" aria-hidden="true"></i>Import
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="button blue-button" id="export" style="width:100%;">
+                            <i class="mdi mdi-download" aria-hidden="true"></i>Export
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="button blue-button" id="presets" style="width:100%;">
+                            <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>Presets
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="box title" id="dfa-title">
+                <h1>Deterministic Finite Automaton (DFA)</h1>
+            </div>
+            <div class="box subtitle" id="dfa-subtitle">
+                <p>After building the NFA, you can then start converting it to a DFA. This can be done in steps
+                    <i class="mdi mdi-skip-next" aria-hidden="true"></i>,
+                    animated
+                    <i class="mdi mdi-play" aria-hidden="true"></i>,
+                    or all at once
+                    <i class="mdi mdi-skip-forward" aria-hidden="true"></i>. You may drag nodes around to reorganize
+                    the visual layout. However, node-editing features are disabled. To change the DFA, you must first
+                    change the NFA.
+                </p>
+            </div>
+            <div id="dfa-container" class="box" style="padding:0px; position: relative;">
+                <canvas id="dfa"></canvas>
+            </div>
+            <div class="box">
+                <div class="columns">
+                    <div class="column">
+                        <button class="button blue-button" id="step" style="width:100%;">
+                            <i class="mdi mdi-skip-next" aria-hidden="true"></i>Step
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="button blue-button" id="animate" style="width:100%;">
+                            <i class="mdi mdi-play" aria-hidden="true"></i>Animate
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="button blue-button" id="complete" style="width:100%;">
+                            <i class="mdi mdi-skip-forward" aria-hidden="true"></i>Complete
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="button blue-button" id="reset" style="width:100%;">
+                            <i class="mdi mdi-replay" aria-hidden="true"></i>Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="row gap-15">
-        <div id="nfa-container" class="column" style="position: relative;">
-            <canvas id="nfa"></canvas>
-        </div>
-        <div id="dfa-container" class="column" style="position: relative;">
-            <canvas id="dfa"></canvas>
-        </div>
+
+    <div class="box footnotes">
+        <p>
+            This website was created by
+            <a href="https://github.com/joeylemon">Joey Lemon
+                <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a>,
+            <a href="https://github.com/awillif">Camille Williford
+                <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a>,
+            and <a href="https://github.com/lproctor10242">Lauren Proctor
+                <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a>
+            during the summer of 2021 for Dr. Michael Berry in COSC493 at the University of Tennessee. It is an
+            adaptation of
+            the <a href="http://alexklibisz.github.io/FSA-Animate">original application</a> by
+            <a href="https://github.com/alexklibisz">Alex Klibisz
+                <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a>
+            and
+            <a href="https://github.com/c-minton">Connor Minton
+                <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a>.
+        </p>
     </div>
 
     <script src="src/js/index.js" type="module"></script>

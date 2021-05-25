@@ -1,7 +1,51 @@
+body {
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.title {
+    text-align: center;
+}
+
+.title h1 {
+    font-family: Roboto;
+    font-size: 30px;
+}
+
+.subtitle p {
+    font-family: Roboto;
+    font-size: 15px;
+    line-height: 20px;
+}
+
+.footnotes p {
+    font-family: Roboto;
+    font-size: 14px;
+}
+
+.footnotes p a {
+    color: #517caa;
+}
+
+.footnotes p .mdi::before {
+    top: 0px;
+}
+
+.blue-button, .blue-button:focus {
+    background-color: #34b1eb;
+    border-color: transparent;
+    color: #fff;
+}
+
+.blue-button:hover {
+    background-color: #2ba5de;
+    border-color: transparent;
+    color: #fff;
+}
+
 canvas {
     width: 100%;
     height: 500px;
-    box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
 }
 
 .message-overlay {
@@ -20,16 +64,11 @@ canvas {
     user-select: none;
 }
 
-.material-icons {
-    vertical-align: -6px;
-    margin-right: 5px;
-}
-
 .edit-menu {
     position: fixed;
     top: 50px;
     left: 50px;
-    width: 200px;
+    width: 250px;
     background-color: #fff;
     box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
     border-radius: 5px;

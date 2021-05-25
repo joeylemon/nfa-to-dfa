@@ -24,6 +24,7 @@
     "should": "^13.2.3"
   },
   "dependencies": {
+    "bulma": "^0.9.2",
     "material-icons": "^0.6.4"
   }
 }
