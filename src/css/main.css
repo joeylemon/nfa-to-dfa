@@ -45,6 +45,10 @@ canvas {
     user-select: none;
 }
 
+.edit-menu .option:hover {
+    background-color: #f0f0f0;
+}
+
 .edit-menu .option:active {
     transform: scale(0.95);
 }

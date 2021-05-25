@@ -26,7 +26,7 @@ export default class NFAConverter {
     /**
      * Perform a single step in the conversion from NFA to DFA
      *
-     * @returns {FSA} The new DFA after the step has been performed
+     * @returns {Array} The new DFA and the step that was performed
      */
     stepForward () {
         // If this is the first step, the DFA hasn't been initialized. Let's create the basis of the new DFA
@@ -63,8 +63,10 @@ export default class NFAConverter {
 
             this.dfa = new FSA(states, this.nfa.alphabet, transitions, startState, acceptStates)
 
-            console.log('initialize DFA')
-            return this.dfa
+            return [this.dfa, {
+                type: 'initialize',
+                desc: 'Initialize the DFA'
+            }]
         }
 
         // If we've created all the transitions for the current state, move to the next state
@@ -80,7 +82,6 @@ export default class NFAConverter {
 
             if (this.state_index === 0) {
                 // If we're at state index 0, we're at Ø. We need an infinite loopback on Ø.
-                console.log('add loopback on Ø')
                 this.dfa.transitions['Ø'][symbol] = ['Ø']
             } else {
                 let reachableStates = []
@@ -92,19 +93,29 @@ export default class NFAConverter {
                     reachableStates = reachableStates.concat(this.nfa.getReachableStates(s, symbol))
                 })
 
+                reachableStates = [...new Set(reachableStates)].sort()
+
                 // Remove Ø if the state has other possibilites
-                if (reachableStates.length > 1) {
+                if (reachableStates.some(e => e !== 'Ø')) {
                     reachableStates = reachableStates.filter(e => e !== 'Ø')
+                } else {
+                    reachableStates = ['Ø']
                 }
 
                 // Update the transition, remove any duplicates, and sort the end nodes alphabetically
-                this.dfa.transitions[state][symbol] = [...new Set(reachableStates)].sort()
-                console.log(`add transition from ${state} on input ${symbol} to ${this.dfa.transitions[state][symbol].join(',')}`)
+                this.dfa.transitions[state][symbol] = reachableStates
             }
 
             this.alphabet_index++
 
-            return this.dfa
+            const toStates = this.dfa.transitions[state][symbol].join(',')
+            return [this.dfa, {
+                type: 'add_transition',
+                desc: `Add a transition from ${state} on input ${symbol} to ${toStates}`,
+                fromState: state,
+                toState: toStates,
+                symbol: symbol
+            }]
         }
 
         // At this point, we have generated all transitions
@@ -136,12 +147,14 @@ export default class NFAConverter {
 
             this.dfa.removeState(stateToDelete)
 
-            console.log(`delete state ${stateToDelete}`)
-            return this.dfa
+            return [this.dfa, {
+                type: 'delete_state',
+                desc: `Delete unreachable state ${stateToDelete}`,
+                state: stateToDelete
+            }]
         }
 
-        console.log('nothing more to do')
-        return undefined
+        return [undefined, undefined]
     }
 
     /**

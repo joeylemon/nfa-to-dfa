@@ -90,7 +90,7 @@ export default class FSA {
         if (!this.states.includes(fromState)) throw new Error(`FSA does not have a state named ${fromState}`)
         if (symbol !== 'ε' && !this.alphabet.includes(symbol)) throw new Error(`FSA alphabet does not contain symbol ${symbol}`)
 
-        if (!this.transitions[fromState][symbol]) {
+        if (!this.transitions[fromState] || !this.transitions[fromState][symbol]) {
             return symbol === 'ε' ? [] : ['Ø']
         }
 
@@ -99,7 +99,7 @@ export default class FSA {
 
         // Check ε-transitions of the states that can be directly reached
         for (const s of this.transitions[fromState][symbol]) {
-            if (this.transitions[s]['ε'] !== undefined) {
+            if (this.transitions[s] && this.transitions[s]['ε'] !== undefined) {
                 // Recursively search for ε-transitions and add them to the list
                 list = this.getReachableStates(s, 'ε', list)
             }

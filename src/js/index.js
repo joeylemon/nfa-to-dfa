@@ -2,6 +2,7 @@ import FSA from './fsa/fsa.js'
 import NFAConverter from './fsa/nfa_converter.js'
 import DraggableCanvas from './canvas/draggable_canvas.js'
 import VisualFSA from './fsa/visual_fsa.js'
+import Location from './canvas/location.js'
 
 // const nfaTest = new FSA(['1', '2', '3'], ['a', 'b'], {
 //     '1': {
@@ -52,23 +53,38 @@ console.log(nfaConverter.stepForward())
 console.log(nfaConverter)
 
 const nfaCanvas = new DraggableCanvas('#nfa')
-const visualNFA = new VisualFSA(nfaCanvas)
-// visualNFA.addNode('q1', new Location(200, 100))
-// visualNFA.addNode('q2', new Location(600, 100))
-// visualNFA.addNode('q3', new Location(400, 400))
-// visualNFA.addTransition('q1', 'q2', 'a')
-// visualNFA.addTransition('q1', 'q1', 'a')
-// visualNFA.addTransition('q1', 'q1', 'b')
-// visualNFA.addTransition('q3', 'q3', 'b')
-// visualNFA.addTransition('q1', 'q2', 'b')
-// visualNFA.addTransition('q2', 'q1', 'a')
-// visualNFA.addTransition('q2', 'q3', 'a')
-// visualNFA.addTransition('q3', 'q1', 'b')
-// visualNFA.addTransition('q3', 'q2', 'ε')
-// visualNFA.addTransition('q3', 'q2', 'a')
-visualNFA.render(nfaCanvas)
-
 const dfaCanvas = new DraggableCanvas('#dfa')
+const visualNFA = new VisualFSA(nfaCanvas, false)
+const visualDFA = new VisualFSA(dfaCanvas, true)
+visualNFA.addNode('1', new Location(200, 100))
+visualNFA.addNode('2', new Location(600, 100))
+visualNFA.addNode('3', new Location(400, 400))
+visualNFA.addTransition('1', '2', 'b')
+visualNFA.addTransition('1', '3', 'ε')
+visualNFA.addTransition('2', '2', 'a')
+visualNFA.addTransition('2', '3', 'a')
+visualNFA.addTransition('2', '3', 'b')
+visualNFA.addTransition('3', '1', 'a')
+visualNFA.setStartState('1')
+visualNFA.addAcceptState('1')
+visualNFA.render()
+visualDFA.render()
+
+let converter
+document.querySelector('#step').addEventListener('click', () => {
+    if (!converter) {
+        converter = new NFAConverter(visualNFA.fsa)
+        console.log(converter)
+    }
+
+    const [newDFA, step] = converter.stepForward()
+    if (newDFA && step) {
+        console.log(step, newDFA)
+        visualDFA.syncDFA(step, newDFA)
+    } else {
+        console.log('done')
+    }
+})
 
 draw()
 function draw () {

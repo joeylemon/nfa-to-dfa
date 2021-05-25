@@ -10,7 +10,7 @@ import QuadraticCurvedLine from '../canvas/drawables/quadratic_curved_line.js'
 import BezierCurvedLine from '../canvas/drawables/bezier_curved_line.js'
 import ArrowedStraightLine from '../canvas/drawables/arrowed_straight_line.js'
 
-const NODE_RADIUS = 20
+const NODE_RADIUS = 30
 const NODE_COLOR = '#34b1eb'
 const NODE_LABEL_SIZE = 24
 const NODE_OUTLINE_RADIUS = 5
@@ -28,80 +28,86 @@ const SELF_TRANSITION_CONTROL_RADIUS = 125
 const SELF_TRANSITION_START_ANGLE = Math.PI
 const SELF_TRANSITION_END_ANGLE = 3 * Math.PI / 2
 
+const DFA_START_LOCATION = { x: 85, y: 150 }
+const DFA_NODE_DISTANCE = 175
+
 export default class VisualFSA {
-    constructor (draggableCanvas) {
+    constructor (draggableCanvas, isDFA) {
         this.draggableCanvas = draggableCanvas
         this.fsa = new FSA([], [], {}, undefined, [])
         this.nodes = []
+        this.isDFA = isDFA
 
-        // Listen for mouse moves to draw a transition-in-progress
-        this.draggableCanvas.addEventListener('mousemove', e => {
-            if (this.addingTransitionNode) {
-                this.transitionInProgress = this.getQuadraticLine(this.addingTransitionNode.loc, e.loc)
-                this.render()
-            }
-        })
-
-        // Listen for mouse down to add a transition
-        this.draggableCanvas.addEventListener('mousedown', e => {
-            if (this.addingTransitionNode) {
-                if (e.obj && e.obj instanceof Circle && e.obj.options.text) {
-                    const endState = e.obj.options.text.options.text
-                    this.overlay = new OverlayMessage('#nfa-container', 'Press the key of the symbol for the transition')
-
-                    this.overlay.addEventListener('keydown', function (e) {
-                        if (!this.overlay) return
-
-                        if (e.key.length === 1) {
-                            try {
-                                this.addTransition(this.addingTransitionNode.label, endState, e.key === 'e' ? 'ε' : e.key)
-                                this.render()
-                            } catch (e) {
-                                this.overlay.setMessage('That symbol is not in the given alphabet')
-                                return
-                            }
-                        }
-
-                        this.overlay.deletePrevious()
-                    }.bind(this))
-
-                    this.overlay.addEventListener('close', () => {
-                        this.addingTransitionNode = undefined
-                        this.transitionInProgress = undefined
-                        this.overlay = undefined
-                        this.draggableCanvas.draggingObject = undefined
-                        document.body.style.cursor = 'auto'
-                        this.render()
-                    })
-                } else {
-                    this.addingTransitionNode = undefined
-                    this.transitionInProgress = undefined
+        if (!isDFA) {
+            // Listen for mouse moves to draw a transition-in-progress
+            this.draggableCanvas.addEventListener('mousemove', e => {
+                if (this.addingTransitionNode) {
+                    this.transitionInProgress = this.getQuadraticLine(this.addingTransitionNode.loc, e.loc)
                     this.render()
                 }
-            }
-        })
-
-        // Listen for right clicks on an empty spot to create new nodes
-        this.draggableCanvas.addEventListener('rightclick', e => {
-            // Don't show the menu if the user is currently creating a transition
-            if (this.transitionInProgress) { return }
-
-            const addMenu = new AddNodeMenu(e.clientX, e.clientY)
-            addMenu.addEventListener('create', () => {
-                this.addNode(this.getNextStateNumber().toString(), e.loc)
-                this.render()
             })
-        })
 
-        // Listen for keydown to stop transition-in-progress if the user presses escape
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') {
-                this.addingTransitionNode = undefined
-                this.transitionInProgress = undefined
-                if (this.overlay) { this.overlay.deletePrevious() }
-                this.render()
-            }
-        })
+            // Listen for mouse down to add a transition
+            this.draggableCanvas.addEventListener('mousedown', e => {
+                if (this.addingTransitionNode) {
+                    if (e.obj && e.obj instanceof Circle && e.obj.options.text) {
+                        const endState = e.obj.options.text.options.text
+                        this.overlay = new OverlayMessage('#nfa-container', 'Press the key of the symbol for the transition')
+
+                        this.overlay.addEventListener('keydown', function (e) {
+                            if (!this.overlay) return
+
+                            if (e.key.length === 1) {
+                                try {
+                                    this.addTransition(this.addingTransitionNode.label, endState, e.key === 'e' ? 'ε' : e.key)
+                                    this.render()
+                                } catch (e) {
+                                    this.overlay.setMessage('That symbol is not in the given alphabet')
+                                    return
+                                }
+                            }
+
+                            this.overlay.deletePrevious()
+                        }.bind(this))
+
+                        this.overlay.addEventListener('close', () => {
+                            this.addingTransitionNode = undefined
+                            this.transitionInProgress = undefined
+                            this.overlay = undefined
+                            this.draggableCanvas.draggingObject = undefined
+                            document.body.style.cursor = 'auto'
+                            this.render()
+                        })
+                    } else {
+                        this.addingTransitionNode = undefined
+                        this.transitionInProgress = undefined
+                        this.render()
+                    }
+                }
+            })
+
+            // Listen for right clicks on an empty spot to create new nodes
+            this.draggableCanvas.addEventListener('rightclick', e => {
+                // Don't show the menu if the user is currently creating a transition
+                if (this.transitionInProgress) { return }
+
+                const addMenu = new AddNodeMenu(e.clientX, e.clientY)
+                addMenu.addEventListener('create', () => {
+                    this.addNode(this.getNextStateNumber().toString(), e.loc)
+                    this.render()
+                })
+            })
+
+            // Listen for keydown to stop transition-in-progress if the user presses escape
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') {
+                    this.addingTransitionNode = undefined
+                    this.transitionInProgress = undefined
+                    if (this.overlay) { this.overlay.deletePrevious() }
+                    this.render()
+                }
+            })
+        }
     }
 
     setStartState (label) {
@@ -175,7 +181,6 @@ export default class VisualFSA {
         // Remove duplicates in case the user somehow added two of the same transitions
         fromNode.transitionText[to] = [...new Set(fromNode.transitionText[to])].sort()
         this.fsa.transitions[from][symbol] = [...new Set(this.fsa.transitions[from][symbol])].sort()
-        console.log('post addTransition', this.fsa, this)
 
         this.updateAlphabet()
     }
@@ -215,11 +220,45 @@ export default class VisualFSA {
     }
 
     /**
-     * Create a visual DFA from the given FSA. This involves automatically laying out nodes
-     * into a grid instead of relying on the user to position the nodes
+     * Sync the FSA with the DFA following the step of the conversion process
+     *
+     * @param {Object} step The step's properties
+     * @param {FSA} dfa The resulting DFA after this step's conversion
      */
-    generateDFA () {
+    syncDFA (step, dfa) {
+        if (step.type === 'initialize') {
+            const maxCols = Math.ceil(dfa.states.length / (dfa.states.length < 16 ? 2 : 3))
+            let row = 0
+            let col = 0
 
+            for (const state of dfa.states) {
+                const x = DFA_START_LOCATION.x + (col * DFA_NODE_DISTANCE)
+                const y = DFA_START_LOCATION.y + (row * DFA_NODE_DISTANCE)
+
+                this.addNode(state, new Location(x, y))
+
+                col++
+                if (col >= maxCols) {
+                    row++
+                    col = 0
+                }
+            }
+
+            this.setStartState(dfa.startState)
+            dfa.acceptStates.forEach(e => this.addAcceptState(e))
+
+            return this.render()
+        }
+
+        if (step.type === 'add_transition') {
+            this.addTransition(step.fromState, step.toState, step.symbol)
+            return this.render()
+        }
+
+        if (step.type === 'delete_state') {
+            this.removeNode(step.state)
+            return this.render()
+        }
     }
 
     /**
@@ -253,7 +292,7 @@ export default class VisualFSA {
 
                     const transitionLine = this.getQuadraticLine(fromNode.loc, toNode.loc, fromNode, toNode)
 
-                    transitionLine.addEventListener('edit', editFn)
+                    if (!this.isDFA) transitionLine.addEventListener('edit', editFn)
                     this.draggableCanvas.addObject(transitionLine)
 
                     textLocation = transitionLine.midpoint().moveFromAngle(perpendicularAngle, TRANSITION_TEXT_RADIUS)
@@ -273,7 +312,7 @@ export default class VisualFSA {
                         arrowRadius: TRANSITION_ARROW_RADIUS
                     })
 
-                    transitionLine.addEventListener('edit', editFn)
+                    if (!this.isDFA) transitionLine.addEventListener('edit', editFn)
                     this.draggableCanvas.addObject(transitionLine)
 
                     // Add the text to the midpoint of the transition line with the appropriate rotation angle
@@ -290,7 +329,7 @@ export default class VisualFSA {
                     size: 24,
                     font: 'Roboto'
                 })
-                text.addEventListener('edit', editFn)
+                if (!this.isDFA) text.addEventListener('edit', editFn)
                 this.draggableCanvas.addObject(text)
             }
         }
@@ -333,35 +372,37 @@ export default class VisualFSA {
                 outlineOptions: outline
             })
 
-            circle.addEventListener('edit', e => {
-                // Don't show the edit menu if the user is currently creating a transition
-                if (this.transitionInProgress) { return }
+            if (!this.isDFA) {
+                circle.addEventListener('edit', e => {
+                    // Don't show the edit menu if the user is currently creating a transition
+                    if (this.transitionInProgress) { return }
 
-                const editMenu = new EditNodeMenu(e.clientX, e.clientY)
+                    const editMenu = new EditNodeMenu(e.clientX, e.clientY)
 
-                editMenu.addEventListener('addtransition', () => {
-                    this.addingTransitionNode = node
+                    editMenu.addEventListener('addtransition', () => {
+                        this.addingTransitionNode = node
+                    })
+
+                    editMenu.addEventListener('selectedstart', () => {
+                        this.setStartState(node.label)
+                        this.render(this.draggableCanvas)
+                    })
+
+                    editMenu.addEventListener('toggledaccept', () => {
+                        if (!node.acceptState) {
+                            this.addAcceptState(node.label)
+                        } else {
+                            this.removeAcceptState(node.label)
+                        }
+                        this.render(this.draggableCanvas)
+                    })
+
+                    editMenu.addEventListener('delete', () => {
+                        this.removeNode(node.label)
+                        this.render(this.draggableCanvas)
+                    })
                 })
-
-                editMenu.addEventListener('selectedstart', () => {
-                    this.setStartState(node.label)
-                    this.render(this.draggableCanvas)
-                })
-
-                editMenu.addEventListener('toggledaccept', () => {
-                    if (!node.acceptState) {
-                        this.addAcceptState(node.label)
-                    } else {
-                        this.removeAcceptState(node.label)
-                    }
-                    this.render(this.draggableCanvas)
-                })
-
-                editMenu.addEventListener('delete', () => {
-                    this.removeNode(node.label)
-                    this.render(this.draggableCanvas)
-                })
-            })
+            }
 
             circle.addEventListener('move', e => {
                 node.loc = e.newLocation
