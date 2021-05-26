@@ -116,6 +116,11 @@
                             </div>
                         </div>
                     </div>
+                    <div class="column is-1">
+                        <button class="button orange-button" id="nfa-reset" style="width:100%;" disabled>
+                            <i class="mdi mdi-replay" aria-hidden="true" style="margin-right: -5px;"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div id="nfa-warning" class="notification is-danger" style="display: none;">
@@ -187,23 +192,23 @@
             <div class="box">
                 <div class="columns">
                     <div class="column">
-                        <button class="button blue-button conversion-button" id="step" style="width:100%;">
+                        <button class="button blue-button conversion-button" id="step" style="width:100%;" disabled>
                             <i class="mdi mdi-skip-next" aria-hidden="true"></i>Step
                         </button>
                     </div>
                     <div class="column">
-                        <button class="button blue-button conversion-button" id="animate" style="width:100%;">
+                        <button class="button blue-button conversion-button" id="animate" style="width:100%;" disabled>
                             <i class="mdi mdi-play" aria-hidden="true"></i>Animate
                         </button>
                     </div>
                     <div class="column">
-                        <button class="button blue-button conversion-button" id="complete" style="width:100%;">
+                        <button class="button blue-button conversion-button" id="complete" style="width:100%;" disabled>
                             <i class="mdi mdi-skip-forward" aria-hidden="true"></i>Complete
                         </button>
                     </div>
-                    <div class="column">
-                        <button class="button blue-button" id="reset" style="width:100%;">
-                            <i class="mdi mdi-replay" aria-hidden="true"></i>Reset
+                    <div class="column is-1">
+                        <button class="button blue-button" id="dfa-reset" style="width:100%;" disabled>
+                            <i class="mdi mdi-replay" aria-hidden="true" style="margin-right: -5px;"></i>
                         </button>
                     </div>
                 </div>

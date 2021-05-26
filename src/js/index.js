@@ -1,4 +1,3 @@
-import FSA from './fsa/fsa.js'
 import NFAConverter from './fsa/nfa_converter.js'
 import DraggableCanvas from './canvas/draggable_canvas.js'
 import VisualFSA from './fsa/visual_fsa.js'
@@ -20,10 +19,10 @@ const dfa = {
 
 nfa.visual.addEventListener('change', () => {
     if (nfa.visual.fsa.states.length > 0) {
-        document.querySelector('#export').disabled = false
+        setEditButtonsState(true)
         nfa.desc.update(nfa.visual.fsa, true)
     } else {
-        document.querySelector('#export').disabled = true
+        setEditButtonsState(false)
         nfa.desc.reset()
     }
 })
@@ -39,6 +38,28 @@ dfa.visual.addEventListener('change', () => {
 let converter
 let animatedConverter
 
+/**
+ * Update the edit buttons enabled state
+ *
+ * @param {Boolean} enabled True to enable the buttons, false to disable the buttons
+ * @param {Boolean} onlyDFA True to only affect the DFA buttons
+ */
+function setEditButtonsState (enabled, onlyDFA) {
+    if (!onlyDFA) {
+        document.querySelector('#export').disabled = !enabled
+        document.querySelector('#nfa-reset').disabled = !enabled
+        document.querySelector('#dfa-reset').disabled = !enabled
+    }
+
+    document.querySelectorAll('.conversion-button').forEach(e => {
+        e.disabled = !enabled
+    })
+    document.querySelector('#dfa-conversion-step').innerHTML = ''
+}
+
+/**
+ * Ensure the NFA has the appropriate values to begin a conversion to a DFA
+ */
 function validateNFA () {
     if (nfa.visual.fsa.states.length === 0) {
         showWarning('#dfa-warning', 'You must add states to the NFA before performing the conversion.')
@@ -80,10 +101,7 @@ document.querySelector('#step').addEventListener('click', () => {
         dfa.visual.syncDFA(step, newDFA)
         document.querySelector('#dfa-conversion-step').innerHTML = step.desc
     } else {
-        document.querySelectorAll('.conversion-button').forEach(e => {
-            e.disabled = true
-        })
-        document.querySelector('#dfa-conversion-step').innerHTML = ''
+        setEditButtonsState(false, true)
     }
 })
 
@@ -109,10 +127,7 @@ document.querySelector('#animate').addEventListener('click', () => {
         })
 
         animatedConverter.addEventListener('complete', () => {
-            document.querySelectorAll('.conversion-button').forEach(e => {
-                e.disabled = true
-            })
-            document.querySelector('#dfa-conversion-step').innerHTML = ''
+            setEditButtonsState(false, true)
         })
 
         animatedConverter.play()
@@ -145,29 +160,30 @@ document.querySelector('#complete').addEventListener('click', () => {
         }
     }
 
-    document.querySelectorAll('.conversion-button').forEach(e => {
-        e.disabled = true
-    })
+    setEditButtonsState(false, true)
 })
 
 /**
  * Clear the DFA with the reset button
  */
-document.querySelector('#reset').addEventListener('click', () => {
-    document.querySelectorAll('.conversion-button').forEach(e => {
-        e.disabled = false
-    })
-    document.querySelector('#dfa-conversion-step').innerHTML = ''
+document.querySelector('#dfa-reset').addEventListener('click', () => {
+    setEditButtonsState(true, true)
 
     if (animatedConverter) {
         animatedConverter.stop()
         animatedConverter = undefined
     }
 
-    dfa.visual.fromJSON({
-        nodes: [],
-        fsa: new FSA([], [], {}, undefined, [])
-    })
+    dfa.visual.reset()
+    converter = new NFAConverter(nfa.visual.fsa)
+})
+
+/**
+ * Clear the NFA with the reset button
+ */
+document.querySelector('#nfa-reset').addEventListener('click', () => {
+    nfa.visual.reset()
+    dfa.visual.reset()
     converter = new NFAConverter(nfa.visual.fsa)
 })
 

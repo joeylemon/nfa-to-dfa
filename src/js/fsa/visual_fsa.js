@@ -134,6 +134,13 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    reset () {
+        this.nodes = []
+        this.fsa = new FSA([], [], {}, undefined, [])
+        this.render()
+        this.dispatchEvent('change')
+    }
+
     setStartState (label) {
         this.fsa.startState = label
         this.dispatchEvent('change')
