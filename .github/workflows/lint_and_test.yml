@@ -4,7 +4,7 @@ name: Lint and Test
 
 on:
   push:
-    branches: [ master, rewrite ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
