@@ -1,6 +1,8 @@
+const warningTimeouts = {}
+
 // Close a warning when the close button is clicked
 document.querySelectorAll('.delete').forEach(e => e.addEventListener('click', e => {
-    e.target.parentElement.parentElement.style.display = 'none'
+    e.target.parentElement.style.display = 'none'
 }))
 
 function syncHeight (selector1, selector2) {
@@ -12,7 +14,7 @@ function syncHeight (selector1, selector2) {
  *
  * @param {Array} listOfPairs The list of element pairs to keep synced
  */
-export function keepElementsHeightSynced (listOfPairs) {
+export function keepHeightSynced (listOfPairs) {
     for (const pair of listOfPairs) {
         syncHeight(pair[0], pair[1])
     }
@@ -32,7 +34,14 @@ export function keepElementsHeightSynced (listOfPairs) {
  */
 export function showWarning (selector, message) {
     document.querySelector(selector).style.display = 'block'
-    document.querySelector(selector).querySelector('.message-body').innerHTML = message
+    document.querySelector(selector).querySelector('.notification-body').innerHTML = message
+
+    // Delete the warning after a delay
+    if (warningTimeouts[selector]) { clearTimeout(warningTimeouts[selector]) }
+    warningTimeouts[selector] = setTimeout(() => {
+        document.querySelector(selector).style.display = 'none'
+        delete warningTimeouts[selector]
+    }, 4000)
 }
 
 /**

@@ -1,3 +1,4 @@
+import EventHandler from '../util/event_handler.js'
 import FSA from './fsa.js'
 import Location from '../canvas/location.js'
 import EditNodeMenu from '../elements/edit_node_menu.js'
@@ -31,8 +32,9 @@ const SELF_TRANSITION_END_ANGLE = 3 * Math.PI / 2
 const DFA_START_LOCATION = { x: 85, y: 150 }
 const DFA_NODE_DISTANCE = 175
 
-export default class VisualFSA {
+export default class VisualFSA extends EventHandler {
     constructor (draggableCanvas, isDFA) {
+        super()
         this.draggableCanvas = draggableCanvas
         this.fsa = new FSA([], [], {}, undefined, [])
         this.nodes = []
@@ -129,20 +131,24 @@ export default class VisualFSA {
         }
 
         this.render()
+        this.dispatchEvent('change')
     }
 
     setStartState (label) {
         this.fsa.startState = label
+        this.dispatchEvent('change')
     }
 
     addAcceptState (label) {
         this.fsa.acceptStates.push(label)
         this.getNode(label).acceptState = true
+        this.dispatchEvent('change')
     }
 
     removeAcceptState (label) {
         this.fsa.acceptStates = this.fsa.acceptStates.filter(e => e !== label)
         this.getNode(label).acceptState = false
+        this.dispatchEvent('change')
     }
 
     addNode (label, loc) {
@@ -152,6 +158,7 @@ export default class VisualFSA {
             loc: loc,
             transitionText: {}
         })
+        this.dispatchEvent('change')
     }
 
     removeNode (label) {
@@ -160,6 +167,10 @@ export default class VisualFSA {
         for (const node of this.nodes) {
             if (node.transitionText[label]) delete node.transitionText[label]
         }
+
+        if (this.fsa.startState === label) { this.fsa.startState = undefined }
+        this.updateAlphabet()
+        this.dispatchEvent('change')
     }
 
     getNode (label) {
@@ -204,6 +215,7 @@ export default class VisualFSA {
         this.fsa.transitions[from][symbol] = [...new Set(this.fsa.transitions[from][symbol])].sort()
 
         this.updateAlphabet()
+        this.dispatchEvent('change')
     }
 
     removeTransitions (from, to) {
@@ -212,6 +224,7 @@ export default class VisualFSA {
         delete fromNode.transitionText[to]
 
         this.updateAlphabet()
+        this.dispatchEvent('change')
     }
 
     getQuadraticLine (from, to, fromNode, toNode) {

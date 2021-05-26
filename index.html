@@ -58,39 +58,36 @@
             <div id="nfa-container" class="box" style="padding:0px; position: relative;">
                 <canvas id="nfa"></canvas>
             </div>
-            <article id="nfa-warning" class="message is-warning" style="display: none;">
-                <div class="message-header">
-                    <p>Warning</p>
-                    <button class="delete" aria-label="delete"></button>
-                </div>
-                <div class="message-body"></div>
-            </article>
+            <div id="nfa-warning" class="notification is-danger" style="display: none;">
+                <button class="delete"></button>
+                <span class="notification-body"></span>
+            </div>
             <div class="box">
                 <div class="columns">
                     <div class="column">
-                        <button class="button blue-button" id="import" style="width:100%;">
+                        <button class="button orange-button" id="import" style="width:100%;">
                             <i class="mdi mdi-upload" aria-hidden="true"></i>Import
                         </button>
                     </div>
                     <div class="column">
-                        <button class="button blue-button" id="export" style="width:100%;">
+                        <button class="button orange-button" id="export" style="width:100%;">
                             <i class="mdi mdi-download" aria-hidden="true"></i>Export
                         </button>
                     </div>
                     <div class="column">
                         <div class="dropdown" id="preset-dropdown" style="width:100%;">
                             <div class="dropdown-trigger" style="width:100%;">
-                                <button class="button blue-button" id="dropdown-trigger" aria-haspopup="true"
+                                <button class="button orange-button" id="dropdown-trigger" aria-haspopup="true"
                                     aria-controls="dropdown-menu" style="width:100%;">
                                     <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>Presets
                                 </button>
                             </div>
                             <div class="dropdown-menu" id="dropdown-menu" role="menu" style="width:100%;">
                                 <div class="dropdown-content">
-                                    <a href="#" class="dropdown-item" id="preset-1">
+                                    <a class="dropdown-item" id="preset-1">
                                         <i class="mdi mdi-18px mdi-graph" aria-hidden="true"></i> Preset #1
                                     </a>
-                                    <a href="#" class="dropdown-item" id="preset-2">
+                                    <a class="dropdown-item" id="preset-2">
                                         <i class="mdi mdi-18px mdi-graph" aria-hidden="true"></i> Preset #2
                                     </a>
                                 </div>
@@ -101,12 +98,31 @@
             </div>
             <div class="card block" id="nfa-delta-transitions">
                 <header class="card-header">
-                    <p class="card-header-title">
-                        Delta Transition Table
+                    <p class="card-header-title fsa-description">
+                        N = (<em>Q, E, 𝛿, q<sub>0</sub>, F</em> )
                     </p>
                 </header>
                 <div class="card-content">
-
+                    <div class="fsa-description">
+                        <div class="columns" style="margin-bottom: 0px;">
+                            <div class="column">
+                                <em>Q</em> = <span class="states"></span>
+                            </div>
+                            <div class="column">
+                                <em>E</em> = <span class="alphabet"></span>
+                            </div>
+                            <div class="column">
+                                <em>q<sub>0</sub></em> = <span class="startState"></span>
+                            </div>
+                            <div class="column">
+                                <em>F</em> = <span class="acceptStates"></span>
+                            </div>
+                        </div>
+                        <div>
+                            𝛿 =
+                        </div>
+                    </div>
+                    <table class="table is-bordered is-striped is-fullwidth"></table>
                 </div>
             </div>
         </div>
@@ -142,13 +158,10 @@
                 <p class="dfa-conversion-step" id="dfa-conversion-step"></p>
                 <canvas id="dfa"></canvas>
             </div>
-            <article id="dfa-warning" class="message is-warning" style="display: none;">
-                <div class="message-header">
-                    <p>Warning</p>
-                    <button class="delete" aria-label="delete"></button>
-                </div>
-                <div class="message-body"></div>
-            </article>
+            <div id="dfa-warning" class="notification is-danger" style="display: none;">
+                <button class="delete"></button>
+                <span class="notification-body"></span>
+            </div>
             <div class="box">
                 <div class="columns">
                     <div class="column">
@@ -175,12 +188,31 @@
             </div>
             <div class="card block" id="dfa-delta-transitions">
                 <header class="card-header">
-                    <p class="card-header-title">
-                        Delta Transition Table
+                    <p class="card-header-title fsa-description">
+                        M = (<em>Q', E', 𝛿', q<sub>0</sub>', F'</em> )
                     </p>
                 </header>
                 <div class="card-content">
-
+                    <div class="fsa-description">
+                        <div class="columns" style="margin-bottom: 0px;">
+                            <div class="column">
+                                <em>Q'</em> = <span class="states"></span>
+                            </div>
+                            <div class="column">
+                                <em>E'</em> = <span class="alphabet"></span>
+                            </div>
+                            <div class="column">
+                                <em>q<sub>0</sub>'</em> = <span class="startState"></span>
+                            </div>
+                            <div class="column">
+                                <em>F'</em> = <span class="acceptStates"></span>
+                            </div>
+                        </div>
+                        <div>
+                            𝛿 =
+                        </div>
+                    </div>
+                    <table class="table is-bordered is-striped is-fullwidth"></table>
                 </div>
             </div>
         </div>

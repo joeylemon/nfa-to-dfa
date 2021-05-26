@@ -2,31 +2,54 @@ import FSA from './fsa/fsa.js'
 import NFAConverter from './fsa/nfa_converter.js'
 import DraggableCanvas from './canvas/draggable_canvas.js'
 import VisualFSA from './fsa/visual_fsa.js'
-import { keepElementsHeightSynced, showWarning, downloadFile, selectFile } from './util/util.js'
+import { keepHeightSynced, showWarning, downloadFile, selectFile } from './util/util.js'
 import AnimatedNFAConverter from './fsa/animated_nfa_converter.js'
+import FSADescription from './elements/fsa_description.js'
 
-keepElementsHeightSynced([['#dfa-instructions', '#nfa-instructions'], ['#dfa-title', '#nfa-title']])
+keepHeightSynced([['#dfa-instructions', '#nfa-instructions'], ['#dfa-title', '#nfa-title']])
 
-const nfaCanvas = new DraggableCanvas('#nfa')
-const dfaCanvas = new DraggableCanvas('#dfa')
-const visualNFA = new VisualFSA(nfaCanvas, false)
-const visualDFA = new VisualFSA(dfaCanvas, true)
+const nfa = {
+    visual: new VisualFSA(new DraggableCanvas('#nfa'), false),
+    desc: new FSADescription('#nfa-delta-transitions')
+}
+
+const dfa = {
+    visual: new VisualFSA(new DraggableCanvas('#dfa'), true),
+    desc: new FSADescription('#dfa-delta-transitions')
+}
+
+nfa.visual.addEventListener('change', () => {
+    if (nfa.visual.fsa.states.length > 0) {
+        console.log(nfa.visual.fsa)
+        nfa.desc.update(nfa.visual.fsa, true)
+    } else {
+        nfa.desc.reset()
+    }
+})
+
+dfa.visual.addEventListener('change', () => {
+    if (dfa.visual.fsa.states.length > 0) {
+        dfa.desc.update(dfa.visual.fsa, false)
+    } else {
+        dfa.desc.reset()
+    }
+})
 
 let converter
 let animatedConverter
 
 function validateNFA () {
-    if (visualNFA.fsa.states.length === 0) {
+    if (nfa.visual.fsa.states.length === 0) {
         showWarning('#dfa-warning', 'You must add states to the NFA before performing the conversion.')
         return false
     }
 
-    if (!visualNFA.fsa.startState || visualNFA.fsa.startState === '') {
+    if (!nfa.visual.fsa.startState || nfa.visual.fsa.startState === '') {
         showWarning('#dfa-warning', 'You must set the start state in the NFA before performing the conversion.')
         return false
     }
 
-    if (visualNFA.fsa.alphabet.length === 0) {
+    if (nfa.visual.fsa.alphabet.length === 0) {
         showWarning('#dfa-warning', 'You must add at least one transition to establish an alphabet.')
         return false
     }
@@ -46,14 +69,14 @@ document.querySelector('#step').addEventListener('click', () => {
     }
 
     if (!converter || !converter.nfa.startState) {
-        converter = new NFAConverter(visualNFA.fsa)
+        converter = new NFAConverter(nfa.visual.fsa)
         console.log(converter)
     }
 
     const [newDFA, step] = converter.stepForward()
     if (newDFA && step) {
         console.log(step, newDFA)
-        visualDFA.syncDFA(step, newDFA)
+        dfa.visual.syncDFA(step, newDFA)
         document.querySelector('#dfa-conversion-step').innerHTML = step.desc
     } else {
         document.querySelectorAll('.conversion-button').forEach(e => {
@@ -71,10 +94,10 @@ document.querySelector('#animate').addEventListener('click', () => {
 
     if (!animatedConverter) {
         if (!converter) {
-            converter = new NFAConverter(visualNFA.fsa)
+            converter = new NFAConverter(nfa.visual.fsa)
         }
 
-        animatedConverter = new AnimatedNFAConverter(converter, visualDFA, 750)
+        animatedConverter = new AnimatedNFAConverter(converter, dfa.visual, 750)
 
         animatedConverter.addEventListener('start', () => {
             document.querySelector('#animate').innerHTML = '<i class="mdi mdi-pause" aria-hidden="true"></i>Pause'
@@ -110,14 +133,14 @@ document.querySelector('#complete').addEventListener('click', () => {
     }
 
     if (!converter) {
-        converter = new NFAConverter(visualNFA.fsa)
+        converter = new NFAConverter(nfa.visual.fsa)
     }
 
     const changes = converter.complete()
     if (changes.length > 0) {
         for (const change of changes) {
             const [newDFA, step] = change
-            visualDFA.syncDFA(step, newDFA)
+            dfa.visual.syncDFA(step, newDFA)
         }
     }
 
@@ -140,18 +163,18 @@ document.querySelector('#reset').addEventListener('click', () => {
         animatedConverter = undefined
     }
 
-    visualDFA.fromJSON({
+    dfa.visual.fromJSON({
         nodes: [],
         fsa: new FSA([], [], {}, undefined, [])
     })
-    converter = new NFAConverter(visualNFA.fsa)
+    converter = new NFAConverter(nfa.visual.fsa)
 })
 
 /**
  * Download the NFA to a file with the export button
  */
 document.querySelector('#export').addEventListener('click', () => {
-    downloadFile('nfa.json', visualNFA.toJSON())
+    downloadFile('nfa.json', nfa.visual.toJSON())
 })
 
 /**
@@ -162,7 +185,7 @@ document.querySelector('#import').addEventListener('click', () => {
         try {
             const obj = JSON.parse(contents)
             if (obj.nodes && obj.fsa) {
-                visualNFA.fromJSON(obj)
+                nfa.visual.fromJSON(obj)
             } else {
                 showWarning('#nfa-warning', 'The given file is improperly formatted.')
             }
@@ -191,19 +214,19 @@ window.addEventListener('click', () => {
  * Set the NFA to a preset configuration with the preset button
  */
 document.querySelector('#preset-1').addEventListener('click', () => {
-    visualNFA.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 200, 'y': 100 }, 'transitionText': { '2': ['b'], '3': ['ε'] }, 'acceptState': true }, { 'label': '2', 'loc': { 'x': 600, 'y': 100 }, 'transitionText': { '2': ['a'], '3': ['a', 'b'] } }, { 'label': '3', 'loc': { 'x': 400, 'y': 400 }, 'transitionText': { '1': ['a'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'b': ['2'], 'ε': ['3'] }, '2': { 'a': ['2', '3'], 'b': ['3'] }, '3': { 'a': ['1'] } }, 'startState': '1', 'acceptStates': ['1'] } })
+    nfa.visual.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 200, 'y': 100 }, 'transitionText': { '2': ['b'], '3': ['ε'] }, 'acceptState': true }, { 'label': '2', 'loc': { 'x': 600, 'y': 100 }, 'transitionText': { '2': ['a'], '3': ['a', 'b'] } }, { 'label': '3', 'loc': { 'x': 400, 'y': 400 }, 'transitionText': { '1': ['a'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'b': ['2'], 'ε': ['3'] }, '2': { 'a': ['2', '3'], 'b': ['3'] }, '3': { 'a': ['1'] } }, 'startState': '1', 'acceptStates': ['1'] } })
 })
 
 /**
  * Set the NFA to a preset configuration with the preset button
  */
 document.querySelector('#preset-2').addEventListener('click', () => {
-    visualNFA.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 154, 'y': 108 }, 'transitionText': { '2': ['ε'], '3': ['a'] } }, { 'label': '2', 'loc': { 'x': 535, 'y': 106 }, 'transitionText': {}, 'acceptState': true }, { 'label': '3', 'loc': { 'x': 334, 'y': 362 }, 'transitionText': { '2': ['a', 'b'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'ε': ['2'], 'a': ['3'] }, '3': { 'a': ['2'], 'b': ['2'] } }, 'startState': '1', 'acceptStates': ['2'] } })
+    nfa.visual.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 154, 'y': 108 }, 'transitionText': { '2': ['ε'], '3': ['a'] } }, { 'label': '2', 'loc': { 'x': 535, 'y': 106 }, 'transitionText': {}, 'acceptState': true }, { 'label': '3', 'loc': { 'x': 334, 'y': 362 }, 'transitionText': { '2': ['a', 'b'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'ε': ['2'], 'a': ['3'] }, '3': { 'a': ['2'], 'b': ['2'] } }, 'startState': '1', 'acceptStates': ['2'] } })
 })
 
 draw()
 function draw () {
-    nfaCanvas.draw()
-    dfaCanvas.draw()
+    nfa.visual.draggableCanvas.draw()
+    dfa.visual.draggableCanvas.draw()
     window.requestAnimationFrame(draw)
 }

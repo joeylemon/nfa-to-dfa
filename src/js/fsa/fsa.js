@@ -31,6 +31,7 @@ export default class FSA {
             for (const symbol of Object.keys(this.transitions[fromState])) {
                 if (this.transitions[fromState][symbol]) {
                     this.transitions[fromState][symbol] = this.transitions[fromState][symbol].filter(e => e !== state)
+                    if (this.transitions[fromState][symbol].length === 0) { delete this.transitions[fromState][symbol] }
                 }
             }
         }

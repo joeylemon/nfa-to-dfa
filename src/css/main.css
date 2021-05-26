@@ -1,6 +1,6 @@
 body {
     padding: 20px;
-    background-color: #f9f9f9;
+    background-color: #f6f6f6;
 }
 
 .title {
@@ -31,7 +31,7 @@ body {
     top: 0px;
 }
 
-.blue-button, .blue-button:focus, .blue-button[disabled] {
+.blue-button, .blue-button:focus, .blue-button:hover, .blue-button[disabled] {
     background-color: #34b1eb;
     border-color: transparent;
     color: #fff;
@@ -39,8 +39,16 @@ body {
 
 .blue-button:hover {
     background-color: #2ba5de;
+}
+
+.orange-button, .orange-button:focus, .orange-button:hover, .orange-button[disabled] {
+    background-color: #f3b75b;
     border-color: transparent;
     color: #fff;
+}
+
+.orange-button:hover {
+    background-color: #e3a444;
 }
 
 .dropdown-item {
@@ -115,5 +123,11 @@ canvas {
     bottom: 5px;
     right: 10px;
     font-family: Roboto;
+    font-size: 18px;
+    user-select: none;
+}
+
+.fsa-description {
+    font-family: 'Cambria Math', 'Cambria', serif;
     font-size: 18px;
 }

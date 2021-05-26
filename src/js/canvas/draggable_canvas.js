@@ -4,11 +4,10 @@ import Drawable from './drawables/drawable.js'
 import Location from './location.js'
 import EventHandler from '../util/event_handler.js'
 
-// How large is each cell in the canvas grid?
 const GRID_CELL_SIZE = 40
-
-// How far should the grid extend in the x and y directions?
 const GRID_SIZE = 500
+const GRID_LINE_WIDTH = 1
+const GRID_LINE_COLOR = '#e6e6e6'
 
 // How much below 1 can the canvas be zoomed?
 const MIN_ZOOM_DELTA = -0.5
@@ -243,15 +242,15 @@ export default class DraggableCanvas extends EventHandler {
 
         for (let x = -GRID_SIZE; x < width + GRID_SIZE; x += GRID_CELL_SIZE) {
             new StraightLine(new Location(x, -GRID_SIZE), new Location(x, height + GRID_SIZE), {
-                width: 1,
-                color: 'rgba(0,0,0,0.06)'
+                width: GRID_LINE_WIDTH,
+                color: GRID_LINE_COLOR
             }).draw(this.renderer)
         }
 
         for (let y = -GRID_SIZE; y < height + GRID_SIZE; y += GRID_CELL_SIZE) {
             new StraightLine(new Location(-GRID_SIZE, y), new Location(width + GRID_SIZE, y), {
-                width: 1,
-                color: 'rgba(0,0,0,0.06)'
+                width: GRID_LINE_WIDTH,
+                color: GRID_LINE_COLOR
             }).draw(this.renderer)
         }
     }
