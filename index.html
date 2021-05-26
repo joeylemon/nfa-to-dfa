@@ -1,48 +1,275 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html>
 
 <head>
+    <title>NFA to DFA Converter</title>
+
     <meta charset="utf-8">
-    <title>FSA Animate</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="../bower_components/html5shiv/dist/html5shiv.js"></script>
-      <script src="../bower_components/respond/dest/respond.min.js"></script>
-    <![endif]-->
-<!--     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.4/yeti/bootstrap.css" media="screen"> -->
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.css">
-    <link rel="stylesheet" href="components/shared/styles/Global.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="lib/css/ForceGraph.css">
+    <link rel="icon" type="image/png" href="/src/img/favicon.png" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+
+    <!-- Import fonts from Google Fonts, such as Roboto -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto&display=swap">
+
+    <!-- Material Icons provides in-line action icons, such as those in the right-click edit menu in the canvas -->
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="src/css/mdi.css">
+
+    <!-- Bulma provides a lightweight CSS3 library, including Flexbox grid layouts and button styling -->
+    <link rel="stylesheet" href="node_modules/bulma/css/bulma.min.css">
+
+    <link rel="stylesheet" href="src/css/main.css">
 </head>
 
-<body ng-app="app">
-    <div ng-include="'components/shared/partials/NavPartial.html'"></div>
-    <div ng-view id="current-view"></div>
-    <div class="container">
-        <div ng-include="'components/shared/partials/FooterPartial.html'"></div>
+<body>
+    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand" style="padding-left: 15px;">
+            <a class="navbar-item" href="https://joeylemon.github.io/nfa-to-dfa">
+                <img src="src/img/logo.png" width="100" height="28">
+            </a>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="https://github.com/joeylemon/nfa-to-dfa/blob/master/README.md">
+                    About
+                </a>
+            </div>
+
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-primary" href="https://github.com/joeylemon/nfa-to-dfa">
+                            <strong><i class="mdi mdi-github" aria-hidden="true"></i> Source</strong>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="columns is-desktop">
+        <div class="column">
+            <div class="card title" id="nfa-title">
+                <div class="card-content">
+                    <h1>Non-deterministic Finite Automaton (NFA)</h1>
+                </div>
+            </div>
+            <div class="card block" id="nfa-instructions">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Instructions
+                    </p>
+                </header>
+                <div class="card-content">
+                    <p class="subtitle">Create the NFA you wish to convert to a DFA. Or, you can import a saved NFA, or
+                        even use one from
+                        a
+                        list of presets. Start building the NFA by <nobr>right-clicking
+                            <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
+                        on the canvas below to create a node. Then, <nobr>right-click
+                            <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
+                        on the new node to create a transition, edit its properties, or delete it. You can also <nobr>
+                            pan
+                            <i class="mdi mdi-cursor-pointer" aria-hidden="true"></i></nobr>
+                        and <nobr>zoom
+                            <i class="mdi mdi-magnify-plus" aria-hidden="true"></i></nobr>
+                        the canvas.
+                    </p>
+                </div>
+            </div>
+            <div id="nfa-container" class="box" style="padding:0px; position: relative;">
+                <canvas id="nfa"></canvas>
+            </div>
+            <div id="nfa-warning" class="notification is-danger" style="display: none;">
+                <button class="delete"></button>
+                <span class="notification-body"></span>
+            </div>
+            <div class="box">
+                <div class="columns">
+                    <div class="column">
+                        <button class="button orange-button" id="import" style="width:100%;">
+                            <i class="mdi mdi-upload" aria-hidden="true"></i>Import
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="button orange-button" id="export" style="width:100%;">
+                            <i class="mdi mdi-download" aria-hidden="true"></i>Export
+                        </button>
+                    </div>
+                    <div class="column">
+                        <div class="dropdown" id="preset-dropdown" style="width:100%;">
+                            <div class="dropdown-trigger" style="width:100%;">
+                                <button class="button orange-button" id="dropdown-trigger" aria-haspopup="true"
+                                    aria-controls="dropdown-menu" style="width:100%;">
+                                    <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>Presets
+                                </button>
+                            </div>
+                            <div class="dropdown-menu" id="dropdown-menu" role="menu" style="width:100%;">
+                                <div class="dropdown-content">
+                                    <a class="dropdown-item" id="preset-1">
+                                        <i class="mdi mdi-18px mdi-graph" aria-hidden="true"></i> Preset #1
+                                    </a>
+                                    <a class="dropdown-item" id="preset-2">
+                                        <i class="mdi mdi-18px mdi-graph" aria-hidden="true"></i> Preset #2
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card block" id="nfa-delta-transitions">
+                <header class="card-header">
+                    <p class="card-header-title fsa-description">
+                        N = (<em>Q, E, 𝛿, q<sub>0</sub>, F</em> )
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div class="fsa-description">
+                        <div class="columns" style="margin-bottom: 0px;">
+                            <div class="column">
+                                <em>Q</em> = <span class="states"></span>
+                            </div>
+                            <div class="column">
+                                <em>E</em> = <span class="alphabet"></span>
+                            </div>
+                            <div class="column">
+                                <em>q<sub>0</sub></em> = <span class="startState"></span>
+                            </div>
+                            <div class="column">
+                                <em>F</em> = <span class="acceptStates"></span>
+                            </div>
+                        </div>
+                        <div>
+                            𝛿 =
+                        </div>
+                    </div>
+                    <table class="table is-bordered is-striped is-fullwidth"></table>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="card title" id="dfa-title">
+                <div class="card-content">
+                    <h1>Deterministic Finite Automaton (DFA)</h1>
+                </div>
+            </div>
+            <div class="card block" id="dfa-instructions">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Instructions
+                    </p>
+                </header>
+                <div class="card-content">
+                    <p class="subtitle">After building the NFA, you can then start converting it to a DFA. This can be
+                        done in <nobr>
+                            steps
+                            <i class="mdi mdi-skip-next" aria-hidden="true"></i></nobr>,
+                        <nobr>animated
+                            <i class="mdi mdi-play" aria-hidden="true"></i></nobr>,
+                        or all at <nobr>once
+                            <i class="mdi mdi-skip-forward" aria-hidden="true"></i></nobr>. You may drag nodes around to
+                        reorganize
+                        the visual layout. However, node-editing features are disabled. To change the DFA, you must
+                        first
+                        change the NFA.
+                    </p>
+                </div>
+            </div>
+            <div id="dfa-container" class="box" style="padding:0px; position: relative;">
+                <p class="dfa-conversion-step" id="dfa-conversion-step"></p>
+                <canvas id="dfa"></canvas>
+            </div>
+            <div id="dfa-warning" class="notification is-danger" style="display: none;">
+                <button class="delete"></button>
+                <span class="notification-body"></span>
+            </div>
+            <div class="box">
+                <div class="columns">
+                    <div class="column">
+                        <button class="button blue-button conversion-button" id="step" style="width:100%;">
+                            <i class="mdi mdi-skip-next" aria-hidden="true"></i>Step
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="button blue-button conversion-button" id="animate" style="width:100%;">
+                            <i class="mdi mdi-play" aria-hidden="true"></i>Animate
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="button blue-button conversion-button" id="complete" style="width:100%;">
+                            <i class="mdi mdi-skip-forward" aria-hidden="true"></i>Complete
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="button blue-button" id="reset" style="width:100%;">
+                            <i class="mdi mdi-replay" aria-hidden="true"></i>Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card block" id="dfa-delta-transitions">
+                <header class="card-header">
+                    <p class="card-header-title fsa-description">
+                        M = (<em>Q', E', 𝛿', q<sub>0</sub>', F'</em> )
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div class="fsa-description">
+                        <div class="columns" style="margin-bottom: 0px;">
+                            <div class="column">
+                                <em>Q'</em> = <span class="states"></span>
+                            </div>
+                            <div class="column">
+                                <em>E'</em> = <span class="alphabet"></span>
+                            </div>
+                            <div class="column">
+                                <em>q<sub>0</sub>'</em> = <span class="startState"></span>
+                            </div>
+                            <div class="column">
+                                <em>F'</em> = <span class="acceptStates"></span>
+                            </div>
+                        </div>
+                        <div>
+                            𝛿 =
+                        </div>
+                    </div>
+                    <table class="table is-bordered is-striped is-fullwidth"></table>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- External Libraries and Resources -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular-route.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="https://bootswatch.com/assets/js/bootswatch.js"></script>
+    <div class="card footnotes">
+        <div class="card-content">
+            <p>
+                This website was created by
+                <nobr><a href="https://github.com/joeylemon">Joey Lemon
+                        <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a></nobr>,
+                <nobr><a href="https://github.com/awillif">Camille Williford
+                        <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a></nobr>,
+                and <nobr><a href="https://github.com/lproctor10242">Lauren Proctor
+                        <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a></nobr>
+                during the summer of 2021 for Dr. Michael Berry in COSC493 at the University of Tennessee. It is an
+                adaptation of
+                the <a href="http://alexklibisz.github.io/FSA-Animate">original application</a> by
+                <nobr><a href="https://github.com/alexklibisz">Alex Klibisz
+                        <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a></nobr>
+                and
+                <nobr><a href="https://github.com/c-minton">Connor Minton
+                        <i class="mdi mdi-18px mdi-github" aria-hidden="true"></i></a></nobr>.
+            </p>
+            <a class="button is-primary" href="https://github.com/joeylemon/nfa-to-dfa" style="margin-top: 20px;">
+                <strong><i class="mdi mdi-github" aria-hidden="true"></i> Source</strong>
+            </a>
+        </div>
+    </div>
 
-
-    <!-- Local Libraries and Resources -->
-    <script type="text/javascript" src="components/app.js"></script>
-    <script type="text/javascript" src="components/home/HomeController.js"></script>
-    <script type="text/javascript" src="lib/js/ForceGraph.js"></script>
-    <script type="text/javascript" src="lib/js/map.js"></script>
-    <script type="text/javascript" src="lib/js/converter/converter.js"></script>
-    <script type="text/javascript" src="lib/js/converter/fsa.js"></script>
-    <script type="text/javascript" src="lib/js/converter/set.js"></script>
-
-    
+    <script src="src/js/index.js" type="module"></script>
 </body>
 
 </html>

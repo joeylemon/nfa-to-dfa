@@ -1,0 +1,142 @@
+body {
+    padding: 20px;
+    padding-top: 80px;
+    background-color: #f6f6f6;
+}
+
+.title {
+    text-align: center;
+}
+
+.title h1 {
+    font-family: Roboto;
+    font-size: 30px;
+}
+
+.subtitle {
+    font-family: Roboto;
+    font-size: 15px;
+    line-height: 20px;
+}
+
+.footnotes {
+    margin-top: 60px;
+}
+
+.footnotes p {
+    font-family: Roboto;
+    font-size: 14px;
+}
+
+.footnotes p a {
+    color: #517caa;
+}
+
+.footnotes p .mdi::before {
+    top: 0px;
+}
+
+.blue-button, .blue-button:focus, .blue-button:hover, .blue-button[disabled] {
+    background-color: #34b1eb;
+    border-color: transparent;
+    color: #fff;
+}
+
+.blue-button:hover {
+    background-color: #2ba5de;
+}
+
+.orange-button, .orange-button:focus, .orange-button:hover, .orange-button[disabled] {
+    background-color: #f3b75b;
+    border-color: transparent;
+    color: #fff;
+}
+
+.orange-button:hover {
+    background-color: #e3a444;
+}
+
+.dropdown-item {
+    font-family: Roboto;
+}
+
+.card-header {
+    background-color: #f0f0f0;
+    box-shadow: none;
+}
+
+.card-header-title {
+    font-family: Roboto;
+    font-weight: normal;
+}
+
+.navbar {
+    box-shadow: 1px 1px 5px rgba(0,0,0,0.2);
+}
+
+canvas {
+    width: 100%;
+    height: 500px;
+}
+
+.message-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    background-color: rgba(0,0,0,0.5);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color: #fff;
+    font-family: Roboto;
+    font-size: 25px;
+    user-select: none;
+}
+
+.edit-menu {
+    position: fixed;
+    top: 50px;
+    left: 50px;
+    width: 250px;
+    background-color: #fff;
+    box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.edit-menu .option {
+    width: 100%;
+    padding: 5px 0px 5px 0px;
+    color: #000;
+    font-family: 'Roboto', sans-serif;
+    cursor: pointer;
+    user-select: none;
+}
+
+.edit-menu .option:hover {
+    background-color: #f0f0f0;
+}
+
+.edit-menu .option:active {
+    transform: scale(0.95);
+}
+
+.edit-menu > *:not(:last-child) {
+    border-bottom: 1px solid #aaa;
+}
+
+.dfa-conversion-step {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    font-family: Roboto;
+    font-size: 18px;
+    user-select: none;
+}
+
+.fsa-description {
+    font-family: 'Cambria Math', 'Cambria', serif;
+    font-size: 18px;
+}

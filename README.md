@@ -10,7 +10,7 @@ _Enhanced by Camille Williford, Joey Lemon, and Lauren Proctor, COSC 493, Fall 2
 ## Overview
 
 This tool is used to convert nondeterministic finite automata (NFA) to deterministic finite automata (DFA) through an interactive and visual interface. More specifically, you can:
-- Create an NFA interactively or from a saved JSON input form
+- Create an NFA interactively or from a saved JSON file
 - Convert the NFA to an equivalent DFA in three possible ways:
     - **Step-by-step**: where the addition of a transition to the DFA is one step
     - **All at once**: go from NFA to DFA in one click
@@ -18,16 +18,15 @@ This tool is used to convert nondeterministic finite automata (NFA) to determini
 
 ### Technology
 
-- Angular.js: an MVC structure to sync the visualization with the conversion in the background
-- D3.js: the basis for the NFA and DFA visualization
+- ES6 JavaScript: use modules for importing classes, arrow functions, promises, etc
+- HTML5 Canvas: used to draw the visual automata
+- Flexbox: used to layout the page in a grid pattern
 
 ## Getting Started
 
 ### Prerequisites
 
 You must have [Node.js and npm](https://nodejs.org/en/) installed to run the application locally.
-
-My environment works with Node.js at v12.19.0 and npm at v6.14.8. However, it should work with later versions as well.
 
 ### Running Application
 
@@ -47,32 +46,28 @@ Then, simply run the start script to create a local webserver:
 > npm start
 ```
 
-This should give an output similar to below:
+Running this script should give an output similar to below:
 ```shell
 > nfa-to-dfa@0.0.2 start ~/Desktop/nfa-to-dfa
-> gulp
+> browser-sync start -s -f . --no-notify --host localhost --port 8000
 
-[15:13:19] Using gulpfile ~/Desktop/nfa-to-dfa/gulpfile.js
-[15:13:19] Starting 'default'...
-[15:13:19] Starting 'watch'...
-[15:13:19] Finished 'watch' after 18 ms
-[15:13:19] Starting 'html'...
-[15:13:19] Finished 'html' after 5.38 ms
-[15:13:19] Starting 'js'...
-[15:13:19] Finished 'js' after 1.63 ms
-[15:13:19] Starting 'css'...
-[15:13:19] Finished 'css' after 1.46 ms
-[15:13:19] Starting 'webserver'...
-[15:13:19] Webserver started at http://localhost:8000
-[15:13:19] Finished 'webserver' after 12 ms
-[15:13:19] Finished 'default' after 41 ms
-
+[Browsersync] Access URLs:
+ --------------------------------------
+       Local: http://localhost:8000
+    External: http://192.168.1.127:8000
+ --------------------------------------
+          UI: http://localhost:3001
+ UI External: http://localhost:3001
+ --------------------------------------
+[Browsersync] Serving files from: ./
+[Browsersync] Watching files...
 ```
 
-You can now navigate to `localhost:8000` in the browser to view the application. The website will automatically reload upon changes to the code.
+You can now navigate to `http://localhost:8000` in the browser to view the application. The website will automatically reload upon changes to the code.
 
-### Contributing
+## Contributing
 
+### Linting
 Prior to adding changes to the repository, you should run the linter on the code to ensure there are no syntax errors and to maintain a uniform coding style:
 ```shell
 > npm run lint
@@ -84,3 +79,11 @@ To automatically lint files before committing them, you should add a pre-commit 
 ```
 
 Now, git will automatically lint all changed files before committing them to the repository.
+
+### Testing
+You should also test your changes before committing them to the repository:
+```shell
+> npm test
+```
+
+This will run all unit tests in the `src/js/test` directory and report any errors.
