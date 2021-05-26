@@ -4,6 +4,13 @@ body {
     background-color: #f6f6f6;
 }
 
+.main-title-icon {
+    position: relative;
+    top: 2px;
+    margin-right: 5px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+}
+
 .title {
     text-align: center;
 }
@@ -40,6 +47,7 @@ body {
     background-color: #34b1eb;
     border-color: transparent;
     color: #fff;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
 .blue-button:hover {
@@ -50,6 +58,7 @@ body {
     background-color: #f3b75b;
     border-color: transparent;
     color: #fff;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
 .orange-button:hover {

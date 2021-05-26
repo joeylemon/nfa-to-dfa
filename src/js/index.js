@@ -20,9 +20,10 @@ const dfa = {
 
 nfa.visual.addEventListener('change', () => {
     if (nfa.visual.fsa.states.length > 0) {
-        console.log(nfa.visual.fsa)
+        document.querySelector('#export').disabled = false
         nfa.desc.update(nfa.visual.fsa, true)
     } else {
+        document.querySelector('#export').disabled = true
         nfa.desc.reset()
     }
 })
