@@ -11,10 +11,12 @@ _Enhanced by Camille Williford, Joey Lemon, and Lauren Proctor, COSC 493, Fall 2
 
 This tool is used to convert nondeterministic finite automata (NFA) to deterministic finite automata (DFA) through an interactive and visual interface. More specifically, you can:
 - Create an NFA interactively or from a saved JSON file
+- Export an NFA to a JSON file
 - Convert the NFA to an equivalent DFA in three possible ways:
     - **Step-by-step**: where the addition of a transition to the DFA is one step
     - **All at once**: go from NFA to DFA in one click
     - **Incrementally**: at one second intervals, with the option to pause the conversion
+- View the description of the FSA, including a full delta transition table
 
 ### Technology
 
