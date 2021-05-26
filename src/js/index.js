@@ -92,7 +92,6 @@ document.querySelector('#step').addEventListener('click', () => {
 
     if (!converter || !converter.nfa.startState) {
         converter = new NFAConverter(nfa.visual.fsa)
-        console.log(converter)
     }
 
     const [newDFA, step] = converter.stepForward()
@@ -175,7 +174,7 @@ document.querySelector('#dfa-reset').addEventListener('click', () => {
     }
 
     dfa.visual.reset()
-    converter = new NFAConverter(nfa.visual.fsa)
+    converter = undefined
 })
 
 /**
@@ -184,7 +183,7 @@ document.querySelector('#dfa-reset').addEventListener('click', () => {
 document.querySelector('#nfa-reset').addEventListener('click', () => {
     nfa.visual.reset()
     dfa.visual.reset()
-    converter = new NFAConverter(nfa.visual.fsa)
+    converter = undefined
 })
 
 /**
