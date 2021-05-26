@@ -15,20 +15,27 @@ export default class AnimatedNFAConverter extends EventHandler {
         }
     }
 
-    step () {
-        const [newDFA, step] = this.converter.stepForward()
-        if (newDFA && step) {
-            this.visualDFA.syncDFA(step, newDFA)
-            document.querySelector('#dfa-conversion-step').innerHTML = step.desc
-        } else {
+    step (onError) {
+        try {
+            const [newDFA, step] = this.converter.stepForward()
+            if (newDFA && step) {
+                this.visualDFA.syncDFA(step, newDFA)
+                document.querySelector('#dfa-conversion-step').innerHTML = step.desc
+            } else {
+                this.stop()
+                this.dispatchEvent('complete')
+            }
+        } catch (e) {
+            onError(e)
             this.stop()
-            this.dispatchEvent('complete')
         }
     }
 
-    play () {
+    play (onError) {
         this.dispatchEvent('start')
         this.step()
-        this.interval = setInterval(this.step.bind(this), this.speed)
+        this.interval = setInterval(() => {
+            this.step(onError)
+        }, this.speed)
     }
 }

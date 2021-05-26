@@ -94,13 +94,19 @@ document.querySelector('#step').addEventListener('click', () => {
         converter = new NFAConverter(nfa.visual.fsa)
     }
 
-    const [newDFA, step] = converter.stepForward()
-    if (newDFA && step) {
-        console.log(step, newDFA)
-        dfa.visual.syncDFA(step, newDFA)
-        document.querySelector('#dfa-conversion-step').innerHTML = step.desc
-    } else {
-        setEditButtonsState(false, true)
+    try {
+        const [newDFA, step] = converter.stepForward()
+        if (newDFA && step) {
+            console.log(step, newDFA)
+            dfa.visual.syncDFA(step, newDFA)
+            document.querySelector('#dfa-conversion-step').innerHTML = step.desc
+        } else {
+            setEditButtonsState(false, true)
+        }
+    } catch (e) {
+        showWarning('#nfa-warning', e.message)
+        converter = undefined
+        dfa.visual.reset()
     }
 })
 
@@ -129,7 +135,12 @@ document.querySelector('#animate').addEventListener('click', () => {
             setEditButtonsState(false, true)
         })
 
-        animatedConverter.play()
+        animatedConverter.play(err => {
+            showWarning('#nfa-warning', err.message)
+            converter = undefined
+            animatedConverter = undefined
+            dfa.visual.reset()
+        })
     } else {
         animatedConverter.stop()
         animatedConverter = undefined
@@ -151,15 +162,21 @@ document.querySelector('#complete').addEventListener('click', () => {
         converter = new NFAConverter(nfa.visual.fsa)
     }
 
-    const changes = converter.complete()
-    if (changes.length > 0) {
-        for (const change of changes) {
-            const [newDFA, step] = change
-            dfa.visual.syncDFA(step, newDFA)
+    try {
+        const changes = converter.complete()
+        if (changes.length > 0) {
+            for (const change of changes) {
+                const [newDFA, step] = change
+                dfa.visual.syncDFA(step, newDFA)
+            }
         }
-    }
 
-    setEditButtonsState(false, true)
+        setEditButtonsState(false, true)
+    } catch (e) {
+        showWarning('#nfa-warning', e.message)
+        converter = undefined
+        dfa.visual.reset()
+    }
 })
 
 /**

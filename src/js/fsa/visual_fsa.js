@@ -228,7 +228,7 @@ export default class VisualFSA extends EventHandler {
     removeTransitions (from, to) {
         const fromNode = this.getNode(from)
 
-        for (const symbol of this.fsa.alphabet) {
+        for (const symbol of this.fsa.alphabet.concat('ε')) {
             if (this.fsa.transitions[from][symbol] && this.fsa.transitions[from][symbol].includes(to)) {
                 this.fsa.transitions[from][symbol] = this.fsa.transitions[from][symbol].filter(e => e !== to)
                 if (this.fsa.transitions[from][symbol].length === 0) { delete this.fsa.transitions[from][symbol] }

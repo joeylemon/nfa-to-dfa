@@ -90,6 +90,7 @@ export default class FSA {
     getReachableStates (fromState, symbol, list = []) {
         if (!this.states.includes(fromState)) throw new Error(`FSA does not have a state named ${fromState}`)
         if (symbol !== 'ε' && !this.alphabet.includes(symbol)) throw new Error(`FSA alphabet does not contain symbol ${symbol}`)
+        if (list.length > 200) throw new Error('There is an infinite transition loop apparent in the NFA')
 
         if (!this.transitions[fromState] || !this.transitions[fromState][symbol]) {
             return symbol === 'ε' ? [] : ['Ø']
