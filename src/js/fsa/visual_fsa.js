@@ -58,16 +58,14 @@ export default class VisualFSA extends EventHandler {
                         this.overlay = new OverlayMessage('#nfa-container', 'Press the key of the symbol for the transition')
 
                         this.overlay.addEventListener('keydown', function (e) {
-                            if (!this.overlay) return
+                            if (!this.overlay || e.key === 'Shift') return
 
-                            if (e.key.length === 1) {
-                                try {
-                                    this.addTransition(this.addingTransitionNode.label, endState, e.key === 'e' ? 'ε' : e.key)
-                                    this.render()
-                                } catch (e) {
-                                    this.overlay.setMessage('That symbol is not in the given alphabet')
-                                    return
-                                }
+                            let key = e.key
+                            if (e.shiftKey) { key = key.toUpperCase() }
+
+                            if (key.length === 1) {
+                                this.addTransition(this.addingTransitionNode.label, endState, key === 'e' ? 'ε' : key)
+                                this.render()
                             }
 
                             this.overlay.deletePrevious()
