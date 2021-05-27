@@ -5,7 +5,6 @@ import { keepHeightSynced, showWarning, downloadFile, selectFile } from './util/
 import AnimatedNFAConverter from './fsa/animated_nfa_converter.js'
 import FSADescription from './elements/fsa_description.js'
 
-draw()
 keepHeightSynced([['#dfa-instructions', '#nfa-instructions'], ['#dfa-title', '#nfa-title']])
 
 const nfa = {
@@ -39,6 +38,7 @@ dfa.visual.addEventListener('change', () => {
 /**
  * Draw the canvas any time there is a change to its elements
  */
+draw()
 function draw () {
     nfa.visual.draggableCanvas.draw()
     dfa.visual.draggableCanvas.draw()
