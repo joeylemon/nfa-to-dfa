@@ -10,7 +10,7 @@
   "author": "Alex Klibisz, Connor Minton, Camille Williford, Joey Lemon, Lauren Proctor",
   "scripts": {
     "start": "./node_modules/.bin/browser-sync start -s -f src --no-notify --host localhost --port 8000",
-    "test": "./node_modules/.bin/mocha 'src/test/*.test.js'",
+    "test": "./node_modules/.bin/mocha --require should --global global,document 'src/test/*.test.js'",
     "lint": "./node_modules/.bin/eslint src --ext .js,.ts --fix"
   },
   "devDependencies": {
@@ -20,6 +20,7 @@
     "eslint-plugin-import": "^2.23.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
+    "jsdom": "^16.6.0",
     "mocha": "^8.4.0",
     "should": "^13.2.3"
   },
