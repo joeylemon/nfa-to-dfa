@@ -5,7 +5,7 @@ import { keepHeightSynced, showWarning, downloadFile, selectFile } from './util/
 import AnimatedNFAConverter from './fsa/animated_nfa_converter.js'
 import FSADescription from './elements/fsa_description.js'
 
-keepHeightSynced([['#dfa-instructions', '#nfa-instructions'], ['#dfa-title', '#nfa-title']])
+keepHeightSynced([['#dfa-title', '#nfa-title']])
 
 const nfa = {
     visual: new VisualFSA(new DraggableCanvas('#nfa'), false),
@@ -240,18 +240,18 @@ document.querySelector('#import').addEventListener('click', () => {
 })
 
 /**
- * Show the preset dropdown with the preset button
+ * Show dropdowns when the dropdown trigger is clicked
  */
-document.querySelector('#dropdown-trigger').addEventListener('click', e => {
+document.querySelectorAll('.dropdown-trigger button').forEach(e => e.addEventListener('click', e => {
     e.stopPropagation()
-    document.querySelector('#preset-dropdown').classList.toggle('is-active')
-})
+    e.target.parentElement.parentElement.classList.toggle('is-active')
+}))
 
 /**
- * Remove the preset dropdown when the user clicks elsewhere on the page
+ * Remove all dropdowns when the user clicks elsewhere on the page
  */
 window.addEventListener('click', () => {
-    document.querySelector('#preset-dropdown').classList.remove('is-active')
+    document.querySelectorAll('.dropdown').forEach(e => e.classList.remove('is-active'))
 })
 
 /**
