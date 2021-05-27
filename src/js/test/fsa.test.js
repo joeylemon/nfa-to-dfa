@@ -1,5 +1,6 @@
 import should from 'should' // eslint-disable-line no-unused-vars
-import FSA from '../js/fsa/fsa.js'
+import FSA from '../fsa/fsa.js'
+import { UnknownStateError, UnknownSymbolError } from '../util/errors.js'
 
 describe('FSA 1', () => {
     const fsa = new FSA(['1', '2', '3'], ['a', 'b'], {
@@ -45,13 +46,13 @@ describe('FSA 1', () => {
     })
 
     it('should not get epsilon closure states from an invalid state', done => {
-        should(() => { fsa.getEpsilonClosureStates('4') }).throw('FSA does not have a state named 4')
+        should(() => { fsa.getEpsilonClosureStates('4') }).throw(new UnknownStateError('4'))
         done()
     })
 
     it('should not get reachable states from an invalid state', done => {
-        should(() => { fsa.getReachableStates('4', 'a') }).throw('FSA does not have a state named 4')
-        should(() => { fsa.getReachableStates('1', 'z') }).throw('FSA alphabet does not contain symbol z')
+        should(() => { fsa.getReachableStates('4', 'a') }).throw(new UnknownStateError('4'))
+        should(() => { fsa.getReachableStates('1', 'z') }).throw(new UnknownSymbolError('z'))
         done()
     })
 })
@@ -100,13 +101,13 @@ describe('FSA 2', () => {
     })
 
     it('should not get epsilon closure states from an invalid state', done => {
-        should(() => { fsa.getEpsilonClosureStates('q4') }).throw('FSA does not have a state named q4')
+        should(() => { fsa.getEpsilonClosureStates('q4') }).throw(new UnknownStateError('q4'))
         done()
     })
 
     it('should not get reachable states from an invalid state', done => {
-        should(() => { fsa.getReachableStates('q4', '0') }).throw('FSA does not have a state named q4')
-        should(() => { fsa.getReachableStates('q1', '2') }).throw('FSA alphabet does not contain symbol 2')
+        should(() => { fsa.getReachableStates('q4', '0') }).throw(new UnknownStateError('q4'))
+        should(() => { fsa.getReachableStates('q1', '2') }).throw(new UnknownSymbolError('2'))
         done()
     })
 })

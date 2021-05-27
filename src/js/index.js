@@ -5,6 +5,7 @@ import { keepHeightSynced, showWarning, downloadFile, selectFile } from './util/
 import AnimatedNFAConverter from './fsa/animated_nfa_converter.js'
 import FSADescription from './elements/fsa_description.js'
 
+draw()
 keepHeightSynced([['#dfa-instructions', '#nfa-instructions'], ['#dfa-title', '#nfa-title']])
 
 const nfa = {
@@ -35,8 +36,14 @@ dfa.visual.addEventListener('change', () => {
     }
 })
 
-let converter
-let animatedConverter
+/**
+ * Draw the canvas any time there is a change to its elements
+ */
+function draw () {
+    nfa.visual.draggableCanvas.draw()
+    dfa.visual.draggableCanvas.draw()
+    window.requestAnimationFrame(draw)
+}
 
 /**
  * Update the edit buttons enabled state
@@ -59,6 +66,7 @@ function setEditButtonsState (enabled, onlyDFA) {
 
 /**
  * Ensure the NFA has the appropriate values to begin a conversion to a DFA
+ * @returns {Boolean} True if the NFA is valid, false if not
  */
 function validateNFA () {
     if (nfa.visual.fsa.states.length === 0) {
@@ -78,6 +86,9 @@ function validateNFA () {
 
     return true
 }
+
+let converter
+let animatedConverter
 
 /**
  * Advance the NFA conversion one-by-one with the step button
@@ -256,10 +267,3 @@ document.querySelector('#preset-1').addEventListener('click', () => {
 document.querySelector('#preset-2').addEventListener('click', () => {
     nfa.visual.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 154, 'y': 108 }, 'transitionText': { '2': ['ε'], '3': ['a'] } }, { 'label': '2', 'loc': { 'x': 535, 'y': 106 }, 'transitionText': {}, 'acceptState': true }, { 'label': '3', 'loc': { 'x': 334, 'y': 362 }, 'transitionText': { '2': ['a', 'b'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'ε': ['2'], 'a': ['3'] }, '3': { 'a': ['2'], 'b': ['2'] } }, 'startState': '1', 'acceptStates': ['2'] } })
 })
-
-draw()
-function draw () {
-    nfa.visual.draggableCanvas.draw()
-    dfa.visual.draggableCanvas.draw()
-    window.requestAnimationFrame(draw)
-}

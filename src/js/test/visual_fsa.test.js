@@ -1,16 +1,16 @@
 import should from 'should' // eslint-disable-line no-unused-vars
 import jsdom from 'jsdom'
 
-import { UnknownStateError } from '../js/util/errors.js'
-import VisualFSA from '../js/fsa/visual_fsa.js'
-import NFAConverter from '../js/fsa/nfa_converter.js'
-import DraggableCanvas from '../js/canvas/draggable_canvas.js'
-import Location from '../js/canvas/location.js'
-import Circle from '../js/canvas/drawables/circle.js'
-import QuadraticCurvedLine from '../js/canvas/drawables/quadratic_curved_line.js'
-import BezierCurvedLine from '../js/canvas/drawables/bezier_curved_line.js'
-import Text from '../js/canvas/drawables/text.js'
-import ArrowedStraightLine from '../js/canvas/drawables/arrowed_straight_line.js'
+import { UnknownStateError } from '../util/errors.js'
+import VisualFSA from '../fsa/visual_fsa.js'
+import NFAConverter from '../fsa/nfa_converter.js'
+import DraggableCanvas from '../canvas/draggable_canvas.js'
+import Location from '../canvas/location.js'
+import Circle from '../canvas/drawables/circle.js'
+import QuadraticCurvedLine from '../canvas/drawables/quadratic_curved_line.js'
+import BezierCurvedLine from '../canvas/drawables/bezier_curved_line.js'
+import Text from '../canvas/drawables/text.js'
+import ArrowedStraightLine from '../canvas/drawables/arrowed_straight_line.js'
 const { JSDOM } = jsdom
 
 function getVisualNFA () {

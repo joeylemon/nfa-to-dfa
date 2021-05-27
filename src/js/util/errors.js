@@ -5,3 +5,11 @@ export class UnknownStateError extends Error {
         this.message = `state ${state} does not exist`
     }
 }
+
+export class UnknownSymbolError extends Error {
+    constructor (symbol) {
+        super()
+        this.name = 'UnknownSymbol'
+        this.message = `symbol ${symbol} does not exist`
+    }
+}
