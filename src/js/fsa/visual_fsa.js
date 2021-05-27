@@ -55,7 +55,7 @@ export default class VisualFSA extends EventHandler {
                 if (this.addingTransitionNode) {
                     if (e.obj && e.obj instanceof Circle && e.obj.options.text) {
                         const endState = e.obj.options.text.options.text
-                        this.overlay = new OverlayMessage('#nfa-container', 'Press the key of the symbol for the transition')
+                        this.overlay = new OverlayMessage('#nfa-container', 'Enter the symbol for the transition')
 
                         this.overlay.addEventListener('keydown', function (e) {
                             if (!this.overlay || e.key === 'Shift') return
