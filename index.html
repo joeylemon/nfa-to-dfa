@@ -4,9 +4,10 @@
 
 <head>
     <title>NFA to DFA Converter</title>
-
+    <meta name="description" content="A visual NFA to DFA converter for finite automaton.">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="icon" type="image/png" href="src/img/favicon.png" />
 
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -55,33 +56,45 @@
         <div class="column">
             <div class="card title" id="nfa-title">
                 <div class="card-content">
-                    <h1><i class="mdi mdi-36px mdi-graph main-title-icon" aria-hidden="true"
-                            style="color: #f3b75b;"></i>Non-deterministic
-                        Finite Automaton
-                        (NFA)</h1>
-                </div>
-            </div>
-            <div class="card block" id="nfa-instructions">
-                <header class="card-header">
-                    <p class="card-header-title">
-                        Instructions
-                    </p>
-                </header>
-                <div class="card-content">
-                    <p class="subtitle">Create the NFA you wish to convert to a DFA. Or, you can import a saved NFA, or
-                        even use one from
-                        a
-                        list of presets. Start building the NFA by <nobr>right-clicking
-                            <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
-                        on the canvas below to create a node. Then, <nobr>right-click
-                            <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
-                        on the new node to create a transition, edit its properties, or delete it. You can also <nobr>
-                            pan
-                            <i class="mdi mdi-cursor-pointer" aria-hidden="true"></i></nobr>
-                        and <nobr>zoom
-                            <i class="mdi mdi-magnify-plus" aria-hidden="true"></i></nobr>
-                        the canvas.
-                    </p>
+                    <div class="columns">
+                        <div class="column">
+                            <h1>
+                                Non-deterministic
+                                Finite Automaton
+                                (NFA)
+                            </h1>
+                        </div>
+                        <div class="column is-1">
+                            <div class="dropdown is-hoverable" style="width:100%;">
+                                <div class="dropdown-trigger" style="width:100%;">
+                                    <button class="button orange-button" aria-haspopup="true"
+                                        aria-controls="dropdown-menu" style="width:100%;">
+                                        <i class="mdi mdi-36px mdi-help-circle-outline title-help-icon"
+                                            aria-hidden="true" style="color: #fff;"></i>
+                                    </button>
+                                </div>
+                                <div class="dropdown-menu help-dropdown" role="menu">
+                                    <div class="dropdown-content">
+                                        <div class="dropdown-item">
+                                            <p>Start building the NFA by <nobr>right-clicking
+                                                    <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
+                                                on the canvas below to create a node. Then, <nobr>right-click
+                                                    <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
+                                                on the new node to create a transition, edit its properties, or delete
+                                                it.
+                                                You can also <nobr>
+                                                    pan
+                                                    <i class="mdi mdi-cursor-pointer" aria-hidden="true"></i></nobr>
+                                                and <nobr>zoom
+                                                    <i class="mdi mdi-magnify-plus" aria-hidden="true"></i></nobr>
+                                                the canvas. Additionally, you can import a saved NFA,
+                                                or even use one from a list of presets.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="box">
@@ -99,12 +112,12 @@
                     <div class="column">
                         <div class="dropdown" id="preset-dropdown" style="width:100%;">
                             <div class="dropdown-trigger" style="width:100%;">
-                                <button class="button orange-button" id="dropdown-trigger" aria-haspopup="true"
-                                    aria-controls="dropdown-menu" style="width:100%;">
+                                <button class="button orange-button" aria-haspopup="true" aria-controls="dropdown-menu"
+                                    style="width:100%;">
                                     <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>Presets
                                 </button>
                             </div>
-                            <div class="dropdown-menu" id="dropdown-menu" role="menu" style="width:100%;">
+                            <div class="dropdown-menu" role="menu" style="width:100%;">
                                 <div class="dropdown-content">
                                     <a class="dropdown-item" id="preset-1">
                                         <i class="mdi mdi-18px mdi-graph" aria-hidden="true"></i> Preset #1
@@ -163,30 +176,45 @@
         <div class="column">
             <div class="card title" id="dfa-title">
                 <div class="card-content">
-                    <h1><i class="mdi mdi-36px mdi-graph main-title-icon" aria-hidden="true"
-                            style="color: #34b1eb;"></i>Deterministic Finite Automaton (DFA)</h1>
-                </div>
-            </div>
-            <div class="card block" id="dfa-instructions">
-                <header class="card-header">
-                    <p class="card-header-title">
-                        Instructions
-                    </p>
-                </header>
-                <div class="card-content">
-                    <p class="subtitle">After building the NFA, you can then start converting it to a DFA. This can be
-                        done in <nobr>
-                            steps
-                            <i class="mdi mdi-skip-next" aria-hidden="true"></i></nobr>,
-                        <nobr>animated
-                            <i class="mdi mdi-play" aria-hidden="true"></i></nobr>,
-                        or all at <nobr>once
-                            <i class="mdi mdi-skip-forward" aria-hidden="true"></i></nobr>. You may drag nodes around to
-                        reorganize
-                        the visual layout. However, node-editing features are disabled. To change the DFA, you must
-                        first
-                        change the NFA.
-                    </p>
+                    <div class="columns">
+                        <div class="column">
+                            <h1>
+                                Deterministic Finite Automaton (DFA)
+                            </h1>
+                        </div>
+                        <div class="column is-1">
+                            <div class="dropdown is-hoverable" style="width:100%;">
+                                <div class="dropdown-trigger" style="width:100%;">
+                                    <button class="button blue-button" aria-haspopup="true"
+                                        aria-controls="dropdown-menu" style="width:100%;">
+                                        <i class="mdi mdi-36px mdi-help-circle-outline title-help-icon"
+                                            aria-hidden="true" style="color: #fff;"></i>
+                                    </button>
+                                </div>
+                                <div class="dropdown-menu help-dropdown" role="menu">
+                                    <div class="dropdown-content">
+                                        <div class="dropdown-item">
+                                            <p>After building the NFA, you can then start converting it to a DFA. This
+                                                can be
+                                                done in <nobr>
+                                                    steps
+                                                    <i class="mdi mdi-skip-next" aria-hidden="true"></i></nobr>,
+                                                <nobr>animated
+                                                    <i class="mdi mdi-play" aria-hidden="true"></i></nobr>,
+                                                or all at <nobr>once
+                                                    <i class="mdi mdi-skip-forward" aria-hidden="true"></i></nobr>. You
+                                                may drag nodes around to
+                                                reorganize
+                                                the visual layout. However, node-editing features are disabled. To
+                                                change the DFA, you must
+                                                first
+                                                change the NFA.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="box">

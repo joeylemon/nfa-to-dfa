@@ -1,4 +1,5 @@
 import EventHandler from '../util/event_handler.js'
+import { UnknownStateError } from '../util/errors.js'
 import FSA from './fsa.js'
 import Location from '../canvas/location.js'
 import EditNodeMenu from '../elements/edit_node_menu.js'
@@ -54,19 +55,17 @@ export default class VisualFSA extends EventHandler {
                 if (this.addingTransitionNode) {
                     if (e.obj && e.obj instanceof Circle && e.obj.options.text) {
                         const endState = e.obj.options.text.options.text
-                        this.overlay = new OverlayMessage('#nfa-container', 'Press the key of the symbol for the transition')
+                        this.overlay = new OverlayMessage('#nfa-container', 'Enter the symbol for the transition')
 
                         this.overlay.addEventListener('keydown', function (e) {
-                            if (!this.overlay) return
+                            if (!this.overlay || e.key === 'Shift') return
 
-                            if (e.key.length === 1) {
-                                try {
-                                    this.addTransition(this.addingTransitionNode.label, endState, e.key === 'e' ? 'ε' : e.key)
-                                    this.render()
-                                } catch (e) {
-                                    this.overlay.setMessage('That symbol is not in the given alphabet')
-                                    return
-                                }
+                            let key = e.key
+                            if (e.shiftKey) { key = key.toUpperCase() }
+
+                            if (key.length === 1) {
+                                this.addTransition(this.addingTransitionNode.label, endState, key === 'e' ? 'ε' : key)
+                                this.render()
                             }
 
                             this.overlay.deletePrevious()
@@ -142,17 +141,23 @@ export default class VisualFSA extends EventHandler {
     }
 
     setStartState (label) {
+        if (!this.fsa.states.includes(label)) { throw new UnknownStateError(label) }
+
         this.fsa.startState = label
         this.dispatchEvent('change')
     }
 
     addAcceptState (label) {
+        if (!this.fsa.states.includes(label)) { throw new UnknownStateError(label) }
+
         this.fsa.acceptStates.push(label)
         this.getNode(label).acceptState = true
         this.dispatchEvent('change')
     }
 
     removeAcceptState (label) {
+        if (!this.fsa.states.includes(label)) { throw new UnknownStateError(label) }
+
         this.fsa.acceptStates = this.fsa.acceptStates.filter(e => e !== label)
         this.getNode(label).acceptState = false
         this.dispatchEvent('change')
@@ -169,6 +174,8 @@ export default class VisualFSA extends EventHandler {
     }
 
     removeNode (label) {
+        if (!this.fsa.states.includes(label)) { throw new UnknownStateError(label) }
+
         this.fsa.removeState(label)
         this.nodes = this.nodes.filter(e => e.label !== label)
         for (const node of this.nodes) {
@@ -182,7 +189,7 @@ export default class VisualFSA extends EventHandler {
 
     getNode (label) {
         const node = this.nodes.find(e => e.label === label)
-        if (!node) { throw new Error(`could not find node with label ${label}`) }
+        if (!node) { throw new UnknownStateError(label) }
 
         return node
     }
@@ -206,6 +213,9 @@ export default class VisualFSA extends EventHandler {
     }
 
     addTransition (from, to, symbol) {
+        if (!this.fsa.states.includes(from)) { throw new UnknownStateError(from) }
+        if (!this.fsa.states.includes(to)) { throw new UnknownStateError(to) }
+
         const fromNode = this.getNode(from)
 
         // Set up object structure if it doesn't exist
@@ -226,6 +236,9 @@ export default class VisualFSA extends EventHandler {
     }
 
     removeTransitions (from, to) {
+        if (!this.fsa.states.includes(from)) { throw new UnknownStateError(from) }
+        if (!this.fsa.states.includes(to)) { throw new UnknownStateError(to) }
+
         const fromNode = this.getNode(from)
 
         for (const symbol of this.fsa.alphabet.concat('ε')) {
@@ -236,8 +249,6 @@ export default class VisualFSA extends EventHandler {
         }
 
         delete fromNode.transitionText[to]
-
-        console.log(this)
 
         this.updateAlphabet()
         this.dispatchEvent('change')

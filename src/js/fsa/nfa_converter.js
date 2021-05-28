@@ -69,7 +69,7 @@ export default class NFAConverter {
 
             // The new start state is the states that are reachable from the original start state
             // e.g. '1' has an ε-transition to '3'; therefore, the new start state is '1,3'
-            const startState = this.nfa.getEpsilonClosureStates(this.nfa.startState).sort().join(',')
+            const startState = [...new Set(this.nfa.getEpsilonClosureStates(this.nfa.startState))].sort().join(',')
 
             // The new list of accept states are any states from the powerset with the original accept state in them
             // e.g. '1' is the accept state; therefore, '1', '1,2', '1,3', and '1,2,3' are accept states

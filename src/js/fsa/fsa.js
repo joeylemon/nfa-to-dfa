@@ -1,3 +1,5 @@
+import { UnknownStateError, UnknownSymbolError } from '../util/errors.js'
+
 export default class FSA {
     /**
      * FSA represents a finite state automaton. This can be either an NFA or a DFA.
@@ -71,7 +73,7 @@ export default class FSA {
      * @returns {Array} The array of states that can be reached via an ε-transition
      */
     getEpsilonClosureStates (fromState) {
-        if (!this.states.includes(fromState)) throw new Error(`FSA does not have a state named ${fromState}`)
+        if (!this.states.includes(fromState)) throw new UnknownStateError(fromState)
 
         if (!this.transitions[fromState] || !this.transitions[fromState]['ε']) {
             return [fromState]
@@ -88,8 +90,8 @@ export default class FSA {
      * @returns {Array} The list of states that can be reached from the given state
      */
     getReachableStates (fromState, symbol, list = []) {
-        if (!this.states.includes(fromState)) throw new Error(`FSA does not have a state named ${fromState}`)
-        if (symbol !== 'ε' && !this.alphabet.includes(symbol)) throw new Error(`FSA alphabet does not contain symbol ${symbol}`)
+        if (!this.states.includes(fromState)) throw new UnknownStateError(fromState)
+        if (symbol !== 'ε' && !this.alphabet.includes(symbol)) throw new UnknownSymbolError(symbol)
         if (list.length > 200) throw new Error('There is an infinite transition loop apparent in the NFA')
 
         if (!this.transitions[fromState] || !this.transitions[fromState][symbol]) {

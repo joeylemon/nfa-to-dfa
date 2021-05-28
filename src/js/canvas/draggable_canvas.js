@@ -29,7 +29,6 @@ export default class DraggableCanvas extends EventHandler {
 
         // Perform some sanity checks on the element
         if (this.canvas === null) { throw new Error(`cannot create canvas because the given selector ${selector} does not exist`) }
-        if (!(this.canvas instanceof HTMLCanvasElement)) { throw new Error('cannot create canvas because the given element is not a canvas') }
 
         this.ctx = this.canvas.getContext('2d')
 

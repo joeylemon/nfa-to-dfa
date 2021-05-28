@@ -4,13 +4,6 @@ body {
     background-color: #f6f6f6;
 }
 
-.main-title-icon {
-    position: relative;
-    top: 2px;
-    margin-right: 10px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
-}
-
 .title {
     text-align: center;
 }
@@ -18,6 +11,21 @@ body {
 .title h1 {
     font-family: Roboto;
     font-size: 30px;
+}
+
+.title-help-icon {
+    position: relative;
+    top: 4px;
+    left: 2px;
+    font-weight: normal;
+    transform: scale(0.8, 0.8);
+}
+
+.help-dropdown {
+    width: 300px;
+    position: absolute;
+    left: -260px;
+    font-weight: normal;
 }
 
 .subtitle {

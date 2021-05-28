@@ -1,6 +1,6 @@
 import should from 'should' // eslint-disable-line no-unused-vars
-import FSA from '../js/fsa/fsa.js'
-import NFAConverter from '../js/fsa/nfa_converter.js'
+import FSA from '../fsa/fsa.js'
+import NFAConverter from '../fsa/nfa_converter.js'
 
 describe('NFA Conversion 1', () => {
     const nfa = new FSA(['1', '2', '3'], ['a', 'b'], {
