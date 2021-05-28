@@ -267,3 +267,10 @@ document.querySelector('#preset-1').addEventListener('click', () => {
 document.querySelector('#preset-2').addEventListener('click', () => {
     nfa.visual.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 154, 'y': 108 }, 'transitionText': { '2': ['ε'], '3': ['a'] } }, { 'label': '2', 'loc': { 'x': 535, 'y': 106 }, 'transitionText': {}, 'acceptState': true }, { 'label': '3', 'loc': { 'x': 334, 'y': 362 }, 'transitionText': { '2': ['a', 'b'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'ε': ['2'], 'a': ['3'] }, '3': { 'a': ['2'], 'b': ['2'] } }, 'startState': '1', 'acceptStates': ['2'] } })
 })
+
+/**
+ * Set the NFA to a preset configuration with the preset button
+ */
+document.querySelector('#preset-3').addEventListener('click', () => {
+    nfa.visual.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 206, 'y': 119 }, 'transitionText': { '2': ['b'], '3': ['ε'] } }, { 'label': '2', 'loc': { 'x': 560, 'y': 119 }, 'transitionText': { '1': ['a'], '2': ['b'] }, 'acceptState': true }, { 'label': '3', 'loc': { 'x': 375, 'y': 388 }, 'transitionText': { '2': ['a'], '3': ['a', 'b'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'ε': ['3'], 'b': ['2'] }, '2': { 'b': ['2'], 'a': ['1'] }, '3': { 'a': ['2', '3'], 'b': ['3'] } }, 'startState': '1', 'acceptStates': ['2'] } })
+})
