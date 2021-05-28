@@ -129,11 +129,12 @@ export default class NFAConverter {
 
             this.alphabet_index++
 
+            const toState = this.dfa.transitions[state][symbol].join(',')
             return [this.dfa, {
                 type: 'add_transition',
-                desc: `Add a transition from ${state} on input ${symbol} to ${this.dfa.transitions[state][symbol]}`,
+                desc: `Add a transition from ${state} on input ${symbol} to ${toState}`,
                 fromState: state,
-                toState: this.dfa.transitions[state][symbol],
+                toState: toState,
                 symbol: symbol
             }]
         }
