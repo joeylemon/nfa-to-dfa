@@ -45,6 +45,16 @@ describe('FSA 1', () => {
         done()
     })
 
+    it('should delete state', done => {
+        fsa.removeState('1')
+
+        fsa.states.should.eql(['2', '3'])
+        should.not.exist(fsa.startState)
+        fsa.acceptStates.length.should.eql(0)
+        fsa.getReachableStates('3', 'a').should.eql(['Ø'])
+        done()
+    })
+
     it('should not get epsilon closure states from an invalid state', done => {
         should(() => { fsa.getEpsilonClosureStates('4') }).throw(new UnknownStateError('4'))
         done()
@@ -52,7 +62,7 @@ describe('FSA 1', () => {
 
     it('should not get reachable states from an invalid state', done => {
         should(() => { fsa.getReachableStates('4', 'a') }).throw(new UnknownStateError('4'))
-        should(() => { fsa.getReachableStates('1', 'z') }).throw(new UnknownSymbolError('z'))
+        should(() => { fsa.getReachableStates('2', 'z') }).throw(new UnknownSymbolError('z'))
         done()
     })
 })
@@ -100,6 +110,16 @@ describe('FSA 2', () => {
         done()
     })
 
+    it('should delete state', done => {
+        fsa.removeState('q1')
+
+        fsa.states.should.eql(['q2', 'q3'])
+        should.not.exist(fsa.startState)
+        fsa.acceptStates.should.eql(['q3'])
+        fsa.getReachableStates('q3', '1').should.eql(['q2', 'q3'])
+        done()
+    })
+
     it('should not get epsilon closure states from an invalid state', done => {
         should(() => { fsa.getEpsilonClosureStates('q4') }).throw(new UnknownStateError('q4'))
         done()
@@ -107,7 +127,7 @@ describe('FSA 2', () => {
 
     it('should not get reachable states from an invalid state', done => {
         should(() => { fsa.getReachableStates('q4', '0') }).throw(new UnknownStateError('q4'))
-        should(() => { fsa.getReachableStates('q1', '2') }).throw(new UnknownSymbolError('2'))
+        should(() => { fsa.getReachableStates('q2', '2') }).throw(new UnknownSymbolError('2'))
         done()
     })
 })

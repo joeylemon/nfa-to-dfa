@@ -182,7 +182,6 @@ export default class VisualFSA extends EventHandler {
             if (node.transitionText[label]) delete node.transitionText[label]
         }
 
-        if (this.fsa.startState === label) { this.fsa.startState = undefined }
         this.updateAlphabet()
         this.dispatchEvent('change')
     }

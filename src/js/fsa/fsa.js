@@ -26,6 +26,7 @@ export default class FSA {
     removeState (state) {
         this.states = this.states.filter(s => s !== state)
         this.acceptStates = this.acceptStates.filter(s => s !== state)
+        if (this.startState === state) this.startState = undefined
         delete this.transitions[state]
 
         // Remove all transitions that lead to the state
