@@ -23,6 +23,58 @@ export default class NFAConverter {
         this.unreachableStates = undefined
     }
 
+
+    /**
+     * Get all the unreachable states of the converted DFA
+     *
+     * @returns void but sets unreachableStates on the model
+     */
+    getUnreachableNodes(containsUnreachableNodes, tempDfa, myUnreachableStates) {
+        // Recursive breaking condition: when there are no more unreachable states
+        if(!containsUnreachableNodes) {
+          this.unreachableStates = myUnreachableStates
+          return 
+        }
+      
+        // Variables to determine the current conditions of the tempDfa
+        const currentNodesWithIncomingEdges = [];
+        currentNodesWithIncomingEdges.push(tempDfa.startState)
+        const currentUnreachableStates = [];
+      
+        // Iterate through all transitions and add the end nodes to the nodesWithIncomingEdges array
+        for (const state of tempDfa.states) {
+          for (const symbol of tempDfa.alphabet) {
+            var node = null;  
+            if (tempDfa.transitions[state][symbol] !== undefined) {
+                node = tempDfa.transitions[state][symbol].join(',')
+                // Don't consider nodes that have a transition back to themselves
+                if (node !== state) currentNodesWithIncomingEdges.push(node)
+                
+            } 
+          }
+        }
+
+        // Given tempDfa determine the currently unreachable states
+        const currentStatesToBeRemoved = tempDfa.states.filter(s => !currentNodesWithIncomingEdges.includes(s))
+        for (const state of currentStatesToBeRemoved) {
+            currentUnreachableStates.push(state)
+        }        
+        if (currentUnreachableStates.length == 0 ) {
+            containsUnreachableNodes = false
+        }
+
+        // As you delete nodes from the tempDfa, push them to myUnreachableStates
+        while (currentUnreachableStates.length > 0) {
+          // Pop the first state from unreachableStates
+          const stateToDelete = currentUnreachableStates.shift()
+      
+          tempDfa.removeState(stateToDelete)
+          myUnreachableStates.push(stateToDelete)
+        } 
+
+        this.getUnreachableNodes(containsUnreachableNodes, tempDfa, myUnreachableStates)
+      }
+
     /**
      * Perform a single step in the conversion from NFA to DFA
      *
@@ -104,11 +156,14 @@ export default class NFAConverter {
 
                 // Update the transition, remove any duplicates, and sort the end nodes alphabetically
                 this.dfa.transitions[state][symbol] = reachableStates
+                if(reachableStates.length > 1) {
+                    this.dfa.transitions[state][symbol] = [reachableStates.join(',')]
+                }
             }
 
             this.alphabet_index++
 
-            const toStates = this.dfa.transitions[state][symbol].join(',')
+            const toStates = this.dfa.transitions[state][symbol]
             return [this.dfa, {
                 type: 'add_transition',
                 desc: `Add a transition from ${state} on input ${symbol} to ${toStates}`,
@@ -121,23 +176,9 @@ export default class NFAConverter {
         // At this point, we have generated all transitions
         // Now we want to start deleting states that are unable to be reached
         if (!this.unreachableStates) {
-            const nodesWithIncomingEdges = []
-
-            // Iterate through all transitions and add the end nodes to the nodesWithIncomingEdges array
-            for (const state of this.dfa.states) {
-                for (const symbol of this.dfa.alphabet) {
-                    const node = this.dfa.transitions[state][symbol].join(',')
-
-                    // Don't consider nodes that have a transition back to themselves
-                    if (node !== state) nodesWithIncomingEdges.push(node)
-                }
-            }
-
-            // The list of unreachable states are those that don't exist in the nodesWithIncomingEdges array
-            this.unreachableStates = this.dfa.states.filter(s => !nodesWithIncomingEdges.includes(s))
-
-            // Make sure the start state is always in the final DFA
-            this.unreachableStates = this.unreachableStates.filter(s => s !== this.dfa.startState)
+            const tempDfa = new FSA(this.dfa.states, this.dfa.alphabet, this.dfa.transitions, this.dfa.startState, this.dfa.acceptStates)
+            // This recursive function will determine all the unreachable states to its most simplified DFA
+            this.getUnreachableNodes(true, tempDfa, [])
         }
 
         // We've generated an array of unreachable states. Now, let's delete them one-by-one
