@@ -266,6 +266,9 @@ export default class NFAConverter {
             // Pop the first state from redundantStates
             const pairToMerge = this.redundantStates.shift()
 
+            this.dfa.removeState(pairToMerge[0])
+            this.dfa.removeState(pairToMerge[1])
+
             return [this.dfa, {
                 type: 'merge_states',
                 desc: `Merge redundant states {${pairToMerge[0]}} and {${pairToMerge[1]}}`,
