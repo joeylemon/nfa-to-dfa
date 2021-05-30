@@ -21,6 +21,9 @@ export default class NFAConverter {
         // unreachableStates is the array of states that are unreachable
         // This is generated after all transitions are generated
         this.unreachableStates = undefined
+
+        // redundantStates is the array of states that can be combined into a single state
+        this.redundantStates = undefined
     }
 
     /**
@@ -63,6 +66,78 @@ export default class NFAConverter {
 
         // Remove duplicates from the list by spreading it as a Set
         return [...new Set(list)]
+    }
+
+    /**
+     * Get all pairs of states that are redundant (i.e. can be combined into a single state with a loopback)
+     * An example of such a pair is {2,3} and {1,2,3} in the Preset #3 resulting DFA
+     *
+     * @param {FSA} tempDFA A temporary DFA to work off of
+     * @param {Array} list The accumulating list of redundant state pairs. It is appended to recursively.
+     * @returns {Array} The list of state pairs that are redundant
+     */
+    getRedundantStates (tempDFA = undefined, list = []) {
+        if (!tempDFA) {
+            tempDFA = new FSA(this.dfa.states, this.dfa.alphabet, this.dfa.transitions, this.dfa.startState, this.dfa.acceptStates)
+        }
+
+        /**
+         * To be redundant:
+         *
+         * 1. Both states must be accept states or non-accept states
+         * 2. Every symbol in the alphabet must have a transition within the two states
+         */
+
+        for (const s1 of tempDFA.states) {
+            for (const s2 of tempDFA.states.filter(e => e !== s1)) {
+                // 1. Both states must be accept states or non-accept states
+                if ((tempDFA.acceptStates.includes(s1) && tempDFA.acceptStates.includes(s2)) ||
+                    (!tempDFA.acceptStates.includes(s1) && !tempDFA.acceptStates.includes(s2))) {
+                    let redundant = true
+
+                    // 2. Every symbol in the alphabet must have a transition within the two states
+                    for (const symbol of tempDFA.alphabet) {
+                        if ((tempDFA.transitions[s1][symbol][0] !== s1 && tempDFA.transitions[s1][symbol][0] !== s2) ||
+                            (tempDFA.transitions[s2][symbol][0] !== s2 && tempDFA.transitions[s2][symbol][0] !== s1)) {
+                            redundant = false
+                        }
+                    }
+
+                    if (redundant) {
+                        // Create the new state
+                        const newState = `${s1}+${s2}`
+                        tempDFA.states.push(newState)
+                        if (tempDFA.acceptStates.includes(s1)) { tempDFA.acceptStates.push(newState) }
+                        if (tempDFA.startState === s1 || tempDFA.startState === s2) { tempDFA.startState = newState }
+
+                        // Add loopback on the new state for every symbol
+                        tempDFA.transitions[newState] = {}
+                        for (const symbol of tempDFA.alphabet) {
+                            tempDFA.transitions[newState][symbol] = [newState]
+                        }
+
+                        // Add incoming transitions to the new state using the old states' incoming transitions
+                        for (const state of tempDFA.states.filter(e => e !== s1 && e !== s2)) {
+                            for (const symbol of tempDFA.alphabet) {
+                                if (tempDFA.transitions[state][symbol][0] === s1 || tempDFA.transitions[state][symbol][0] === s2) {
+                                    tempDFA.transitions[state][symbol] = [newState]
+                                }
+                            }
+                        }
+
+                        // Remove the old states
+                        tempDFA.removeState(s1)
+                        tempDFA.removeState(s2)
+
+                        // Add the pair of redundant states to the list and recursively search for more
+                        list.push([s1, s2])
+                        return this.getRedundantStates(tempDFA, list)
+                    }
+                }
+            }
+        }
+
+        return list
     }
 
     /**
@@ -135,6 +210,7 @@ export default class NFAConverter {
                     reachableStates = reachableStates.concat(this.nfa.getReachableStates(s, symbol))
                 })
 
+                // Remove any duplicates and sort the states alphabetically
                 reachableStates = [...new Set(reachableStates)].sort()
 
                 // Remove Ø if the state has other possibilites
@@ -144,7 +220,7 @@ export default class NFAConverter {
                     reachableStates = ['Ø']
                 }
 
-                // Update the transition, remove any duplicates, and sort the end nodes alphabetically
+                // Update the transition
                 this.dfa.transitions[state][symbol] = [reachableStates.join(',')]
             }
 
@@ -153,7 +229,7 @@ export default class NFAConverter {
             const toState = this.dfa.transitions[state][symbol].join(',')
             return [this.dfa, {
                 type: 'add_transition',
-                desc: `Add a transition from ${state} on input ${symbol} to ${toState}`,
+                desc: `Add a transition from {${state}} on input ${symbol} to {${toState}}`,
                 fromState: state,
                 toState: toState,
                 symbol: symbol
@@ -175,8 +251,25 @@ export default class NFAConverter {
 
             return [this.dfa, {
                 type: 'delete_state',
-                desc: `Delete unreachable state ${stateToDelete}`,
+                desc: `Delete unreachable state {${stateToDelete}}`,
                 state: stateToDelete
+            }]
+        }
+
+        // After deleting unreachable states, we want to start deleting redundant states
+        if (!this.redundantStates) {
+            this.redundantStates = this.getRedundantStates()
+        }
+
+        // We've created the array of redundant states. Now, let's delete them one-by-one
+        if (this.redundantStates.length > 0) {
+            // Pop the first state from redundantStates
+            const pairToMerge = this.redundantStates.shift()
+
+            return [this.dfa, {
+                type: 'merge_states',
+                desc: `Merge redundant states {${pairToMerge[0]}} and {${pairToMerge[1]}}`,
+                states: pairToMerge
             }]
         }
 

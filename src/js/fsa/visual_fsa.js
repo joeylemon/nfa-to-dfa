@@ -286,7 +286,8 @@ export default class VisualFSA extends EventHandler {
      * @param {FSA} dfa The resulting DFA after this step's conversion
      */
     syncDFA (step, dfa) {
-        if (step.type === 'initialize') {
+        switch (step.type) {
+        case 'initialize': {
             const maxCols = Math.ceil(dfa.states.length / (Math.log2(dfa.states.length) - 1))
             let row = 0
             let col = 0
@@ -310,14 +311,47 @@ export default class VisualFSA extends EventHandler {
             return this.render()
         }
 
-        if (step.type === 'add_transition') {
+        case 'add_transition': {
             this.addTransition(step.fromState, step.toState, step.symbol)
             return this.render()
         }
 
-        if (step.type === 'delete_state') {
+        case 'delete_state': {
             this.removeNode(step.state)
             return this.render()
+        }
+
+        case 'merge_states': {
+            const s1 = step.states[0]
+            const n1 = this.getNode(s1)
+            const s2 = step.states[1]
+            const n2 = this.getNode(s2)
+            const newState = `${s1}+${s2}`
+
+            // Create the new state at the midpoint between the old states
+            this.addNode(newState, new Location((n1.loc.x + n2.loc.x) / 2, (n1.loc.y + n2.loc.y) / 2))
+            if (this.fsa.acceptStates.includes(s1)) { this.addAcceptState(newState) }
+            if (this.fsa.startState === s1 || this.fsa.startState === s2) { this.setStartState(newState) }
+
+            // Add loopback on the new state for every symbol
+            for (const symbol of this.fsa.alphabet) {
+                this.addTransition(newState, newState, symbol)
+            }
+
+            // Add incoming transitions to the new state using the old states' incoming transitions
+            for (const state of this.fsa.states.filter(e => e !== s1 && e !== s2)) {
+                for (const symbol of this.fsa.alphabet) {
+                    if (this.fsa.transitions[state][symbol][0] === s1 || this.fsa.transitions[state][symbol][0] === s2) {
+                        this.addTransition(state, newState, symbol)
+                    }
+                }
+            }
+
+            this.removeNode(s1)
+            this.removeNode(s2)
+
+            return this.render()
+        }
         }
     }
 
