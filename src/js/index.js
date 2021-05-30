@@ -173,21 +173,21 @@ document.querySelector('#complete').addEventListener('click', () => {
         converter = new NFAConverter(nfa.visual.fsa)
     }
 
-    // try {
-    const changes = converter.complete()
-    if (changes.length > 0) {
-        for (const change of changes) {
-            const [newDFA, step] = change
-            dfa.visual.syncDFA(step, newDFA)
+    try {
+        const changes = converter.complete()
+        if (changes.length > 0) {
+            for (const change of changes) {
+                const [newDFA, step] = change
+                dfa.visual.syncDFA(step, newDFA)
+            }
         }
-    }
 
-    setEditButtonsState(false, true)
-    // } catch (e) {
-    //     showWarning('#nfa-warning', e.message)
-    //     converter = undefined
-    //     dfa.visual.reset()
-    // }
+        setEditButtonsState(false, true)
+    } catch (e) {
+        showWarning('#nfa-warning', e.message)
+        converter = undefined
+        dfa.visual.reset()
+    }
 })
 
 /**
