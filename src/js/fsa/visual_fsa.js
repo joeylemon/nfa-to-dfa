@@ -234,6 +234,29 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    removeTransition (from, to, symbol) {
+        if (!this.fsa.states.includes(from)) { throw new UnknownStateError(from) }
+        if (!this.fsa.states.includes(to)) { throw new UnknownStateError(to) }
+
+        const fromNode = this.getNode(from)
+
+        // Delete transition in the FSA
+        if (this.fsa.transitions[from][symbol]) {
+            this.fsa.transitions[from][symbol] = this.fsa.transitions[from][symbol].filter(e => e !== to)
+            if (this.fsa.transitions[from][symbol].length === 0) { delete this.fsa.transitions[from][symbol] }
+        }
+
+        // Delete transition in the node
+        if (fromNode.transitionText[to]) {
+            console.log('transition text', fromNode.transitionText[to])
+            fromNode.transitionText[to] = fromNode.transitionText[to].filter(e => e !== symbol)
+            if (fromNode.transitionText[to].length === 0) { delete fromNode.transitionText[to] }
+        }
+
+        this.updateAlphabet()
+        this.dispatchEvent('change')
+    }
+
     removeTransitions (from, to) {
         if (!this.fsa.states.includes(from)) { throw new UnknownStateError(from) }
         if (!this.fsa.states.includes(to)) { throw new UnknownStateError(to) }
@@ -285,7 +308,7 @@ export default class VisualFSA extends EventHandler {
      * @param {Object} step The step's properties
      * @param {FSA} dfa The resulting DFA after this step's conversion
      */
-    syncDFA (step, dfa) {
+    performStep (step, dfa) {
         if (step.type === 'initialize') {
             const maxCols = Math.ceil(dfa.states.length / (Math.log2(dfa.states.length) - 1))
             let row = 0
@@ -316,8 +339,48 @@ export default class VisualFSA extends EventHandler {
         }
 
         if (step.type === 'delete_state') {
+            step.location = this.getNode(step.state).loc
             this.removeNode(step.state)
             return this.render()
+        }
+    }
+
+    /**
+     * Undo the given step by performing the opposite action
+     *
+     * @param {Object} step The step's properties
+     * @param {FSA} dfa The previous DFA before this step's conversion
+     */
+    undoStep (step, dfa) {
+        switch (step.type) {
+        case 'initialize': {
+            this.fsa = new FSA([], [], {}, undefined, [])
+            this.nodes = []
+
+            return this.render()
+        }
+
+        case 'add_transition': {
+            this.removeTransition(step.fromState, step.toState, step.symbol)
+
+            return this.render()
+        }
+
+        case 'delete_state': {
+            this.addNode(step.state, step.location)
+            if (dfa.startState === step.state) { this.setStartState(step.state) }
+            if (dfa.acceptStates.includes(step.state)) { this.addAcceptState(step.state) }
+
+            if (step.transitions) {
+                for (const symbol of Object.keys(step.transitions)) {
+                    for (const endState of step.transitions[symbol]) {
+                        this.addTransition(step.state, endState, symbol)
+                    }
+                }
+            }
+
+            return this.render()
+        }
         }
     }
 

@@ -206,6 +206,9 @@
                                                     <i class="mdi mdi-play" aria-hidden="true"></i></nobr>,
                                                 or all at <nobr>once
                                                     <i class="mdi mdi-skip-forward" aria-hidden="true"></i></nobr>. You
+                                                can revisit previous actions by going backwards <nobr><i
+                                                        class="mdi mdi-skip-previous" aria-hidden="true"></i></nobr>.
+                                                You
                                                 may drag nodes around to
                                                 reorganize
                                                 the visual layout. However, node-editing features are disabled. To
@@ -223,8 +226,14 @@
             <div class="box">
                 <div class="columns">
                     <div class="column">
-                        <button class="button blue-button conversion-button" id="step" style="width:100%;" disabled>
-                            <i class="mdi mdi-skip-next" aria-hidden="true"></i>Step
+                        <button class="button blue-button conversion-button" id="step-forward" style="width:100%;"
+                            disabled>
+                            <i class="mdi mdi-skip-next" aria-hidden="true"></i>Step Forward
+                        </button>
+                    </div>
+                    <div class="column">
+                        <button class="button blue-button" id="step-backward" style="width:100%;" disabled>
+                            <i class="mdi mdi-skip-previous" aria-hidden="true"></i>Step Backward
                         </button>
                     </div>
                     <div class="column">
