@@ -32,6 +32,7 @@ dfa.visual.addEventListener('change', () => {
         dfa.desc.update(dfa.visual.fsa, false)
     } else {
         dfa.desc.reset()
+        document.querySelector('#step-backward').disabled = true
     }
 })
 
@@ -91,9 +92,9 @@ let converter
 let animatedConverter
 
 /**
- * Advance the NFA conversion one-by-one with the step button
+ * Advance the NFA conversion one-by-one with the step forward button
  */
-document.querySelector('#step').addEventListener('click', () => {
+document.querySelector('#step-forward').addEventListener('click', () => {
     if (!validateNFA()) return
 
     if (animatedConverter) {
@@ -103,14 +104,16 @@ document.querySelector('#step').addEventListener('click', () => {
 
     if (!converter || !converter.nfa.startState) {
         converter = new NFAConverter(nfa.visual.fsa)
+        document.querySelector('#step-backward').disabled = true
     }
 
     try {
         const [newDFA, step] = converter.stepForward()
         if (newDFA && step) {
             console.log(step, newDFA)
-            dfa.visual.syncDFA(step, newDFA)
+            dfa.visual.performStep(step, newDFA)
             document.querySelector('#dfa-conversion-step').innerHTML = step.desc
+            document.querySelector('#step-backward').disabled = false
         } else {
             setEditButtonsState(false, true)
         }
@@ -118,6 +121,34 @@ document.querySelector('#step').addEventListener('click', () => {
         showWarning('#nfa-warning', e.message)
         converter = undefined
         dfa.visual.reset()
+    }
+})
+
+/**
+ * Undo the NFA conversion one-by-one with the step backward button
+ */
+document.querySelector('#step-backward').addEventListener('click', () => {
+    if (!converter) {
+        document.querySelector('#step-backward').disabled = true
+        return
+    }
+
+    if (animatedConverter) {
+        animatedConverter.stop()
+        animatedConverter = undefined
+    }
+
+    const [prevDFA, prevStep] = converter.stepBackward()
+    if (prevDFA && prevStep) {
+        dfa.visual.undoStep(prevStep, prevDFA)
+        setEditButtonsState(true, true)
+        document.querySelector('#dfa-conversion-step').innerHTML = `<span class="tag is-warning" style="margin-right: 5px;">Undo</span> ${prevStep.desc}`
+
+        if (prevStep.type === 'initialize') {
+            document.querySelector('#step-backward').disabled = true
+        }
+    } else {
+        document.querySelector('#step-backward').disabled = true
     }
 })
 
@@ -130,12 +161,14 @@ document.querySelector('#animate').addEventListener('click', () => {
     if (!animatedConverter) {
         if (!converter) {
             converter = new NFAConverter(nfa.visual.fsa)
+            document.querySelector('#step-backward').disabled = true
         }
 
         animatedConverter = new AnimatedNFAConverter(converter, dfa.visual, 750)
 
         animatedConverter.addEventListener('start', () => {
             document.querySelector('#animate').innerHTML = '<i class="mdi mdi-pause" aria-hidden="true"></i>Pause'
+            document.querySelector('#step-backward').disabled = false
         })
 
         animatedConverter.addEventListener('stop', () => {
@@ -178,11 +211,12 @@ document.querySelector('#complete').addEventListener('click', () => {
         if (changes.length > 0) {
             for (const change of changes) {
                 const [newDFA, step] = change
-                dfa.visual.syncDFA(step, newDFA)
+                dfa.visual.performStep(step, newDFA)
             }
         }
 
         setEditButtonsState(false, true)
+        document.querySelector('#step-backward').disabled = false
     } catch (e) {
         showWarning('#nfa-warning', e.message)
         converter = undefined
@@ -195,6 +229,7 @@ document.querySelector('#complete').addEventListener('click', () => {
  */
 document.querySelector('#dfa-reset').addEventListener('click', () => {
     setEditButtonsState(true, true)
+    document.querySelector('#step-backward').disabled = true
 
     if (animatedConverter) {
         animatedConverter.stop()
@@ -211,6 +246,7 @@ document.querySelector('#dfa-reset').addEventListener('click', () => {
 document.querySelector('#nfa-reset').addEventListener('click', () => {
     nfa.visual.reset()
     dfa.visual.reset()
+    document.querySelector('#step-backward').disabled = true
     converter = undefined
 })
 
