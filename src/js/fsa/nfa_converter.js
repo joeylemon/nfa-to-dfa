@@ -34,7 +34,7 @@ export default class NFAConverter {
      * This is useful for freezing the DFA's state in time for things such as undoing a step forward
      */
     cloneDFA () {
-        return new FSA(Object.assign([], this.dfa.states), Object.assign([], this.dfa.alphabet), Object.assign({}, this.dfa.transitions), this.dfa.startState, Object.assign([], Object.assign([], this.dfa.acceptStates)))
+        return new FSA(JSON.parse(JSON.stringify(this.dfa.states)), JSON.parse(JSON.stringify(this.dfa.alphabet)), JSON.parse(JSON.stringify(this.dfa.transitions)), this.dfa.startState, JSON.parse(JSON.stringify(this.dfa.acceptStates)))
     }
 
     /**
@@ -89,7 +89,7 @@ export default class NFAConverter {
      */
     getRedundantStates (tempDFA = undefined, list = []) {
         if (!tempDFA) {
-            tempDFA = new FSA(this.dfa.states, this.dfa.alphabet, this.dfa.transitions, this.dfa.startState, this.dfa.acceptStates)
+            tempDFA = this.cloneDFA()
         }
 
         /**
@@ -289,14 +289,16 @@ export default class NFAConverter {
             // Pop the first state from redundantStates
             const pairToMerge = this.redundantStates.shift()
 
-            this.dfa.removeState(pairToMerge[0])
-            this.dfa.removeState(pairToMerge[1])
-
-            return [this.dfa, {
+            const step = [this.cloneDFA(), {
                 type: 'merge_states',
                 desc: `Merge redundant states {${pairToMerge[0]}} and {${pairToMerge[1]}}`,
                 states: pairToMerge
             }]
+            this.steps.push(step)
+
+            this.dfa.removeState(pairToMerge[0])
+            this.dfa.removeState(pairToMerge[1])
+            return step
         }
 
         return [undefined, undefined]
@@ -309,11 +311,10 @@ export default class NFAConverter {
      */
     stepBackward () {
         if (this.steps.length === 0) { return }
-
         const [prevDFA, prevStep] = this.steps.pop()
 
-        // If we stepped all the way back, reinitialize everything
-        if (prevStep.type === 'initialize') {
+        switch (prevStep.type) {
+        case 'initialize': {
             this.dfa = undefined
             this.steps = []
             this.state_index = 0
@@ -323,16 +324,24 @@ export default class NFAConverter {
             return [prevDFA, prevStep]
         }
 
-        this.dfa = prevDFA
-
-        if (prevStep.prevStateIndex !== undefined && prevStep.prevAlphabetIndex !== undefined) {
+        case 'add_transition': {
             this.state_index = prevStep.prevStateIndex
             this.alphabet_index = prevStep.prevAlphabetIndex
+            break
         }
 
-        if (prevStep.type === 'delete_state') {
+        case 'delete_state': {
             this.unreachableStates.unshift(prevStep.state)
+            break
         }
+
+        case 'merge_states': {
+            this.redundantStates.unshift(prevStep.states)
+            break
+        }
+        }
+
+        this.dfa = prevDFA
 
         return [prevDFA, prevStep]
     }

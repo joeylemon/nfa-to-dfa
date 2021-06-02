@@ -351,6 +351,7 @@ export default class VisualFSA extends EventHandler {
             const s2 = step.states[1]
             const n2 = this.getNode(s2)
             const newState = `${s1}+${s2}`
+            step.locations = [n1.loc, n2.loc]
 
             // Create the new state at the midpoint between the old states
             this.addNode(newState, new Location((n1.loc.x + n2.loc.x) / 2, (n1.loc.y + n2.loc.y) / 2))
@@ -409,6 +410,38 @@ export default class VisualFSA extends EventHandler {
                 for (const symbol of Object.keys(step.transitions)) {
                     for (const endState of step.transitions[symbol]) {
                         this.addTransition(step.state, endState, symbol)
+                    }
+                }
+            }
+
+            return this.render()
+        }
+
+        case 'merge_states': {
+            this.removeNode(`${step.states[0]}+${step.states[1]}`)
+            this.addNode(step.states[0], step.locations[0])
+            this.addNode(step.states[1], step.locations[1])
+
+            if (dfa.startState === step.states[0]) {
+                this.setStartState(step.states[0])
+            } else if (dfa.startState === step.states[1]) {
+                this.setStartState(step.states[1])
+            }
+
+            if (dfa.acceptStates.includes(step.states[0])) { this.addAcceptState(step.states[0]) }
+            if (dfa.acceptStates.includes(step.states[1])) { this.addAcceptState(step.states[1]) }
+
+            // Add external transitions between the two states
+            for (const state of dfa.states) {
+                for (const symbol of dfa.alphabet) {
+                    if (!dfa.transitions[state][symbol]) continue
+
+                    if (dfa.transitions[state][symbol].includes(step.states[0])) {
+                        this.addTransition(state, step.states[0], symbol)
+                    }
+
+                    if (dfa.transitions[state][symbol].includes(step.states[1])) {
+                        this.addTransition(state, step.states[1], symbol)
                     }
                 }
             }
