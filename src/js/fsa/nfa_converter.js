@@ -12,6 +12,9 @@ export default class NFAConverter {
         // dfa is the FSA that NFAConverter performs each step upon
         this.dfa = undefined
 
+        // steps is the list of steps that have occurred thus far
+        this.steps = []
+
         // state_index holds which state will have a transition generated next
         this.state_index = 0
 
@@ -27,6 +30,14 @@ export default class NFAConverter {
     }
 
     /**
+     * Clone the reference to the DFA
+     * This is useful for freezing the DFA's state in time for things such as undoing a step forward
+     */
+    cloneDFA () {
+        return new FSA(Object.assign([], this.dfa.states), Object.assign([], this.dfa.alphabet), Object.assign({}, this.dfa.transitions), this.dfa.startState, Object.assign([], Object.assign([], this.dfa.acceptStates)))
+    }
+
+    /**
      * Get all the unreachable states of the converted DFA
      *
      * @param {FSA} tempDFA A temporary DFA to work off of
@@ -35,7 +46,7 @@ export default class NFAConverter {
      */
     getUnreachableStates (tempDFA = undefined, list = []) {
         if (!tempDFA) {
-            tempDFA = new FSA(this.dfa.states, this.dfa.alphabet, this.dfa.transitions, this.dfa.startState, this.dfa.acceptStates)
+            tempDFA = this.cloneDFA()
         }
 
         const nodesWithIncomingEdges = []
@@ -180,11 +191,16 @@ export default class NFAConverter {
 
             this.dfa = new FSA(states, this.nfa.alphabet, transitions, startState, acceptStates)
 
-            return [this.dfa, {
+            const step = [this.cloneDFA(), {
                 type: 'initialize',
                 desc: 'Initialize the DFA'
             }]
+            this.steps.push(step)
+            return step
         }
+
+        const prevStateIndex = this.state_index
+        const prevAlphabetIndex = this.alphabet_index
 
         // If we've created all the transitions for the current state, move to the next state
         if (this.alphabet_index === this.dfa.alphabet.length) {
@@ -227,13 +243,17 @@ export default class NFAConverter {
             this.alphabet_index++
 
             const toState = this.dfa.transitions[state][symbol].join(',')
-            return [this.dfa, {
+            const step = [this.cloneDFA(), {
                 type: 'add_transition',
                 desc: `Add a transition from {${state}} on input ${symbol} to {${toState}}`,
                 fromState: state,
                 toState: toState,
-                symbol: symbol
+                symbol: symbol,
+                prevStateIndex: prevStateIndex,
+                prevAlphabetIndex: prevAlphabetIndex
             }]
+            this.steps.push(step)
+            return step
         }
 
         // At this point, we have generated all transitions
@@ -247,13 +267,16 @@ export default class NFAConverter {
             // Pop the first state from unreachableStates
             const stateToDelete = this.unreachableStates.shift()
 
-            this.dfa.removeState(stateToDelete)
-
-            return [this.dfa, {
+            const step = [this.cloneDFA(), {
                 type: 'delete_state',
                 desc: `Delete unreachable state {${stateToDelete}}`,
-                state: stateToDelete
+                state: stateToDelete,
+                transitions: this.dfa.transitions[stateToDelete] !== undefined ? Object.assign({}, this.dfa.transitions[stateToDelete]) : undefined
             }]
+            this.steps.push(step)
+
+            this.dfa.removeState(stateToDelete)
+            return step
         }
 
         // After deleting unreachable states, we want to start deleting redundant states
@@ -277,6 +300,41 @@ export default class NFAConverter {
         }
 
         return [undefined, undefined]
+    }
+
+    /**
+     * Undo the previous step in the conversion process
+     *
+     * @returns {Array} The new DFA and the step that was performed
+     */
+    stepBackward () {
+        if (this.steps.length === 0) { return }
+
+        const [prevDFA, prevStep] = this.steps.pop()
+
+        // If we stepped all the way back, reinitialize everything
+        if (prevStep.type === 'initialize') {
+            this.dfa = undefined
+            this.steps = []
+            this.state_index = 0
+            this.alphabet_index = 0
+            this.unreachableStates = undefined
+
+            return [prevDFA, prevStep]
+        }
+
+        this.dfa = prevDFA
+
+        if (prevStep.prevStateIndex !== undefined && prevStep.prevAlphabetIndex !== undefined) {
+            this.state_index = prevStep.prevStateIndex
+            this.alphabet_index = prevStep.prevAlphabetIndex
+        }
+
+        if (prevStep.type === 'delete_state') {
+            this.unreachableStates.unshift(prevStep.state)
+        }
+
+        return [prevDFA, prevStep]
     }
 
     /**

@@ -109,7 +109,7 @@ describe('Visual FSA', () => {
         const converter = new NFAConverter(visualNFA.fsa)
 
         const [newDFA, step] = converter.stepForward()
-        visualDFA.syncDFA(step, newDFA)
+        visualDFA.performStep(step, newDFA)
 
         visualDFA.fsa.states.should.eql(['Ø', '1', '2', '1,2'])
         visualDFA.fsa.startState.should.eql('1,2')
@@ -126,7 +126,7 @@ describe('Visual FSA', () => {
         const changes = converter.complete()
         for (const change of changes) {
             const [newDFA, step] = change
-            visualDFA.syncDFA(step, newDFA)
+            visualDFA.performStep(step, newDFA)
         }
 
         visualDFA.fsa.states.should.eql(['Ø', '2', '1,2'])
@@ -136,6 +136,80 @@ describe('Visual FSA', () => {
             'Ø': { a: ['Ø'], b: ['Ø'] },
             '2': { a: ['Ø'], b: ['1,2'] },
             '1,2': { a: ['2'], b: ['1,2'] }
+        })
+
+        done()
+    })
+
+    it('should step backward in the DFA conversion', done => {
+        const visualNFA = new VisualFSA(new DraggableCanvas('#nfa'), false)
+
+        visualNFA.addNode('1', new Location(100, 100))
+        visualNFA.addNode('2', new Location(100, 100))
+        visualNFA.setStartState('1')
+        visualNFA.addAcceptState('1')
+        visualNFA.addTransition('1', '2', 'b')
+        visualNFA.addTransition('1', '1', 'a')
+        visualNFA.addTransition('2', '1', 'a')
+        visualNFA.addTransition('2', '2', 'b')
+
+        const visualDFA = new VisualFSA(new DraggableCanvas('#dfa'), true)
+        const converter = new NFAConverter(visualNFA.fsa)
+
+        for (let i = 0; i < 10; i++) {
+            const [newDFA, step] = converter.stepForward()
+            visualDFA.performStep(step, newDFA)
+        }
+
+        visualDFA.fsa.states.should.eql(['1', '2', '1,2'])
+        visualDFA.fsa.startState.should.eql('1')
+        visualDFA.fsa.acceptStates.should.eql(['1', '1,2'])
+        visualDFA.fsa.transitions.should.eql({
+            '1': { a: ['1'], b: ['2'] },
+            '2': { a: ['1'], b: ['2'] },
+            '1,2': { a: ['1'], b: ['2'] }
+        })
+
+        {
+            const [prevDFA, step] = converter.stepBackward()
+            visualDFA.undoStep(step, prevDFA)
+        }
+
+        visualDFA.fsa.states.should.eql(['1', '2', '1,2', 'Ø'])
+        visualDFA.fsa.startState.should.eql('1')
+        visualDFA.fsa.acceptStates.should.eql(['1', '1,2'])
+        visualDFA.fsa.transitions.should.eql({
+            'Ø': { a: ['Ø'], b: ['Ø'] },
+            '1': { a: ['1'], b: ['2'] },
+            '2': { a: ['1'], b: ['2'] },
+            '1,2': { a: ['1'], b: ['2'] }
+        })
+
+        for (let i = 0; i < 2; i++) {
+            const [newDFA, step] = converter.stepForward()
+            visualDFA.performStep(step, newDFA)
+        }
+
+        visualDFA.fsa.states.should.eql(['1', '2'])
+        visualDFA.fsa.startState.should.eql('1')
+        visualDFA.fsa.acceptStates.should.eql(['1'])
+        visualDFA.fsa.transitions.should.eql({
+            '1': { a: ['1'], b: ['2'] },
+            '2': { a: ['1'], b: ['2'] }
+        })
+
+        {
+            const [prevDFA, step] = converter.stepBackward()
+            visualDFA.undoStep(step, prevDFA)
+        }
+
+        visualDFA.fsa.states.should.eql(['1', '2', '1,2'])
+        visualDFA.fsa.startState.should.eql('1')
+        visualDFA.fsa.acceptStates.should.eql(['1', '1,2'])
+        visualDFA.fsa.transitions.should.eql({
+            '1': { a: ['1'], b: ['2'] },
+            '2': { a: ['1'], b: ['2'] },
+            '1,2': { a: ['1'], b: ['2'] }
         })
 
         done()
