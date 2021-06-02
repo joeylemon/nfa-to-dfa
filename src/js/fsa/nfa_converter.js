@@ -115,30 +115,7 @@ export default class NFAConverter {
                     }
 
                     if (redundant) {
-                        // Create the new state
-                        const newState = `${s1}+${s2}`
-                        tempDFA.states.push(newState)
-                        if (tempDFA.acceptStates.includes(s1)) { tempDFA.acceptStates.push(newState) }
-                        if (tempDFA.startState === s1 || tempDFA.startState === s2) { tempDFA.startState = newState }
-
-                        // Add loopback on the new state for every symbol
-                        tempDFA.transitions[newState] = {}
-                        for (const symbol of tempDFA.alphabet) {
-                            tempDFA.transitions[newState][symbol] = [newState]
-                        }
-
-                        // Add incoming transitions to the new state using the old states' incoming transitions
-                        for (const state of tempDFA.states.filter(e => e !== s1 && e !== s2)) {
-                            for (const symbol of tempDFA.alphabet) {
-                                if (tempDFA.transitions[state][symbol][0] === s1 || tempDFA.transitions[state][symbol][0] === s2) {
-                                    tempDFA.transitions[state][symbol] = [newState]
-                                }
-                            }
-                        }
-
-                        // Remove the old states
-                        tempDFA.removeState(s1)
-                        tempDFA.removeState(s2)
+                        tempDFA.mergeStates(s1, s2)
 
                         // Add the pair of redundant states to the list and recursively search for more
                         list.push([s1, s2])
@@ -296,8 +273,7 @@ export default class NFAConverter {
             }]
             this.steps.push(step)
 
-            this.dfa.removeState(pairToMerge[0])
-            this.dfa.removeState(pairToMerge[1])
+            this.dfa.mergeStates(pairToMerge[0], pairToMerge[1])
             return step
         }
 

@@ -31,14 +31,14 @@ describe('NFA Conversion 1', () => {
         dfa.startState.should.eql('1,3')
         dfa.acceptStates.should.eql(['1', '1,2', '1,3', '1,2,3'])
         dfa.transitions.should.eql({
-            '1': { a: undefined, b: undefined },
-            '1,2': { a: undefined, b: undefined },
-            '1,2,3': { a: undefined, b: undefined },
-            '1,3': { a: undefined, b: undefined },
-            '2': { a: undefined, b: undefined },
-            '2,3': { a: undefined, b: undefined },
-            '3': { a: undefined, b: undefined },
-            'Ø': { a: undefined, b: undefined }
+            '1': {},
+            '1,2': {},
+            '1,2,3': {},
+            '1,3': {},
+            '2': {},
+            '2,3': {},
+            '3': {},
+            'Ø': {}
         })
 
         done()
@@ -110,14 +110,14 @@ describe('NFA Conversion 2', () => {
         dfa.startState.should.eql('q1')
         dfa.acceptStates.should.eql(['q1', 'q1,q2', 'q3', 'q1,q3', 'q2,q3', 'q1,q2,q3'])
         dfa.transitions.should.eql({
-            'q1': { 0: undefined, 1: undefined },
-            'q1,q2': { 0: undefined, 1: undefined },
-            'q1,q2,q3': { 0: undefined, 1: undefined },
-            'q1,q3': { 0: undefined, 1: undefined },
-            'q2': { 0: undefined, 1: undefined },
-            'q2,q3': { 0: undefined, 1: undefined },
-            'q3': { 0: undefined, 1: undefined },
-            'Ø': { 0: undefined, 1: undefined }
+            'q1': {},
+            'q1,q2': {},
+            'q1,q2,q3': {},
+            'q1,q3': {},
+            'q2': {},
+            'q2,q3': {},
+            'q3': {},
+            'Ø': {}
         })
 
         done()
@@ -187,14 +187,14 @@ describe('NFA Conversion 3', () => {
         dfa.startState.should.eql('1,3')
         dfa.acceptStates.should.eql(['2', '1,2', '2,3', '1,2,3'])
         dfa.transitions.should.eql({
-            '1': { a: undefined, b: undefined },
-            '1,2': { a: undefined, b: undefined },
-            '1,2,3': { a: undefined, b: undefined },
-            '1,3': { a: undefined, b: undefined },
-            '2': { a: undefined, b: undefined },
-            '2,3': { a: undefined, b: undefined },
-            '3': { a: undefined, b: undefined },
-            'Ø': { a: undefined, b: undefined }
+            '1': {},
+            '1,2': {},
+            '1,2,3': {},
+            '1,3': {},
+            '2': {},
+            '2,3': {},
+            '3': {},
+            'Ø': {}
         })
 
         done()
