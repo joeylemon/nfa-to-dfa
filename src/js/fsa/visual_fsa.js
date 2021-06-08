@@ -309,7 +309,8 @@ export default class VisualFSA extends EventHandler {
      * @param {FSA} dfa The resulting DFA after this step's conversion
      */
     performStep (step, dfa) {
-        if (step.type === 'initialize') {
+        switch (step.type) {
+        case 'initialize': {
             const maxCols = Math.ceil(dfa.states.length / (Math.log2(dfa.states.length) - 1))
             let row = 0
             let col = 0
@@ -333,15 +334,49 @@ export default class VisualFSA extends EventHandler {
             return this.render()
         }
 
-        if (step.type === 'add_transition') {
+        case 'add_transition': {
             this.addTransition(step.fromState, step.toState, step.symbol)
             return this.render()
         }
 
-        if (step.type === 'delete_state') {
+        case 'delete_state': {
             step.location = this.getNode(step.state).loc
             this.removeNode(step.state)
             return this.render()
+        }
+
+        case 'merge_states': {
+            const s1 = step.states[0]
+            const n1 = this.getNode(s1)
+            const s2 = step.states[1]
+            const n2 = this.getNode(s2)
+            const newState = `${s1}+${s2}`
+            step.locations = [n1.loc, n2.loc]
+
+            // Create the new state at the midpoint between the old states
+            this.addNode(newState, new Location((n1.loc.x + n2.loc.x) / 2, (n1.loc.y + n2.loc.y) / 2))
+            if (this.fsa.acceptStates.includes(s1)) { this.addAcceptState(newState) }
+            if (this.fsa.startState === s1 || this.fsa.startState === s2) { this.setStartState(newState) }
+
+            // Add loopback on the new state for every symbol
+            for (const symbol of this.fsa.alphabet) {
+                this.addTransition(newState, newState, symbol)
+            }
+
+            // Add incoming transitions to the new state using the old states' incoming transitions
+            for (const state of this.fsa.states.filter(e => e !== s1 && e !== s2)) {
+                for (const symbol of this.fsa.alphabet) {
+                    if (this.fsa.transitions[state][symbol][0] === s1 || this.fsa.transitions[state][symbol][0] === s2) {
+                        this.addTransition(state, newState, symbol)
+                    }
+                }
+            }
+
+            this.removeNode(s1)
+            this.removeNode(s2)
+
+            return this.render()
+        }
         }
     }
 
@@ -375,6 +410,38 @@ export default class VisualFSA extends EventHandler {
                 for (const symbol of Object.keys(step.transitions)) {
                     for (const endState of step.transitions[symbol]) {
                         this.addTransition(step.state, endState, symbol)
+                    }
+                }
+            }
+
+            return this.render()
+        }
+
+        case 'merge_states': {
+            this.removeNode(`${step.states[0]}+${step.states[1]}`)
+            this.addNode(step.states[0], step.locations[0])
+            this.addNode(step.states[1], step.locations[1])
+
+            if (dfa.startState === step.states[0]) {
+                this.setStartState(step.states[0])
+            } else if (dfa.startState === step.states[1]) {
+                this.setStartState(step.states[1])
+            }
+
+            if (dfa.acceptStates.includes(step.states[0])) { this.addAcceptState(step.states[0]) }
+            if (dfa.acceptStates.includes(step.states[1])) { this.addAcceptState(step.states[1]) }
+
+            // Add external transitions between the two states
+            for (const state of dfa.states) {
+                for (const symbol of dfa.alphabet) {
+                    if (!dfa.transitions[state][symbol]) continue
+
+                    if (dfa.transitions[state][symbol].includes(step.states[0])) {
+                        this.addTransition(state, step.states[0], symbol)
+                    }
+
+                    if (dfa.transitions[state][symbol].includes(step.states[1])) {
+                        this.addTransition(state, step.states[1], symbol)
                     }
                 }
             }

@@ -41,6 +41,39 @@ export default class FSA {
     }
 
     /**
+     * Merge two states into a single state
+     *
+     * @param {String} s1 The first state
+     * @param {String} s2 The second state
+     */
+    mergeStates (s1, s2) {
+        // Create the new state
+        const newState = `${s1}+${s2}`
+        this.states.push(newState)
+        if (this.acceptStates.includes(s1)) { this.acceptStates.push(newState) }
+        if (this.startState === s1 || this.startState === s2) { this.startState = newState }
+
+        // Add loopback on the new state for every symbol
+        this.transitions[newState] = {}
+        for (const symbol of this.alphabet) {
+            this.transitions[newState][symbol] = [newState]
+        }
+
+        // Add incoming transitions to the new state using the old states' incoming transitions
+        for (const state of this.states.filter(e => e !== s1 && e !== s2)) {
+            for (const symbol of this.alphabet) {
+                if (this.transitions[state][symbol][0] === s1 || this.transitions[state][symbol][0] === s2) {
+                    this.transitions[state][symbol] = [newState]
+                }
+            }
+        }
+
+        // Remove the old states
+        this.removeState(s1)
+        this.removeState(s2)
+    }
+
+    /**
      * Get the array of arrays that describes the powerset of this FSA's states
      *
      * @example
