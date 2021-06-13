@@ -16,6 +16,9 @@ export default class EditTransitionMenu extends EventHandler {
                 <div class="option" id="edit-transition-menu-delete">
                     <i class="mdi mdi-minus-circle" aria-hidden="true" style="color: #ff6767;"></i>Delete transition
                 </div>
+                <div class="option" id="edit-transition-menu-edit">
+                    <i class="mdi mdi-border-color" aria-hidden="true" style="color: #5599ff;"></i>Edit transition
+                </div>
             </div>`)
         const elem = document.querySelector('#edit-transition-menu')
 
@@ -32,6 +35,10 @@ export default class EditTransitionMenu extends EventHandler {
 
         document.querySelector('#edit-transition-menu-delete').addEventListener('click', () => {
             this.dispatchEvent('delete')
+        })
+
+        document.querySelector('#edit-transition-menu-edit').addEventListener('click', () => {
+            this.dispatchEvent('editTransition')
         })
 
         elem.addEventListener('DOMNodeRemoved', () => {
