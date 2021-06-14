@@ -9,20 +9,18 @@ _Enhanced by Camille Williford, Joey Lemon, and Lauren Proctor, COSC 493, Fall 2
 
 ## Overview
 
-This tool is used to convert nondeterministic finite automata (NFA) to deterministic finite automata (DFA) through an interactive and visual interface. More specifically, you can:
+This tool is used to convert [nondeterministic finite automata](https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton) (NFA) to [deterministic finite automata](https://en.wikipedia.org/wiki/Deterministic_finite_automaton) (DFA) through an interactive and visual interface. More specifically, you can:
 - Create an NFA interactively or from a saved JSON file
 - Export an NFA to a JSON file
+- View the description of both the NFA and the DFA, including a full delta transition table
 - Convert the NFA to an equivalent DFA in three possible ways:
-    - **Step-by-step**: where the addition of a transition to the DFA is one step
-    - **All at once**: go from NFA to DFA in one click
-    - **Incrementally**: at one second intervals, with the option to pause the conversion
-- View the description of the FSA, including a full delta transition table
+    - **Step-by-step**: the DFA is constructed in controlled increments
+    - **All at once**: completely convert the NFA to the DFA in one leap
+    - **Animated**: watch the conversion process take place automatically
 
 ### Technology
 
-- ES6 JavaScript: use modules for importing classes, arrow functions, promises, etc
-- HTML5 Canvas: used to draw the visual automata
-- Flexbox: used to layout the page in a grid pattern
+![image](https://user-images.githubusercontent.com/8845512/121960347-f907db80-cd33-11eb-9ec1-f249496ae452.png)
 
 ## Getting Started
 
