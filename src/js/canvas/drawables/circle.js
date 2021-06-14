@@ -54,7 +54,11 @@ export default class Circle extends Drawable {
         rend.ctx.arc(this.loc.x, this.loc.y, this.options.radius, 0, 2 * Math.PI)
         rend.ctx.fill()
 
-        if (this.options.text) this.options.text.draw(rend)
+        if (this.options.text) {
+            // Fit the text within the circle's diameter
+            this.options.text.fitToWidth(2 * this.options.radius - 5, rend.ctx)
+            this.options.text.draw(rend)
+        }
 
         rend.resetColor()
     }

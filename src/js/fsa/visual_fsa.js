@@ -554,8 +554,7 @@ export default class VisualFSA extends EventHandler {
                     text: node.label,
                     size: NODE_LABEL_SIZE,
                     color: '#fff',
-                    font: 'Helvetica',
-                    outline: { color: color === NODE_COLOR ? NODE_COLOR : 'green', width: 6 }
+                    font: 'Helvetica'
                 }),
                 borderOptions: { color: '#000', width: 2 },
                 outlineOptions: outline

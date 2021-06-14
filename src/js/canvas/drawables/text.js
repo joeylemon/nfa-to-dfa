@@ -23,6 +23,25 @@ export default class Text extends Drawable {
         return loc.distance(this.loc) < this.options.size
     }
 
+    /**
+     * Adjust the text's size until it fits within the given width
+     * @param {Number} width The max width the text can be
+     * @param {CanvasRenderingContext2D} ctx The canvas context
+     */
+    fitToWidth (width, ctx) {
+        while (true) {
+            ctx.font = `${this.options.size}px ${this.options.font}`
+            const renderedWidth = ctx.measureText(this.options.text).width
+
+            if (renderedWidth > width) {
+                this.options.size--
+                if (this.options.size < 4) break
+            } else {
+                break
+            }
+        }
+    }
+
     draw (rend) {
         rend.setColor(this.options.color)
 
