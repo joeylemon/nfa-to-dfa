@@ -472,7 +472,7 @@ export default class VisualFSA extends EventHandler {
                     editMenu.addEventListener('delete', () => {
                         console.log('delete transition')
                         this.removeTransitions(fromNode.label, toNode.label)
-                        this.render(this.draggableCanvas)
+                        this.render()
                     })
                 }
 
@@ -574,7 +574,7 @@ export default class VisualFSA extends EventHandler {
 
                     editMenu.addEventListener('selectedstart', () => {
                         this.setStartState(node.label)
-                        this.render(this.draggableCanvas)
+                        this.render()
                     })
 
                     editMenu.addEventListener('toggledaccept', () => {
@@ -583,19 +583,19 @@ export default class VisualFSA extends EventHandler {
                         } else {
                             this.removeAcceptState(node.label)
                         }
-                        this.render(this.draggableCanvas)
+                        this.render()
                     })
 
                     editMenu.addEventListener('delete', () => {
                         this.removeNode(node.label)
-                        this.render(this.draggableCanvas)
+                        this.render()
                     })
                 })
             }
 
             circle.addEventListener('move', e => {
                 node.loc = e.newLocation
-                this.render(this.draggableCanvas)
+                this.render()
             })
 
             this.draggableCanvas.addObject(circle)
