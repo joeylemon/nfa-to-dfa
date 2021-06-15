@@ -15,7 +15,7 @@ export default class EditTransitionMenu extends EventHandler {
             <div class="edit-menu" id="edit-transition-menu">
                 <div class="option" id="edit-transition-menu-delete">
                     <i class="mdi mdi-minus-circle" aria-hidden="true" style="color: #ff6767;"></i>Delete transition
-                </div class="option">
+                </div>
             </div>`)
         const elem = document.querySelector('#edit-transition-menu')
 

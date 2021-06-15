@@ -21,10 +21,10 @@ export default class EditNodeMenu extends EventHandler {
                 </div>
                 <div class="option" id="edit-node-menu-toggle-accept">
                     <i class="mdi mdi-check-circle" aria-hidden="true" style="color: #72b771;"></i>Toggle as accept state
-                </div class="option">
+                </div>
                 <div class="option" id="edit-node-menu-delete">
                     <i class="mdi mdi-minus-circle" aria-hidden="true" style="color: #ff6767;"></i>Delete state
-                </div class="option">
+                </div>
             </div>`)
         const elem = document.querySelector('#edit-node-menu')
 
