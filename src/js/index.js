@@ -103,7 +103,7 @@ document.querySelector('#step-forward').addEventListener('click', () => {
     }
 
     if (!converter || !converter.nfa.startState) {
-        converter = new NFAConverter(nfa.visual.fsa)
+        converter = new NFAConverter(nfa.visual.fsa.clone())
         document.querySelector('#step-backward').disabled = true
     }
 
@@ -160,7 +160,7 @@ document.querySelector('#animate').addEventListener('click', () => {
 
     if (!animatedConverter) {
         if (!converter) {
-            converter = new NFAConverter(nfa.visual.fsa)
+            converter = new NFAConverter(nfa.visual.fsa.clone())
             document.querySelector('#step-backward').disabled = true
         }
 
@@ -203,7 +203,7 @@ document.querySelector('#complete').addEventListener('click', () => {
     }
 
     if (!converter) {
-        converter = new NFAConverter(nfa.visual.fsa)
+        converter = new NFAConverter(nfa.visual.fsa.clone())
     }
 
     try {
@@ -263,12 +263,7 @@ document.querySelector('#export').addEventListener('click', () => {
 document.querySelector('#import').addEventListener('click', () => {
     selectFile().then(contents => {
         try {
-            const obj = JSON.parse(contents)
-            if (obj.nodes && obj.fsa) {
-                nfa.visual.fromJSON(obj)
-            } else {
-                showWarning('#nfa-warning', 'The given file is improperly formatted.')
-            }
+            nfa.visual.fromJSON(contents)
         } catch (e) {
             showWarning('#nfa-warning', 'The given file is improperly formatted.')
         }
@@ -294,19 +289,19 @@ window.addEventListener('click', () => {
  * Set the NFA to a preset configuration with the preset button
  */
 document.querySelector('#preset-1').addEventListener('click', () => {
-    nfa.visual.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 200, 'y': 100 }, 'transitionText': { '2': ['b'], '3': ['ε'] }, 'acceptState': true }, { 'label': '2', 'loc': { 'x': 600, 'y': 100 }, 'transitionText': { '2': ['a'], '3': ['a', 'b'] } }, { 'label': '3', 'loc': { 'x': 400, 'y': 400 }, 'transitionText': { '1': ['a'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'b': ['2'], 'ε': ['3'] }, '2': { 'a': ['2', '3'], 'b': ['3'] }, '3': { 'a': ['1'] } }, 'startState': '1', 'acceptStates': ['1'] } })
+    nfa.visual.fromJSON('{"nodes":[{"label":"1","loc":{"x":200,"y":100},"transitionText":{"2":["b"],"3":["ε"]},"acceptState":true},{"label":"2","loc":{"x":600,"y":100},"transitionText":{"2":["a"],"3":["a","b"]}},{"label":"3","loc":{"x":400,"y":400},"transitionText":{"1":["a"]}}],"fsa":{"states":["1","2","3"],"alphabet":["a","b"],"transitions":{"1":{"b":["2"],"ε":["3"]},"2":{"a":["2","3"],"b":["3"]},"3":{"a":["1"]}},"startState":"1","acceptStates":["1"]}}')
 })
 
 /**
  * Set the NFA to a preset configuration with the preset button
  */
 document.querySelector('#preset-2').addEventListener('click', () => {
-    nfa.visual.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 154, 'y': 108 }, 'transitionText': { '2': ['ε'], '3': ['a'] } }, { 'label': '2', 'loc': { 'x': 535, 'y': 106 }, 'transitionText': {}, 'acceptState': true }, { 'label': '3', 'loc': { 'x': 334, 'y': 362 }, 'transitionText': { '2': ['a', 'b'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'ε': ['2'], 'a': ['3'] }, '3': { 'a': ['2'], 'b': ['2'] } }, 'startState': '1', 'acceptStates': ['2'] } })
+    nfa.visual.fromJSON('{"nodes":[{"label":"1","loc":{"x":154,"y":108},"transitionText":{"2":["ε"],"3":["a"]}},{"label":"2","loc":{"x":535,"y":106},"transitionText":{},"acceptState":true},{"label":"3","loc":{"x":334,"y":362},"transitionText":{"2":["a","b"]}}],"fsa":{"states":["1","2","3"],"alphabet":["a","b"],"transitions":{"1":{"ε":["2"],"a":["3"]},"3":{"a":["2"],"b":["2"]}},"startState":"1","acceptStates":["2"]}}')
 })
 
 /**
  * Set the NFA to a preset configuration with the preset button
  */
 document.querySelector('#preset-3').addEventListener('click', () => {
-    nfa.visual.fromJSON({ 'nodes': [{ 'label': '1', 'loc': { 'x': 206, 'y': 119 }, 'transitionText': { '2': ['b'], '3': ['ε'] } }, { 'label': '2', 'loc': { 'x': 560, 'y': 119 }, 'transitionText': { '1': ['a'], '2': ['b'] }, 'acceptState': true }, { 'label': '3', 'loc': { 'x': 375, 'y': 388 }, 'transitionText': { '2': ['a'], '3': ['a', 'b'] } }], 'fsa': { 'states': ['1', '2', '3'], 'alphabet': ['a', 'b'], 'transitions': { '1': { 'ε': ['3'], 'b': ['2'] }, '2': { 'b': ['2'], 'a': ['1'] }, '3': { 'a': ['2', '3'], 'b': ['3'] } }, 'startState': '1', 'acceptStates': ['2'] } })
+    nfa.visual.fromJSON('{"nodes":[{"label":"1","loc":{"x":206,"y":119},"transitionText":{"2":["b"],"3":["ε"]}},{"label":"2","loc":{"x":560,"y":119},"transitionText":{"1":["a"],"2":["b"]},"acceptState":true},{"label":"3","loc":{"x":375,"y":388},"transitionText":{"2":["a"],"3":["a","b"]}}],"fsa":{"states":["1","2","3"],"alphabet":["a","b"],"transitions":{"1":{"ε":["3"],"b":["2"]},"2":{"b":["2"],"a":["1"]},"3":{"a":["2","3"],"b":["3"]}},"startState":"1","acceptStates":["2"]}}')
 })

@@ -11,6 +11,7 @@ import QuadraticCurvedLine from '../canvas/drawables/quadratic_curved_line.js'
 import BezierCurvedLine from '../canvas/drawables/bezier_curved_line.js'
 import Text from '../canvas/drawables/text.js'
 import ArrowedStraightLine from '../canvas/drawables/arrowed_straight_line.js'
+import FSA from '../fsa/fsa.js'
 const { JSDOM } = jsdom
 
 function getVisualNFA () {
@@ -41,6 +42,30 @@ describe('Visual FSA', () => {
             }
             done()
         }).catch(err => console.error(err))
+    })
+
+    it('should import a saved json', done => {
+        const visualNFA = new VisualFSA(new DraggableCanvas('#nfa'), false)
+
+        visualNFA.fromJSON('{"nodes":[{"label":"1","loc":{"x":206,"y":119},"transitionText":{"2":["b"],"3":["ε"]}},{"label":"2","loc":{"x":560,"y":119},"transitionText":{"1":["a"],"2":["b"]},"acceptState":true},{"label":"3","loc":{"x":375,"y":388},"transitionText":{"2":["a"],"3":["a","b"]}}],"fsa":{"states":["1","2","3"],"alphabet":["a","b"],"transitions":{"1":{"ε":["3"],"b":["2"]},"2":{"b":["2"],"a":["1"]},"3":{"a":["2","3"],"b":["3"]}},"startState":"1","acceptStates":["2"]}}')
+
+        visualNFA.fsa.should.be.instanceOf(FSA)
+
+        visualNFA.fsa.states.should.eql(['1', '2', '3'])
+        visualNFA.fsa.acceptStates.should.eql(['2'])
+        visualNFA.fsa.startState.should.eql('1')
+        visualNFA.fsa.alphabet.should.eql(['a', 'b'])
+        visualNFA.fsa.transitions.should.eql({
+            '1': { b: ['2'], ε: ['3'] },
+            '2': { a: ['1'], b: ['2'] },
+            '3': { a: ['2', '3'], b: ['3'] }
+        })
+
+        visualNFA.nodes.find(n => n.label === '1').loc.should.eql(new Location(206, 119))
+        visualNFA.nodes.find(n => n.label === '2').loc.should.eql(new Location(560, 119))
+        visualNFA.nodes.find(n => n.label === '3').loc.should.eql(new Location(375, 388))
+
+        done()
     })
 
     it('should create a valid FSA', done => {

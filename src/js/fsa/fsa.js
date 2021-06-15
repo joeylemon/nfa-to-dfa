@@ -19,6 +19,14 @@ export default class FSA {
     }
 
     /**
+     * Clone this FSA into a new object instead of copying its reference
+     * This is useful for freezing the state of the FSA and passing it to a function
+     */
+    clone () {
+        return new FSA(JSON.parse(JSON.stringify(this.states)), JSON.parse(JSON.stringify(this.alphabet)), JSON.parse(JSON.stringify(this.transitions)), this.startState, JSON.parse(JSON.stringify(this.acceptStates)))
+    }
+
+    /**
      * Remove all of a state's references from the FSA
      *
      * @param {String} state The name of the state

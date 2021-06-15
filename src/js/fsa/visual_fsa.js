@@ -111,6 +111,10 @@ export default class VisualFSA extends EventHandler {
         }
     }
 
+    /**
+     * Convert the VisualFSA to a JSON string for storage
+     * @returns {String} The JSON string blob representing this VisualFSA
+     */
     toJSON () {
         return JSON.stringify({
             nodes: this.nodes,
@@ -118,7 +122,14 @@ export default class VisualFSA extends EventHandler {
         })
     }
 
-    fromJSON (obj) {
+    /**
+     * Rebuild the VisualFSA from a saved JSON string and cast its contents to the appropriate classes
+     * @param {String} str The JSON string
+     */
+    fromJSON (str) {
+        const obj = JSON.parse(str)
+        if (!obj.nodes || !obj.fsa) { throw new Error('improperly formatted visual FSA') }
+
         this.nodes = obj.nodes
 
         // Cast the given FSA
@@ -133,6 +144,9 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    /**
+     * Completely wipe the VisualFSA and start from scratch
+     */
     reset () {
         this.nodes = []
         this.fsa = new FSA([], [], {}, undefined, [])
@@ -140,6 +154,10 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    /**
+     * Update the VisualFSA start state
+     * @param {String} label The state label
+     */
     setStartState (label) {
         if (!this.fsa.states.includes(label)) { throw new UnknownStateError(label) }
 
@@ -147,6 +165,10 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    /**
+     * Add an accept state to the VisualFSA
+     * @param {String} label The state label
+     */
     addAcceptState (label) {
         if (!this.fsa.states.includes(label)) { throw new UnknownStateError(label) }
 
@@ -155,6 +177,10 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    /**
+     * Remove an accept state from the VisualFSA
+     * @param {String} label The state label
+     */
     removeAcceptState (label) {
         if (!this.fsa.states.includes(label)) { throw new UnknownStateError(label) }
 
@@ -163,6 +189,11 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    /**
+     * Add a new state to the VisualFSA at the given location
+     * @param {String} label The state label
+     * @param {Location} loc The location to place the new state
+     */
     addNode (label, loc) {
         this.fsa.states.push(label)
         this.nodes.push({
@@ -173,6 +204,10 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    /**
+     * Remove a state from the VisualFSA and update the alphabet and all transitions
+     * @param {String} label The state label
+     */
     removeNode (label) {
         if (!this.fsa.states.includes(label)) { throw new UnknownStateError(label) }
 
@@ -186,6 +221,11 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    /**
+     * Find the node object with the given state label
+     * @param {String} label The state label
+     * @returns {Object} The node object for the given state
+     */
     getNode (label) {
         const node = this.nodes.find(e => e.label === label)
         if (!node) { throw new UnknownStateError(label) }
@@ -193,6 +233,11 @@ export default class VisualFSA extends EventHandler {
         return node
     }
 
+    /**
+     * Get the next state number to use for a new state.
+     * Incrementally searches starting at 1 for the next available label.
+     * @returns {Number} The next state number
+     */
     getNextStateNumber () {
         for (let i = 1; i < 100; i++) {
             if (!this.fsa.states.includes(i.toString())) { return i }
@@ -201,6 +246,9 @@ export default class VisualFSA extends EventHandler {
         throw new Error('max state count exceeded')
     }
 
+    /**
+     * Parse the FSA's transition map to infer the alphabet
+     */
     updateAlphabet () {
         const alphabet = []
         for (const fromState of Object.keys(this.fsa.transitions)) {
@@ -211,6 +259,12 @@ export default class VisualFSA extends EventHandler {
         this.fsa.alphabet = [...new Set(alphabet)].sort()
     }
 
+    /**
+     * Create a new transition between two states on the given symbol
+     * @param {String} from The state label for the origin state
+     * @param {String} to The state label for the destination state
+     * @param {String} symbol The alphabet symbol for the transition
+     */
     addTransition (from, to, symbol) {
         if (!this.fsa.states.includes(from)) { throw new UnknownStateError(from) }
         if (!this.fsa.states.includes(to)) { throw new UnknownStateError(to) }
@@ -234,6 +288,12 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    /**
+     * Remove a single transition between the two given states on the given symbol
+     * @param {String} from The state label for the origin state
+     * @param {String} to The state label for the destination state
+     * @param {String} symbol The alphabet symbol for the transition
+     */
     removeTransition (from, to, symbol) {
         if (!this.fsa.states.includes(from)) { throw new UnknownStateError(from) }
         if (!this.fsa.states.includes(to)) { throw new UnknownStateError(to) }
@@ -257,6 +317,11 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    /**
+     * Remove all transitions between the two given states
+     * @param {String} from The state label for the origin state
+     * @param {String} to The state label for the destination state
+     */
     removeTransitions (from, to) {
         if (!this.fsa.states.includes(from)) { throw new UnknownStateError(from) }
         if (!this.fsa.states.includes(to)) { throw new UnknownStateError(to) }
@@ -276,6 +341,14 @@ export default class VisualFSA extends EventHandler {
         this.dispatchEvent('change')
     }
 
+    /**
+     * Get a drawable object representing a curved quadratic line between the two states
+     * @param {String} from The state label for the origin state
+     * @param {String} to The state label for the destination state
+     * @param {Object} fromNode The node object for the origin state
+     * @param {Object} toNode The node object for the destination state
+     * @returns {QuadraticCurvedLine} The drawable quadratic line to be placed onto the canvas
+     */
     getQuadraticLine (from, to, fromNode, toNode) {
         // Get the angle between the fromNode and the toNode
         const angleFromTo = from.angleTo(to)

@@ -30,14 +30,6 @@ export default class NFAConverter {
     }
 
     /**
-     * Clone the reference to the DFA
-     * This is useful for freezing the DFA's state in time for things such as undoing a step forward
-     */
-    cloneDFA () {
-        return new FSA(JSON.parse(JSON.stringify(this.dfa.states)), JSON.parse(JSON.stringify(this.dfa.alphabet)), JSON.parse(JSON.stringify(this.dfa.transitions)), this.dfa.startState, JSON.parse(JSON.stringify(this.dfa.acceptStates)))
-    }
-
-    /**
      * Get all the unreachable states of the converted DFA
      *
      * @param {FSA} tempDFA A temporary DFA to work off of
@@ -46,7 +38,7 @@ export default class NFAConverter {
      */
     getUnreachableStates (tempDFA = undefined, list = []) {
         if (!tempDFA) {
-            tempDFA = this.cloneDFA()
+            tempDFA = this.dfa.clone()
         }
 
         const nodesWithIncomingEdges = []
@@ -89,7 +81,7 @@ export default class NFAConverter {
      */
     getRedundantStates (tempDFA = undefined, list = []) {
         if (!tempDFA) {
-            tempDFA = this.cloneDFA()
+            tempDFA = this.dfa.clone()
         }
 
         /**
@@ -168,7 +160,7 @@ export default class NFAConverter {
 
             this.dfa = new FSA(states, this.nfa.alphabet, transitions, startState, acceptStates)
 
-            const step = [this.cloneDFA(), {
+            const step = [this.dfa.clone(), {
                 type: 'initialize',
                 desc: 'Initialize the DFA'
             }]
@@ -220,7 +212,7 @@ export default class NFAConverter {
             this.alphabet_index++
 
             const toState = this.dfa.transitions[state][symbol].join(',')
-            const step = [this.cloneDFA(), {
+            const step = [this.dfa.clone(), {
                 type: 'add_transition',
                 desc: `Add a transition from {${state}} on input ${symbol} to {${toState}}`,
                 fromState: state,
@@ -244,7 +236,7 @@ export default class NFAConverter {
             // Pop the first state from unreachableStates
             const stateToDelete = this.unreachableStates.shift()
 
-            const step = [this.cloneDFA(), {
+            const step = [this.dfa.clone(), {
                 type: 'delete_state',
                 desc: `Delete unreachable state {${stateToDelete}}`,
                 state: stateToDelete,
@@ -266,7 +258,7 @@ export default class NFAConverter {
             // Pop the first state from redundantStates
             const pairToMerge = this.redundantStates.shift()
 
-            const step = [this.cloneDFA(), {
+            const step = [this.dfa.clone(), {
                 type: 'merge_states',
                 desc: `Merge redundant states {${pairToMerge[0]}} and {${pairToMerge[1]}}`,
                 states: pairToMerge
