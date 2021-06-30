@@ -56,29 +56,7 @@ export default class VisualFSA extends EventHandler {
                     if (e.obj && e.obj instanceof Circle && e.obj.options.text) {
                         const fromState = this.addingTransitionNode.label
                         const endState = e.obj.options.text.options.text
-                        this.overlay = new OverlayMessage('#nfa-container', 'Enter the symbol for the transition')
-                        this.overlay.addEventListener('keydown', function (e) {
-                            if (!this.overlay || e.key === 'Shift') return
-
-                            let key = e.key
-                            if (e.shiftKey) { key = key.toUpperCase() }
-
-                            if (key.length === 1) {
-                                this.addTransition(fromState, endState, key === 'e' ? 'ε' : key)
-                                this.render()
-                            }
-
-                            this.overlay.deletePrevious()
-                        }.bind(this))
-
-                        this.overlay.addEventListener('close', () => {
-                            this.addingTransitionNode = undefined
-                            this.transitionInProgress = undefined
-                            this.overlay = undefined
-                            this.draggableCanvas.draggingObject = undefined
-                            document.body.style.cursor = 'auto'
-                            this.render()
-                        })
+                        this.addTransitionOverlay(fromState, endState)
                     } else {
                         this.addingTransitionNode = undefined
                         this.transitionInProgress = undefined
@@ -342,12 +320,11 @@ export default class VisualFSA extends EventHandler {
     }
 
     /**
-     * Edit a transition between the two given states
+     * Get the symbol and add a transition between the two given states
      * @param {String} from The state label for the origin state
      * @param {String} to The state label for the destination state
      */
-    editTransition (from, to) {
-        this.removeTransitions(from, to)
+    addTransitionOverlay (from, to) {
         this.overlay = new OverlayMessage('#nfa-container', 'Enter the symbol for the transition')
         this.overlay.addEventListener('keydown', function (e) {
             if (!this.overlay || e.key === 'Shift') return
@@ -581,9 +558,9 @@ export default class VisualFSA extends EventHandler {
                     })
                     editMenu.addEventListener('editTransition', () => {
                         console.log('edit transition')
-                        this.editTransition(fromNode.label, toNode.label)
+                        this.removeTransitions(fromNode.label, toNode.label)
+                        this.addTransitionOverlay(fromNode.label, toNode.label)
                         this.render(this.draggableCanvas)
-                        
                     })
                 }
 
