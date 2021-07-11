@@ -5,11 +5,13 @@ https://joeylemon.github.io/nfa-to-dfa/
 
 _Originally created by Alex Klibisz and Connor Minton, COSC 312, Spring 2015, University of Tennessee, Knoxville._
 
-_Enhanced by Camille Williford, Joey Lemon, and Lauren Proctor, COSC 493, Fall 2021, University of Tennessee, Knoxville._
+_Rewritten and enhanced by Camille Williford, Joey Lemon, and Lauren Proctor, COSC 493, Fall 2021, University of Tennessee, Knoxville._
 
 ## Overview
 
-This tool is used to convert [nondeterministic finite automata](https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton) (NFA) to [deterministic finite automata](https://en.wikipedia.org/wiki/Deterministic_finite_automaton) (DFA) through an interactive and visual interface. More specifically, you can:
+<img alt="Screenshot of the main application interface" src="https://user-images.githubusercontent.com/8845512/125208072-67ba5500-e25e-11eb-8b6e-c798ece6caf1.png">
+
+This tool is used to convert [non-deterministic finite automata](https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton) (NFA) to [deterministic finite automata](https://en.wikipedia.org/wiki/Deterministic_finite_automaton) (DFA) through an interactive and visual interface. More specifically, you can:
 - Create an NFA interactively or from a saved JSON file
 - Export an NFA to a JSON file
 - View the description of both the NFA and the DFA, including a full delta transition table
