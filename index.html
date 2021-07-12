@@ -52,6 +52,11 @@
         </div>
     </nav>
 
+    <div id="warning" class="notification is-danger" style="display: none;">
+        <button class="delete"></button>
+        <span class="notification-body"></span>
+    </div>
+
     <div class="columns is-desktop">
         <div class="column">
             <div class="card title" id="nfa-title">
@@ -138,10 +143,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
-            <div id="nfa-warning" class="notification is-danger" style="display: none;">
-                <button class="delete"></button>
-                <span class="notification-body"></span>
             </div>
             <div id="nfa-container" class="box" style="padding:0px; position: relative;">
                 <canvas id="nfa"></canvas>
@@ -252,10 +253,6 @@
                         </button>
                     </div>
                 </div>
-            </div>
-            <div id="dfa-warning" class="notification is-danger" style="display: none;">
-                <button class="delete"></button>
-                <span class="notification-body"></span>
             </div>
             <div id="dfa-container" class="box" style="padding:0px; position: relative;">
                 <p class="dfa-conversion-step" id="dfa-conversion-step"></p>

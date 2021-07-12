@@ -1,4 +1,4 @@
-const warningTimeouts = {}
+let warningTimeout
 
 // Close a warning when the close button is clicked
 document.querySelectorAll('.delete').forEach(e => e.addEventListener('click', e => {
@@ -29,18 +29,17 @@ export function keepHeightSynced (listOfPairs) {
 /**
  * Display the given warning element with a message
  *
- * @param {String} selector The warning main parent element selector
  * @param {String} message The message to put into the warning
  */
-export function showWarning (selector, message) {
-    document.querySelector(selector).style.display = 'block'
-    document.querySelector(selector).querySelector('.notification-body').innerHTML = message
+export function showWarning (message) {
+    document.querySelector('#warning').style.display = 'block'
+    document.querySelector('#warning').querySelector('.notification-body').innerHTML = message
 
     // Delete the warning after a delay
-    if (warningTimeouts[selector]) { clearTimeout(warningTimeouts[selector]) }
-    warningTimeouts[selector] = setTimeout(() => {
-        document.querySelector(selector).style.display = 'none'
-        delete warningTimeouts[selector]
+    if (warningTimeout) { clearTimeout(warningTimeout) }
+    warningTimeout = setTimeout(() => {
+        document.querySelector('#warning').style.display = 'none'
+        warningTimeout = undefined
     }, 4000)
 }
 

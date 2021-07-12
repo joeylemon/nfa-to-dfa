@@ -71,17 +71,17 @@ function setEditButtonsState (enabled, onlyDFA) {
  */
 function validateNFA () {
     if (nfa.visual.fsa.states.length === 0) {
-        showWarning('#dfa-warning', 'You must add states to the NFA before performing the conversion.')
+        showWarning('You must add states to the NFA before performing the conversion.')
         return false
     }
 
     if (!nfa.visual.fsa.startState || nfa.visual.fsa.startState === '') {
-        showWarning('#dfa-warning', 'You must set the start state in the NFA before performing the conversion.')
+        showWarning('You must set the start state in the NFA before performing the conversion.')
         return false
     }
 
     if (nfa.visual.fsa.alphabet.length === 0) {
-        showWarning('#dfa-warning', 'You must add at least one transition to establish an alphabet.')
+        showWarning('You must add at least one transition to establish an alphabet.')
         return false
     }
 
@@ -118,7 +118,7 @@ document.querySelector('#step-forward').addEventListener('click', () => {
             setEditButtonsState(false, true)
         }
     } catch (e) {
-        showWarning('#nfa-warning', e.message)
+        showWarning(e.message)
         converter = undefined
         dfa.visual.reset()
     }
@@ -180,7 +180,7 @@ document.querySelector('#animate').addEventListener('click', () => {
         })
 
         animatedConverter.play(err => {
-            showWarning('#nfa-warning', err.message)
+            showWarning(err.message)
             converter = undefined
             animatedConverter = undefined
             dfa.visual.reset()
@@ -218,7 +218,7 @@ document.querySelector('#complete').addEventListener('click', () => {
         setEditButtonsState(false, true)
         document.querySelector('#step-backward').disabled = false
     } catch (e) {
-        showWarning('#nfa-warning', e.message)
+        showWarning(e.message)
         converter = undefined
         dfa.visual.reset()
     }
@@ -265,7 +265,7 @@ document.querySelector('#import').addEventListener('click', () => {
         try {
             nfa.visual.fromJSON(contents)
         } catch (e) {
-            showWarning('#nfa-warning', 'The given file is improperly formatted.')
+            showWarning('The given file is improperly formatted.')
         }
     })
 })
