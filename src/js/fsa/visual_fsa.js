@@ -566,14 +566,13 @@ export default class VisualFSA extends EventHandler {
 
                 if (fromNode.label !== toNode.label) {
                     const angleFromTo = fromNode.loc.angleTo(toNode.loc)
-                    const perpendicularAngle = angleFromTo + (Math.PI / 2)
 
                     const transitionLine = this.getQuadraticLine(fromNode.loc, toNode.loc, fromNode, toNode)
 
                     if (!this.isDFA) transitionLine.addEventListener('edit', editFn)
                     this.draggableCanvas.addObject(transitionLine)
 
-                    textLocation = transitionLine.midpoint().moveFromAngle(perpendicularAngle, TRANSITION_TEXT_RADIUS)
+                    textLocation = transitionLine.midpointPadded(TRANSITION_TEXT_RADIUS)
                     textRotation = Math.abs(angleFromTo) > (Math.PI / 2) ? angleFromTo + Math.PI : angleFromTo
                 } else {
                     // Set the control points towards the start and end angles
@@ -595,7 +594,7 @@ export default class VisualFSA extends EventHandler {
 
                     // Add the text to the midpoint of the transition line with the appropriate rotation angle
                     const midpointAngle = transitionLine.midpointAngle()
-                    textLocation = transitionLine.midpoint().moveToAngle(-(SELF_TRANSITION_START_ANGLE + SELF_TRANSITION_END_ANGLE) / 2, TRANSITION_TEXT_RADIUS)
+                    textLocation = transitionLine.midpointPadded(TRANSITION_TEXT_RADIUS)
                     textRotation = Math.abs(midpointAngle) > (Math.PI / 2) ? midpointAngle + Math.PI : midpointAngle
                 }
 

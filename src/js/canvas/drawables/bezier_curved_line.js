@@ -49,12 +49,26 @@ export default class BezierCurvedLine extends Drawable {
         return -Math.atan2(dx, dy) + 0.5 * Math.PI
     }
 
+    /**
+     * Get the midpoint of the line
+     */
     midpoint () {
         return this.locationAt(0.5)
     }
 
+    /**
+     * Get the angle of the curve at the midpoint of the line
+     */
     midpointAngle () {
         return this.angleAt(0.5)
+    }
+
+    /**
+     * Get the midpoint of the line plus padding at a perpendicular angle
+     * @param {Number} padding Distance from midpoint
+     */
+    midpointPadded (padding) {
+        return this.midpoint().moveFromAngle(this.midpointAngle() - (Math.PI / 2), padding)
     }
 
     touches (loc) {
