@@ -52,9 +52,68 @@
         </div>
     </nav>
 
-    <div id="warning" class="notification is-danger" style="display: none;">
+    <div class="notification is-danger" id="warning" style="display: none;">
         <button class="delete"></button>
         <span class="notification-body"></span>
+    </div>
+
+    <div class="modal help-modal" id="nfa-help-modal">
+        <div class="modal-background modal-close-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">How to Build the NFA</p>
+                <button class="delete modal-close-button" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <p>Start building the NFA by <nobr>right-clicking
+                        <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
+                    on the canvas to create a node. Then, <nobr>right-click
+                        <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
+                    on the new node to create a transition, edit its properties, or delete
+                    it.
+                    You can also <nobr>
+                        pan
+                        <i class="mdi mdi-cursor-pointer" aria-hidden="true"></i></nobr>
+                    and <nobr>zoom
+                        <i class="mdi mdi-magnify-plus" aria-hidden="true"></i></nobr>
+                    the canvas. Additionally, you can import a saved NFA,
+                    or even use one from a list of presets.</p>
+                <video autoplay loop muted playsinline src="src/img/nfa-help.mp4"></video>
+                <p class="subtitle">A video demonstration of the NFA creation process.</p>
+            </section>
+        </div>
+    </div>
+
+    <div class="modal help-modal" id="dfa-help-modal">
+        <div class="modal-background modal-close-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">How to Build the DFA</p>
+                <button class="delete modal-close-button" aria-label="close"></button>
+            </header>
+            <section class="modal-card-body">
+                <p>After building the NFA, you can then start converting it to a DFA. This
+                    can be
+                    done in <nobr>
+                        steps
+                        <i class="mdi mdi-skip-next" aria-hidden="true"></i></nobr>,
+                    <nobr>animated
+                        <i class="mdi mdi-play" aria-hidden="true"></i></nobr>,
+                    or all at <nobr>once
+                        <i class="mdi mdi-skip-forward" aria-hidden="true"></i></nobr>. You
+                    can revisit previous actions by going backwards <nobr><i class="mdi mdi-skip-previous"
+                            aria-hidden="true"></i></nobr>.
+                    You
+                    may drag nodes around to
+                    reorganize
+                    the visual layout. However, node-editing features are disabled. To
+                    change the DFA, you must
+                    first
+                    change the NFA.</p>
+                <video autoplay loop muted playsinline src="src/img/dfa-help.mp4"></video>
+                <p class="subtitle">A video demonstration of the DFA conversion process.</p>
+            </section>
+        </div>
     </div>
 
     <div class="columns is-desktop">
@@ -70,34 +129,11 @@
                             </h1>
                         </div>
                         <div class="column is-1">
-                            <div class="dropdown is-hoverable" style="width:100%;">
-                                <div class="dropdown-trigger" style="width:100%;">
-                                    <button class="button orange-button" aria-haspopup="true"
-                                        aria-controls="dropdown-menu" style="width:100%;">
-                                        <i class="mdi mdi-36px mdi-help-circle-outline title-help-icon"
-                                            aria-hidden="true" style="color: #fff;"></i>
-                                    </button>
-                                </div>
-                                <div class="dropdown-menu help-dropdown" role="menu">
-                                    <div class="dropdown-content">
-                                        <div class="dropdown-item">
-                                            <p>Start building the NFA by <nobr>right-clicking
-                                                    <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
-                                                on the canvas below to create a node. Then, <nobr>right-click
-                                                    <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
-                                                on the new node to create a transition, edit its properties, or delete
-                                                it.
-                                                You can also <nobr>
-                                                    pan
-                                                    <i class="mdi mdi-cursor-pointer" aria-hidden="true"></i></nobr>
-                                                and <nobr>zoom
-                                                    <i class="mdi mdi-magnify-plus" aria-hidden="true"></i></nobr>
-                                                the canvas. Additionally, you can import a saved NFA,
-                                                or even use one from a list of presets.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <button class="button orange-button" id="nfa-help-button" aria-haspopup="true"
+                                style="width:100%;">
+                                <i class="mdi mdi-36px mdi-help-circle-outline title-help-icon" aria-hidden="true"
+                                    style="color: #fff;"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -187,39 +223,11 @@
                             </h1>
                         </div>
                         <div class="column is-1">
-                            <div class="dropdown is-hoverable" style="width:100%;">
-                                <div class="dropdown-trigger" style="width:100%;">
-                                    <button class="button blue-button" aria-haspopup="true"
-                                        aria-controls="dropdown-menu" style="width:100%;">
-                                        <i class="mdi mdi-36px mdi-help-circle-outline title-help-icon"
-                                            aria-hidden="true" style="color: #fff;"></i>
-                                    </button>
-                                </div>
-                                <div class="dropdown-menu help-dropdown" role="menu">
-                                    <div class="dropdown-content">
-                                        <div class="dropdown-item">
-                                            <p>After building the NFA, you can then start converting it to a DFA. This
-                                                can be
-                                                done in <nobr>
-                                                    steps
-                                                    <i class="mdi mdi-skip-next" aria-hidden="true"></i></nobr>,
-                                                <nobr>animated
-                                                    <i class="mdi mdi-play" aria-hidden="true"></i></nobr>,
-                                                or all at <nobr>once
-                                                    <i class="mdi mdi-skip-forward" aria-hidden="true"></i></nobr>. You
-                                                can revisit previous actions by going backwards <nobr><i
-                                                        class="mdi mdi-skip-previous" aria-hidden="true"></i></nobr>.
-                                                You
-                                                may drag nodes around to
-                                                reorganize
-                                                the visual layout. However, node-editing features are disabled. To
-                                                change the DFA, you must
-                                                first
-                                                change the NFA.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <button class="button blue-button" id="dfa-help-button" aria-haspopup="true"
+                                style="width:100%;">
+                                <i class="mdi mdi-36px mdi-help-circle-outline title-help-icon" aria-hidden="true"
+                                    style="color: #fff;"></i>
+                            </button>
                         </div>
                     </div>
                 </div>

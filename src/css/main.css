@@ -157,3 +157,14 @@ canvas {
     font-family: 'Cambria Math', 'Cambria', serif;
     font-size: 18px;
 }
+
+.help-modal .modal-card .modal-card-body p {
+    text-align: justify;
+    margin-bottom: 15px;
+}
+
+.help-modal .modal-card .modal-card-body .subtitle {
+    font-size: 12px;
+    font-style: italic;
+    color: gray;
+}
