@@ -271,6 +271,41 @@ window.addEventListener('click', () => {
 })
 
 /**
+ * Open the NFA help modal on help button click
+ */
+document.querySelector('#nfa-help-button').addEventListener('click', () => {
+    document.querySelector('#nfa-help-modal').classList.add('is-active')
+    document.querySelectorAll('.modal-card-head').forEach(e => {
+        e.style.display = 'flex'
+    })
+})
+
+/**
+ * Open the DFA help modal on help button click
+ */
+document.querySelector('#dfa-help-button').addEventListener('click', () => {
+    document.querySelector('#dfa-help-modal').classList.add('is-active')
+    document.querySelectorAll('.modal-card-head').forEach(e => {
+        e.style.display = 'flex'
+    })
+})
+
+/**
+ * Close modals when the background is pressed
+ */
+document.querySelectorAll('.modal-close-background').forEach(e => e.addEventListener('click', e => {
+    e.target.parentElement.classList.toggle('is-active')
+}))
+
+/**
+ * Close modals when the close button is pressed
+ */
+document.querySelectorAll('.modal-close-button').forEach(e => e.addEventListener('click', e => {
+    e.preventDefault()
+    e.target.parentElement.parentElement.parentElement.classList.toggle('is-active')
+}))
+
+/**
  * Set the NFA to a preset configuration with the preset button
  */
 document.querySelector('#preset-1').addEventListener('click', () => {
