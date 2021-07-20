@@ -30,6 +30,22 @@ export default class NFAConverter {
     }
 
     /**
+     * Get the ID of the next step in the conversion process
+     *
+     * @returns {String} The ID of the next step to be performed
+     */
+    getNextStep () {
+        if (this.dfa === undefined) return 'initialize'
+        if (this.state_index < this.dfa.states.length) return 'add_transition'
+
+        if (!this.unreachableStates) { this.unreachableStates = this.getUnreachableStates() }
+        if (this.unreachableStates.length > 0) return 'delete_state'
+
+        if (!this.redundantStates) { this.redundantStates = this.getRedundantStates() }
+        if (this.redundantStates.length > 0) return 'merge_states'
+    }
+
+    /**
      * Get all the unreachable states of the converted DFA
      *
      * @param {FSA} tempDFA A temporary DFA to work off of
@@ -121,152 +137,174 @@ export default class NFAConverter {
     }
 
     /**
+     * The first step in the conversion process is to generate the initial DFA as the powerset
+     * of states in the NFA
+     *
+     * @returns {Array} The DFA after this step and the step that was performed
+     */
+    initializeDFA () {
+        const powerset = this.nfa.getPowersetOfStates()
+
+        // The new list of states is the powerset of the original states
+        const states = powerset.map(e => e.join(','))
+
+        // Build an empty map of transitions
+        // e.g. {1: {a: undefined, b: undefined}, 2: {a: undefined, b: undefined}}
+        const transitions = {}
+        for (const s of states) {
+            transitions[s] = {}
+            for (const e of this.nfa.alphabet) {
+                transitions[s][e] = undefined
+            }
+        }
+
+        // The new start state is the states that are reachable from the original start state
+        // e.g. '1' has an ε-transition to '3'; therefore, the new start state is '1,3'
+        const startState = [...new Set(this.nfa.getEpsilonClosureStates(this.nfa.startState))].sort().join(',')
+
+        // The new list of accept states are any states from the powerset with the original accept state in them
+        // e.g. '1' is the accept state; therefore, '1', '1,2', '1,3', and '1,2,3' are accept states
+        const acceptStates = powerset.filter(e => {
+            for (const s of this.nfa.acceptStates) { if (e.includes(s)) return true }
+
+            return false
+        }).map(e => e.join(','))
+
+        // For sanity, let's make sure the new start state is actually a member of the list of states
+        if (!states.includes(startState)) { throw new Error(`startState ${startState} is not a member of state powerset [${states}]`) }
+
+        this.dfa = new FSA(states, this.nfa.alphabet, transitions, startState, acceptStates)
+
+        const step = [this.dfa.clone(), {
+            type: 'initialize',
+            desc: 'Initialize the DFA'
+        }]
+        this.steps.push(step)
+        return step
+    }
+
+    /**
+     * Generate the next transition in the DFA by following the state_index and alphabet_index
+     *
+     * @param {Number} prevStateIndex The state_index prior to this step
+     * @param {Number} prevAlphabetIndex The alphabet_index prior to this step
+     *
+     * @returns {Array} The DFA after this step and the step that was performed
+     */
+    addNextTransition (prevStateIndex, prevAlphabetIndex) {
+        const state = this.dfa.states[this.state_index]
+        const symbol = this.dfa.alphabet[this.alphabet_index]
+
+        if (this.state_index === 0) {
+            // If we're at state index 0, we're at Ø. We need an infinite loopback on Ø.
+            this.dfa.transitions['Ø'][symbol] = ['Ø']
+        } else {
+            let reachableStates = []
+
+            // Get all reachable states for every individual state
+            // e.g. '1,2' is the current state; therefore, we need to concatenate the reachable
+            //      states from '1' with the reachable states from '2'
+            state.split(',').forEach(s => {
+                reachableStates = reachableStates.concat(this.nfa.getReachableStates(s, symbol))
+            })
+
+            // Remove any duplicates and sort the states alphabetically
+            reachableStates = [...new Set(reachableStates)].sort()
+
+            // Remove Ø if the state has other possibilites
+            if (reachableStates.some(e => e !== 'Ø')) {
+                reachableStates = reachableStates.filter(e => e !== 'Ø')
+            } else {
+                reachableStates = ['Ø']
+            }
+
+            // Update the transition
+            this.dfa.transitions[state][symbol] = [reachableStates.join(',')]
+        }
+
+        this.alphabet_index++
+
+        const toState = this.dfa.transitions[state][symbol].join(',')
+        const step = [this.dfa.clone(), {
+            type: 'add_transition',
+            desc: `Add a transition from {${state}} on input ${symbol} to {${toState}}`,
+            fromState: state,
+            toState: toState,
+            symbol: symbol,
+            prevStateIndex: prevStateIndex,
+            prevAlphabetIndex: prevAlphabetIndex
+        }]
+        this.steps.push(step)
+        return step
+    }
+
+    /**
+     * Delete the next unreachable state at the beginning of the unreachableStates array
+     *
+     * @returns {Array} The DFA after this step and the step that was performed
+     */
+    deleteNextUnreachableState () {
+        // Pop the first state from unreachableStates
+        const stateToDelete = this.unreachableStates.shift()
+
+        const step = [this.dfa.clone(), {
+            type: 'delete_state',
+            desc: `Delete unreachable state {${stateToDelete}}`,
+            state: stateToDelete,
+            transitions: this.dfa.transitions[stateToDelete] !== undefined ? Object.assign({}, this.dfa.transitions[stateToDelete]) : undefined
+        }]
+        this.steps.push(step)
+
+        this.dfa.removeState(stateToDelete)
+        return step
+    }
+
+    /**
+     * Merge the next redundant states at the beginning of the redundantStates array
+     *
+     * @returns {Array} The DFA after this step and the step that was performed
+     */
+    mergeNextRedundantStates () {
+        // Pop the first state from redundantStates
+        const pairToMerge = this.redundantStates.shift()
+
+        const step = [this.dfa.clone(), {
+            type: 'merge_states',
+            desc: `Merge redundant states {${pairToMerge[0]}} and {${pairToMerge[1]}}`,
+            states: pairToMerge
+        }]
+        this.steps.push(step)
+
+        this.dfa.mergeStates(pairToMerge[0], pairToMerge[1])
+        return step
+    }
+
+    /**
      * Perform a single step in the conversion from NFA to DFA
      *
      * @returns {Array} The new DFA and the step that was performed
      */
     stepForward () {
-        // If this is the first step, the DFA hasn't been initialized. Let's create the basis of the new DFA
-        if (this.dfa === undefined) {
-            const powerset = this.nfa.getPowersetOfStates()
-
-            // The new list of states is the powerset of the original states
-            const states = powerset.map(e => e.join(','))
-
-            // Build an empty map of transitions
-            // e.g. {1: {a: undefined, b: undefined}, 2: {a: undefined, b: undefined}}
-            const transitions = {}
-            for (const s of states) {
-                transitions[s] = {}
-                for (const e of this.nfa.alphabet) {
-                    transitions[s][e] = undefined
-                }
-            }
-
-            // The new start state is the states that are reachable from the original start state
-            // e.g. '1' has an ε-transition to '3'; therefore, the new start state is '1,3'
-            const startState = [...new Set(this.nfa.getEpsilonClosureStates(this.nfa.startState))].sort().join(',')
-
-            // The new list of accept states are any states from the powerset with the original accept state in them
-            // e.g. '1' is the accept state; therefore, '1', '1,2', '1,3', and '1,2,3' are accept states
-            const acceptStates = powerset.filter(e => {
-                for (const s of this.nfa.acceptStates) { if (e.includes(s)) return true }
-
-                return false
-            }).map(e => e.join(','))
-
-            // For sanity, let's make sure the new start state is actually a member of the list of states
-            if (!states.includes(startState)) { throw new Error(`startState ${startState} is not a member of state powerset [${states}]`) }
-
-            this.dfa = new FSA(states, this.nfa.alphabet, transitions, startState, acceptStates)
-
-            const step = [this.dfa.clone(), {
-                type: 'initialize',
-                desc: 'Initialize the DFA'
-            }]
-            this.steps.push(step)
-            return step
-        }
-
+        // Adjust alphabet and state indices for adding transitions
         const prevStateIndex = this.state_index
         const prevAlphabetIndex = this.alphabet_index
-
-        // If we've created all the transitions for the current state, move to the next state
-        if (this.alphabet_index === this.dfa.alphabet.length) {
+        if (this.dfa && this.alphabet_index === this.dfa.alphabet.length) {
             this.state_index++
             this.alphabet_index = 0
         }
 
-        // If we haven't generated all the transitions for all the states, generate the transitions for the current state at state_index
-        if (this.state_index < this.dfa.states.length) {
-            const state = this.dfa.states[this.state_index]
-            const symbol = this.dfa.alphabet[this.alphabet_index]
+        switch (this.getNextStep()) {
+        case 'initialize':
+            return this.initializeDFA()
 
-            if (this.state_index === 0) {
-                // If we're at state index 0, we're at Ø. We need an infinite loopback on Ø.
-                this.dfa.transitions['Ø'][symbol] = ['Ø']
-            } else {
-                let reachableStates = []
+        case 'add_transition':
+            return this.addNextTransition(prevStateIndex, prevAlphabetIndex)
 
-                // Get all reachable states for every individual state
-                // e.g. '1,2' is the current state; therefore, we need to concatenate the reachable
-                //      states from '1' with the reachable states from '2'
-                state.split(',').forEach(s => {
-                    reachableStates = reachableStates.concat(this.nfa.getReachableStates(s, symbol))
-                })
+        case 'delete_state':
+            return this.deleteNextUnreachableState()
 
-                // Remove any duplicates and sort the states alphabetically
-                reachableStates = [...new Set(reachableStates)].sort()
-
-                // Remove Ø if the state has other possibilites
-                if (reachableStates.some(e => e !== 'Ø')) {
-                    reachableStates = reachableStates.filter(e => e !== 'Ø')
-                } else {
-                    reachableStates = ['Ø']
-                }
-
-                // Update the transition
-                this.dfa.transitions[state][symbol] = [reachableStates.join(',')]
-            }
-
-            this.alphabet_index++
-
-            const toState = this.dfa.transitions[state][symbol].join(',')
-            const step = [this.dfa.clone(), {
-                type: 'add_transition',
-                desc: `Add a transition from {${state}} on input ${symbol} to {${toState}}`,
-                fromState: state,
-                toState: toState,
-                symbol: symbol,
-                prevStateIndex: prevStateIndex,
-                prevAlphabetIndex: prevAlphabetIndex
-            }]
-            this.steps.push(step)
-            return step
-        }
-
-        // At this point, we have generated all transitions
-        // Now we want to start deleting states that are unable to be reached
-        if (!this.unreachableStates) {
-            this.unreachableStates = this.getUnreachableStates()
-        }
-
-        // We've created the array of unreachable states. Now, let's delete them one-by-one
-        if (this.unreachableStates.length > 0) {
-            // Pop the first state from unreachableStates
-            const stateToDelete = this.unreachableStates.shift()
-
-            const step = [this.dfa.clone(), {
-                type: 'delete_state',
-                desc: `Delete unreachable state {${stateToDelete}}`,
-                state: stateToDelete,
-                transitions: this.dfa.transitions[stateToDelete] !== undefined ? Object.assign({}, this.dfa.transitions[stateToDelete]) : undefined
-            }]
-            this.steps.push(step)
-
-            this.dfa.removeState(stateToDelete)
-            return step
-        }
-
-        // After deleting unreachable states, we want to start deleting redundant states
-        if (!this.redundantStates) {
-            this.redundantStates = this.getRedundantStates()
-        }
-
-        // We've created the array of redundant states. Now, let's delete them one-by-one
-        if (this.redundantStates.length > 0) {
-            // Pop the first state from redundantStates
-            const pairToMerge = this.redundantStates.shift()
-
-            const step = [this.dfa.clone(), {
-                type: 'merge_states',
-                desc: `Merge redundant states {${pairToMerge[0]}} and {${pairToMerge[1]}}`,
-                states: pairToMerge
-            }]
-            this.steps.push(step)
-
-            this.dfa.mergeStates(pairToMerge[0], pairToMerge[1])
-            return step
+        case 'merge_states':
+            return this.mergeNextRedundantStates()
         }
 
         return [undefined, undefined]
