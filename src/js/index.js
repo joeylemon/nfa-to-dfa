@@ -1,11 +1,11 @@
 import NFAConverter from './fsa/nfa_converter.js'
 import DraggableCanvas from './canvas/draggable_canvas.js'
 import VisualFSA from './fsa/visual_fsa.js'
-import { keepHeightSynced, showWarning, downloadFile, selectFile } from './util/util.js'
+import * as utils from './util/util.js'
 import AnimatedNFAConverter from './fsa/animated_nfa_converter.js'
 import FSADescription from './elements/fsa_description.js'
 
-keepHeightSynced([['#dfa-title', '#nfa-title']])
+utils.keepHeightSynced([['#dfa-title', '#nfa-title']])
 
 const nfa = {
     visual: new VisualFSA(new DraggableCanvas('#nfa'), false),
@@ -72,17 +72,17 @@ function setEditButtonsState (enabled, onlyDFA) {
  */
 function validateNFA () {
     if (nfa.visual.fsa.states.length === 0) {
-        showWarning('You must add states to the NFA before performing the conversion.')
+        utils.showWarning('You must add states to the NFA before performing the conversion.')
         return false
     }
 
     if (!nfa.visual.fsa.startState || nfa.visual.fsa.startState === '') {
-        showWarning('You must set the start state in the NFA before performing the conversion.')
+        utils.showWarning('You must set the start state in the NFA before performing the conversion.')
         return false
     }
 
     if (nfa.visual.fsa.alphabet.length === 0) {
-        showWarning('You must add at least one transition to establish an alphabet.')
+        utils.showWarning('You must add at least one transition to establish an alphabet.')
         return false
     }
 
@@ -117,7 +117,7 @@ document.querySelector('#step-forward').addEventListener('click', () => {
             setEditButtonsState(false, true)
         }
     } catch (e) {
-        showWarning(e.message)
+        utils.showWarning(e.message)
         converter = undefined
         dfa.visual.reset()
     }
@@ -168,7 +168,7 @@ document.querySelector('#animate').addEventListener('click', () => {
         })
 
         animatedConverter.play(err => {
-            showWarning(err.message)
+            utils.showWarning(err.message)
             converter = undefined
             animatedConverter = undefined
             dfa.visual.reset()
@@ -205,7 +205,7 @@ document.querySelector('#complete').addEventListener('click', () => {
 
         setEditButtonsState(false, true)
     } catch (e) {
-        showWarning(e.message)
+        utils.showWarning(e.message)
         converter = undefined
         dfa.visual.reset()
     }
@@ -239,18 +239,18 @@ document.querySelector('#nfa-reset').addEventListener('click', () => {
  * Download the NFA to a file with the export button
  */
 document.querySelector('#export').addEventListener('click', () => {
-    downloadFile('nfa.json', nfa.visual.toJSON())
+    utils.downloadFile('nfa.json', nfa.visual.toJSON())
 })
 
 /**
  * Upload a saved NFA file with the import button
  */
 document.querySelector('#import').addEventListener('click', () => {
-    selectFile().then(contents => {
+    utils.selectFile().then(contents => {
         try {
             nfa.visual.fromJSON(contents)
         } catch (e) {
-            showWarning('The given file is improperly formatted.')
+            utils.showWarning('The given file is improperly formatted.')
         }
     })
 })
@@ -278,6 +278,7 @@ document.querySelector('#nfa-help-button').addEventListener('click', () => {
     document.querySelectorAll('.modal-card-head').forEach(e => {
         e.style.display = 'flex'
     })
+    utils.playVideo('#nfa-help-video')
 })
 
 /**
@@ -288,6 +289,7 @@ document.querySelector('#dfa-help-button').addEventListener('click', () => {
     document.querySelectorAll('.modal-card-head').forEach(e => {
         e.style.display = 'flex'
     })
+    utils.playVideo('#dfa-help-video')
 })
 
 /**
@@ -295,6 +297,7 @@ document.querySelector('#dfa-help-button').addEventListener('click', () => {
  */
 document.querySelectorAll('.modal-close-background').forEach(e => e.addEventListener('click', e => {
     e.target.parentElement.classList.toggle('is-active')
+    utils.pauseAllVideos()
 }))
 
 /**
@@ -303,6 +306,7 @@ document.querySelectorAll('.modal-close-background').forEach(e => e.addEventList
 document.querySelectorAll('.modal-close-button').forEach(e => e.addEventListener('click', e => {
     e.preventDefault()
     e.target.parentElement.parentElement.parentElement.classList.toggle('is-active')
+    utils.pauseAllVideos()
 }))
 
 /**

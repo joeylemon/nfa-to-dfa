@@ -83,3 +83,15 @@ export function selectFile () {
         input.click()
     })
 }
+
+export function playVideo (selector) {
+    const video = document.querySelector(selector)
+    video.currentTime = 0
+    video.play()
+}
+
+export function pauseAllVideos () {
+    document.querySelectorAll('video').forEach(e => {
+        if (!e.paused) e.pause()
+    })
+}
