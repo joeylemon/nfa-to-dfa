@@ -28,7 +28,7 @@ This tool is used to convert [non-deterministic finite automata](https://en.wiki
 
 ### Prerequisites
 
-You must have [Node.js and npm](https://nodejs.org/en/) installed to run the application locally.
+You must have [Node.js v12.19.0+ and npm](https://nodejs.org/en/) installed to run the application locally. Node versions below v12.19.0 are unable to run the unit tests.
 
 ### Running Application
 
