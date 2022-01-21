@@ -66,18 +66,25 @@
             </header>
             <section class="modal-card-body">
                 <p>Start building the NFA by <nobr>right-clicking
-                        <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
+                        <i class="mdi mdi-mouse" aria-hidden="true"></i>
+                    </nobr>
                     on the canvas to create a node. Then, <nobr>right-click
-                        <i class="mdi mdi-mouse" aria-hidden="true"></i></nobr>
+                        <i class="mdi mdi-mouse" aria-hidden="true"></i>
+                    </nobr>
                     on the new node to create a transition, edit its properties, or delete
                     it.
-                    You can also <nobr>
+                    You can <nobr>
                         pan
-                        <i class="mdi mdi-cursor-pointer" aria-hidden="true"></i></nobr>
-                    and <nobr>zoom
-                        <i class="mdi mdi-magnify-plus" aria-hidden="true"></i></nobr>
-                    the canvas. Additionally, you can import a saved NFA,
-                    or even use one from a list of presets.</p>
+                        <i class="mdi mdi-cursor-pointer" aria-hidden="true"></i>
+                    </nobr>
+                    the canvas by clicking and dragging the mouse. You can <nobr>zoom
+                        <i class="mdi mdi-magnify-plus" aria-hidden="true"></i>
+                    </nobr>
+                    the canvas by hovering the mouse over the canvas and scrolling up or down. Additionally, you can
+                    import a saved NFA or use one from a list of presets.</p>
+                <p>When creating a transition between nodes, you will be prompted to press a key on your keyboard to
+                    represent the transition symbol. You can use any key, including uppercase values. However, to create
+                    an epsilon (ε) transition, you must press the <img src="src/img/e_key.png" style="height: 15px;" alt="E" /> key on your keyboard.</p>
                 <video id="nfa-help-video" loop muted playsinline>
                     <source src="src/img/nfa-help.mp4" type="video/mp4" />
                     <source src="src/img/nfa-help.webm" type="video/webm" />
@@ -99,11 +106,14 @@
                     can be
                     done in <nobr>
                         steps
-                        <i class="mdi mdi-skip-next" aria-hidden="true"></i></nobr>,
+                        <i class="mdi mdi-skip-next" aria-hidden="true"></i>
+                    </nobr>,
                     <nobr>animated
-                        <i class="mdi mdi-play" aria-hidden="true"></i></nobr>,
+                        <i class="mdi mdi-play" aria-hidden="true"></i>
+                    </nobr>,
                     or all at <nobr>once
-                        <i class="mdi mdi-skip-forward" aria-hidden="true"></i></nobr>. You
+                        <i class="mdi mdi-skip-forward" aria-hidden="true"></i>
+                    </nobr>. You
                     can revisit previous actions by going backwards <nobr><i class="mdi mdi-skip-previous"
                             aria-hidden="true"></i></nobr>.
                     You
@@ -112,7 +122,8 @@
                     the visual layout. However, node-editing features are disabled. To
                     change the DFA, you must
                     first
-                    change the NFA.</p>
+                    change the NFA.
+                </p>
                 <video id="dfa-help-video" loop muted playsinline>
                     <source src="src/img/dfa-help.mp4" type="video/mp4" />
                     <source src="src/img/dfa-help.webm" type="video/webm" />
@@ -136,7 +147,7 @@
                         </div>
                         <div class="column is-1">
                             <button class="button orange-button" id="nfa-help-button" aria-haspopup="true"
-                                style="width:100%;">
+                                style="width:100%;" title="View instructions on how to use the NFA builder">
                                 <i class="mdi mdi-36px mdi-help-circle-outline title-help-icon" aria-hidden="true"
                                     style="color: #fff;"></i>
                             </button>
@@ -147,12 +158,14 @@
             <div class="box">
                 <div class="columns">
                     <div class="column">
-                        <button class="button orange-button" id="import" style="width:100%;">
+                        <button class="button orange-button" id="import" style="width:100%;"
+                            title="Import a saved NFA JSON file">
                             <i class="mdi mdi-upload" aria-hidden="true"></i>Import
                         </button>
                     </div>
                     <div class="column">
-                        <button class="button orange-button" id="export" style="width:100%;" disabled>
+                        <button class="button orange-button" id="export" style="width:100%;"
+                            title="Export the NFA to a JSON file" disabled>
                             <i class="mdi mdi-download" aria-hidden="true"></i>Export
                         </button>
                     </div>
@@ -160,7 +173,7 @@
                         <div class="dropdown" id="preset-dropdown" style="width:100%;">
                             <div class="dropdown-trigger" style="width:100%;">
                                 <button class="button orange-button" aria-haspopup="true" aria-controls="dropdown-menu"
-                                    style="width:100%;">
+                                    style="width:100%;" title="Use a predefined example NFA">
                                     <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>Presets
                                 </button>
                             </div>
@@ -180,7 +193,8 @@
                         </div>
                     </div>
                     <div class="column is-1">
-                        <button class="button orange-button" id="nfa-reset" style="width:100%;" disabled>
+                        <button class="button orange-button" id="nfa-reset" style="width:100%;"
+                            title="Reset both canvases and start from scratch" disabled>
                             <i class="mdi mdi-replay" aria-hidden="true" style="margin-right: -5px;"></i>
                         </button>
                     </div>
@@ -230,7 +244,7 @@
                         </div>
                         <div class="column is-1">
                             <button class="button blue-button" id="dfa-help-button" aria-haspopup="true"
-                                style="width:100%;">
+                                style="width:100%;" title="View instructions on how to use the DFA converter">
                                 <i class="mdi mdi-36px mdi-help-circle-outline title-help-icon" aria-hidden="true"
                                     style="color: #fff;"></i>
                             </button>
@@ -241,28 +255,32 @@
             <div class="box">
                 <div class="columns">
                     <div class="column">
-                        <button class="button blue-button" id="step-backward" style="width:100%;" disabled>
+                        <button class="button blue-button" id="step-backward" style="width:100%;"
+                            title="Go to the previous step in the conversion process" disabled>
                             <i class="mdi mdi-skip-previous" aria-hidden="true"></i>Backward
                         </button>
                     </div>
                     <div class="column">
                         <button class="button blue-button conversion-button" id="step-forward" style="width:100%;"
-                            disabled>
+                            title="Go to the next step in the conversion process" disabled>
                             <i class="mdi mdi-skip-next" aria-hidden="true"></i>Forward
                         </button>
                     </div>
                     <div class="column">
-                        <button class="button blue-button conversion-button" id="animate" style="width:100%;" disabled>
+                        <button class="button blue-button conversion-button" id="animate" style="width:100%;"
+                            title="Automatically walk through the conversion process" disabled>
                             <i class="mdi mdi-play" aria-hidden="true"></i>Animate
                         </button>
                     </div>
                     <div class="column">
-                        <button class="button blue-button conversion-button" id="complete" style="width:100%;" disabled>
+                        <button class="button blue-button conversion-button" id="complete" style="width:100%;"
+                            title="Perform the conversion completely and view the final result" disabled>
                             <i class="mdi mdi-skip-forward" aria-hidden="true"></i>Complete
                         </button>
                     </div>
                     <div class="column is-1">
-                        <button class="button blue-button" id="dfa-reset" style="width:100%;" disabled>
+                        <button class="button blue-button" id="dfa-reset" style="width:100%;"
+                            title="Reset the conversion process" disabled>
                             <i class="mdi mdi-replay" aria-hidden="true" style="margin-right: -5px;"></i>
                         </button>
                     </div>
