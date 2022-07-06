@@ -3,10 +3,6 @@
 
 https://joeylemon.github.io/nfa-to-dfa/
 
-_Originally created by Alex Klibisz and Connor Minton, COSC 312, Spring 2015, University of Tennessee, Knoxville._
-
-_Rewritten and enhanced by Camille Williford, Joey Lemon, and Lauren Proctor, COSC 493, Fall 2021, University of Tennessee, Knoxville._
-
 ## Overview
 
 <img alt="Screenshot of the main application interface" src="https://user-images.githubusercontent.com/8845512/125208072-67ba5500-e25e-11eb-8b6e-c798ece6caf1.png">
@@ -24,7 +20,11 @@ This tool is used to convert [non-deterministic finite automata](https://en.wiki
 
 ![image](https://user-images.githubusercontent.com/8845512/121960347-f907db80-cd33-11eb-9ec1-f249496ae452.png)
 
-## Getting Started
+_Originally created by [Alex Klibisz](https://github.com/alexklibisz) and [Connor Minton](https://github.com/c-minton), COSC 312, Spring 2015, University of Tennessee, Knoxville._
+
+_Rewritten and enhanced by [Joey Lemon](https://github.com/joeylemon) and [Camille Williford](https://github.com/awillif), COSC 493, Fall 2021, University of Tennessee, Knoxville._
+
+## Contributing
 
 ### Prerequisites
 
@@ -66,8 +66,6 @@ Running this script should give an output similar to below:
 ```
 
 You can now navigate to `http://localhost:8000` in the browser to view the application. The website will automatically reload upon changes to the code.
-
-## Contributing
 
 ### Linting
 Prior to adding changes to the repository, you should run the linter on the code to ensure there are no syntax errors and to maintain a uniform coding style:
